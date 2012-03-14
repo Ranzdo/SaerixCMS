@@ -21,7 +21,7 @@ public class RootHandler implements HttpHandler {
 			return;
 		}
 		
-		String host = ahost.get(0);
+		String host = ahost.get(0).split(":")[0];
 		
 		
 		
