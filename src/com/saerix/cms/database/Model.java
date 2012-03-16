@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class Model {
-	public Database database;
+	Database database;
 	private TableConf tableConfig;
 	private String primaryKeyColumn;
 	
@@ -28,12 +28,12 @@ public class Model {
 	}
 	
 	Model(String tableName) {
-		tableConfig = new TableConf(tableName, false, Row.class);
+		tableConfig = new TableConf(tableName, Row.class);
 	}
 	
-	public void setup() {
+	void setup() {
 		try {
-			ResultSet keys = database.con.getMetaData().getPrimaryKeys(null, null, getTableName());
+			ResultSet keys = database.getConnection().getMetaData().getPrimaryKeys(null, null, getTableName());
 			if(keys.first())
 				primaryKeyColumn = keys.getString("COLUMN_NAME");
 			else
@@ -45,7 +45,7 @@ public class Model {
 	}
 	
 	public String getTableName() {
-		return database.getPrefix()+tableConfig.getTableName();
+		return Database.mysql_prefix+tableConfig.getTableName();
 	}
 	
 	public String getPrimaryKeyColumn() {
@@ -53,13 +53,12 @@ public class Model {
 	}
 	
 	public PreparedStatement prepareStatement(String query) throws SQLException {
-		PreparedStatement ps = database.con.prepareStatement(query);
-		ps.closeOnCompletion();
+		PreparedStatement ps = database.getConnection().prepareStatement(query);
 		return ps;
 	}
 	
 	public Connection getConnection() {
-		return database.con;
+		return database.getConnection();
 	}
 	
 	protected Constructor<? extends Row> getRowConstructor() {
@@ -94,7 +93,7 @@ public class Model {
 			}
 		}
 		query = query.concat(")");
-		PreparedStatement ps = database.con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement ps = database.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 		counter = 1;
 		for(Entry<String, Object> entry : values.entrySet()) {
 			ps.setObject(counter, entry.getValue());

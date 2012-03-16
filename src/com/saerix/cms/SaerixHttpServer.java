@@ -19,7 +19,7 @@ public class SaerixHttpServer  {
 	    HttpContext pagecontext = server.createContext("/", new RootHandler());
 	    pagecontext.getFilters().add(new ParameterFilter());
 	    
-	    server.setExecutor(Executors.newCachedThreadPool());
+	    server.setExecutor(SaerixCMS.executor());
 	    server.start();
 	}
 	

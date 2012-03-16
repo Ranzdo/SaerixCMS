@@ -3,66 +3,87 @@ package com.saerix.cms.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import com.saerix.cms.SaerixCMS;
+import com.saerix.cms.database.ModelTable.ModelRow;
+
 public final class Database {
-	public static Database database;
+	public static final String mysql_prefix = SaerixCMS.getProperties().getProperty("mysql_prefix");
 	
-	public static void initiate(String mysql_hostname, int mysql_port,
-			String mysql_username, String mysql_password,
-			String mysql_database, String mysql_prefix) throws SQLException {
-		
-		if(database == null)
-			database = new Database(mysql_hostname, mysql_port, mysql_username, mysql_password, mysql_database, mysql_prefix);
+	private static Class<?>[] baseModels = {
+		ModelTable.class,
+		TemplateTable.class
+	};
+	
+	private static Map<Thread, Database> databaseConnections = Collections.synchronizedMap(new HashMap<Thread, Database>());
+	
+	public static synchronized Model getTable(String tableName) {
+		Database database = databaseConnections.get(Thread.currentThread());
+		if(database == null) {
+			//TODO If it can't connect to database, what to do?
+			try {
+				database = new Database();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			databaseConnections.put(Thread.currentThread(), database);
+			database.reloadModels();
+		}
+		return database.getModel(tableName);
 	}
 	
-	public static Model getTable(String tableName) {
-		return database._getTable(tableName);
-	}
 	
-	Connection con;
+	private Map<String, Class<? extends Model>> mappedModels = new HashMap<String, Class<? extends Model>>();
 	
-	public HashMap<String, Model> tables = new HashMap<String, Model>();
+	private Connection con;
 	
-	private String mysql_hostname;
-	private int mysql_port;
-	private String mysql_username;
-	private String mysql_password;
-	private String mysql_database;
-	private String mysql_prefix;
-	
-	public Database(String mysql_hostname, int mysql_port,
-			String mysql_username, String mysql_password,
-			String mysql_database, String mysql_prefix) throws SQLException {
-		this.mysql_hostname = mysql_hostname;
-		this.mysql_port = mysql_port;
-		this.mysql_username = mysql_username;
-		this.mysql_password = mysql_password;
-		this.mysql_database = mysql_database;
-		this.mysql_prefix = mysql_prefix;
-	
-		connect();
-	}
-	
-	private void connect() throws SQLException {
-		String connectionURL = "jdbc:mysql://"+mysql_hostname+":"+mysql_port+"/"+mysql_database;
+	public Database() throws SQLException {
+		Properties properties = SaerixCMS.getProperties();
+		String connectionURL = "jdbc:mysql://"+properties.getProperty("mysql_hostname")+":"+properties.getProperty("mysql_port")+"/"+properties.getProperty("mysql_database");
 		Properties connProperties = new java.util.Properties();
-        connProperties.put("user", mysql_username);
-        connProperties.put("password", mysql_password);
+        connProperties.put("user", properties.getProperty("mysql_username"));
+        connProperties.put("password", properties.getProperty("mysql_password"));
         connProperties.put("autoReconnect", "true");
         connProperties.put("maxReconnects", "3");
         con = DriverManager.getConnection(connectionURL, connProperties);
 	}
 	
-	public String getPrefix() {
-		return mysql_prefix;
+	public Model getModel(String tableName) {
+		Class<? extends Model> clazz = mappedModels.get(tableName);
+		Model model = null;
+		if(clazz != null) {
+			try {
+				model = clazz.newInstance();
+			}		
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else
+			model = new Model(tableName);
+		model.database = this;
+		model.setup();
+		return model;
 	}
 	
-	public Model _getTable(String tableName) {
-		Model table = tables.get(tableName);
-		if(table == null)
-			throw new IllegalArgumentException("There is no table with the name "+tableName);
-		return table;
+	@SuppressWarnings("unchecked")
+	public void reloadModels() {
+		mappedModels.clear();
+		
+		for(Class<?> clazz : baseModels)
+			mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), (Class<? extends Model>) clazz);
+		
+		for(ModelRow row : ((ModelTable)Database.getTable("models")).getAllModels()) {
+			Class<? extends Model> clazz = row.loadModelClass();
+			mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), clazz);
+		}
+	}
+	
+	public Connection getConnection() {
+		return con;
 	}
 }

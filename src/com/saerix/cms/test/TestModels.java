@@ -1,22 +1,21 @@
 package com.saerix.cms.test;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 
+import com.saerix.cms.SaerixCMS;
 import com.saerix.cms.database.Database;
-import com.saerix.cms.database.ModelTable;
-import com.saerix.cms.database.ModelTable.ModelRow;
+import com.saerix.cms.database.TemplateTable;
 
 public class TestModels {
 	public static void main(String[] args) throws SQLException {
-		Database.initiate("127.0.0.1", 3306, "root", "", "saerixcms", "cms_");
-		Database.database.tables.put("models", new ModelTable());
-		Database.getTable("models").database = Database.database;
-		Database.getTable("models").setup();
+		SaerixCMS.getProperties().put("mysql_hostname", "127.0.0.1");
+		SaerixCMS.getProperties().put("mysql_port", "3306");
+		SaerixCMS.getProperties().put("mysql_username", "root");
+		SaerixCMS.getProperties().put("mysql_password", "");
+		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
+		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
 		
-		((ModelTable)Database.getTable("models")).getRow(2).update("model_name", "varför?!");
-		
-		System.out.print(((ModelTable)Database.getTable("models")).getRow(2));
+		System.out.print(((TemplateTable)Database.getTable("templates")).getTemplate("hahaha").toString());
 		
 	}
 }
