@@ -6,10 +6,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.saerix.cms.SaerixCMS;
-
 public final class Database {
-	private static Database database;
+	public static Database database;
 	
 	public static void initiate(String mysql_hostname, int mysql_port,
 			String mysql_username, String mysql_password,
@@ -25,7 +23,7 @@ public final class Database {
 	
 	Connection con;
 	
-	private HashMap<String, Model> tables = new HashMap<String, Model>();
+	public HashMap<String, Model> tables = new HashMap<String, Model>();
 	
 	private String mysql_hostname;
 	private int mysql_port;
@@ -43,7 +41,7 @@ public final class Database {
 		this.mysql_password = mysql_password;
 		this.mysql_database = mysql_database;
 		this.mysql_prefix = mysql_prefix;
-		
+	
 		connect();
 	}
 	

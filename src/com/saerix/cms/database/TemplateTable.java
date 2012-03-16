@@ -12,7 +12,6 @@ public class TemplateTable extends Model {
 		}
 	}
 	
-	
 	public TemplateRow getTemplate(String templateName) throws SQLException {
 		PreparedStatement p = prepareStatement("SELECT * FROM "+getTableName()+" WHERE template_name = ?");
 		p.setString(1, templateName);
@@ -22,5 +21,4 @@ public class TemplateTable extends Model {
 		else
 			return null;
 	}
-	
 }
