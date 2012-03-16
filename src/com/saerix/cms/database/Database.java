@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 
+import com.saerix.cms.SaerixCMS;
+
 public final class Database {
 	private static Database database;
 	
@@ -17,13 +19,13 @@ public final class Database {
 			database = new Database(mysql_hostname, mysql_port, mysql_username, mysql_password, mysql_database, mysql_prefix);
 	}
 	
-	public static Table getTable(String tableName) {
+	public static Model getTable(String tableName) {
 		return database._getTable(tableName);
 	}
 	
 	Connection con;
 	
-	private HashMap<String, Table> tables = new HashMap<String, Table>();
+	private HashMap<String, Model> tables = new HashMap<String, Model>();
 	
 	private String mysql_hostname;
 	private int mysql_port;
@@ -59,8 +61,8 @@ public final class Database {
 		return mysql_prefix;
 	}
 	
-	public Table _getTable(String tableName) {
-		Table table = tables.get(tableName);
+	public Model _getTable(String tableName) {
+		Model table = tables.get(tableName);
 		if(table == null)
 			throw new IllegalArgumentException("There is no table with the name "+tableName);
 		return table;
