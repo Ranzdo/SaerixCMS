@@ -12,13 +12,19 @@ public class TemplateTable extends Model {
 		}
 	}
 	
-	public TemplateRow getTemplate(String templateName) throws SQLException {
-		PreparedStatement p = prepareStatement("SELECT * FROM "+getTableName()+" WHERE template_name = ?");
-		p.setString(1, templateName);
-		ResultSet rs = p.executeQuery();
-		if(rs.first())
-			return new TemplateRow(rs);
-		else
+	public TemplateRow getTemplate(String templateName) {
+		try {
+			PreparedStatement p = prepareStatement("SELECT * FROM "+getTableName()+" WHERE template_name = ?");
+			p.setString(1, templateName);
+			ResultSet rs = p.executeQuery();
+			if(rs.first())
+				return new TemplateRow(rs);
+			else
+				return null;
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
 			return null;
+		}
 	}
 }

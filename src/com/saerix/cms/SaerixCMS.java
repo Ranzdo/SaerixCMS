@@ -29,7 +29,13 @@ public class SaerixCMS {
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		properties.load(new FileInputStream("config"));
+		//properties.load(new FileInputStream("config"));
+		SaerixCMS.getProperties().put("mysql_hostname", "127.0.0.1");
+		SaerixCMS.getProperties().put("mysql_port", "3306");
+		SaerixCMS.getProperties().put("mysql_username", "root");
+		SaerixCMS.getProperties().put("mysql_password", "");
+		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
+		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
 		try {
 			new SaerixCMS();
 		} catch (IOException e) {
