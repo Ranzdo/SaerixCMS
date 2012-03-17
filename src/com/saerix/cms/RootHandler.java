@@ -1,10 +1,16 @@
 package com.saerix.cms;
 
+import groovy.lang.GroovyObject;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.codehaus.groovy.control.CompilationFailedException;
+import org.codehaus.groovy.tools.GroovyClass;
+
 import com.saerix.cms.database.Database;
+import com.saerix.cms.database.Row;
 import com.saerix.cms.database.TemplateTable;
 import com.saerix.cms.util.HttpError;
 import com.sun.net.httpserver.HttpExchange;
@@ -29,7 +35,31 @@ public class RootHandler implements HttpHandler {
 		handle.sendResponseHeaders(200, 0);
 		
 		OutputStream os = handle.getResponseBody();
-		os.write(((TemplateTable)Database.getTable("templates")).getTemplate("hahaha").toString().getBytes());
+		Class<?> clazz = null;
+		try {
+			clazz = SaerixCMS.getGroovyClassLoader().parseClass("import com.saerix.cms.database.*; class Test { def test() {def model = Database.getTable(\"users\"); model.updateUsername(\"Ranzdo\", \"Taerix\"); }}");
+		}
+		catch (CompilationFailedException e) {
+			e.printStackTrace();
+		}
+		
+		GroovyObject groovyObject = null;
+		try {
+			groovyObject = (GroovyObject) clazz.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		Object[] args = {};
+		try {
+			Row row = (Row) groovyObject.invokeMethod("test", args);
+			os.write(row.toString().getBytes());
+		}
+		catch (RuntimeException e) {
+			e.printStackTrace();
+		}
 		os.flush();
 		os.close();
 		

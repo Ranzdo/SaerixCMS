@@ -1,6 +1,5 @@
 package com.saerix.cms.database;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -13,11 +12,7 @@ public class ModelTable extends Model {
 	private static final String COLUMN_MODEL_NAME = "model_name";
 	private static final String COLUMN_MODEL_CONTENT = "model_content";
 	
-	public class ModelRow extends Row {
-		public ModelRow(ResultSet set) throws SQLException {
-			super(set);
-		}
-		
+	public static class ModelRow extends Row {
 		@SuppressWarnings("unchecked")
 		public Class<? extends Model> loadModelClass(boolean reload) {
 			if(!reload) {
@@ -38,23 +33,21 @@ public class ModelTable extends Model {
 		
 		@SuppressWarnings("unchecked")
 		private Class<? extends Model> reload() {
-			Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass((String)getValue(COLUMN_MODEL_CONTENT), "models."+(String)getValue(COLUMN_MODEL_NAME));
+			Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass((String)getValue(COLUMN_MODEL_CONTENT));
 			if(clazz.getSuperclass() != Model.class)
 				throw new InvalidSuperClass(clazz.getSuperclass(), Model.class, clazz);
 			
 			return (Class<? extends Model>) clazz;
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<ModelRow> getAllModels() {
-		try{
-			return (List<ModelRow>) getAllRows();
-		}
-		catch(Exception e) {
+		try {
+			return (List<ModelRow>) get().getRows();
+		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
 }

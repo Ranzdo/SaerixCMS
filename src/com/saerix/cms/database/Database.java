@@ -79,7 +79,7 @@ public final class Database {
 			}
 		}
 		else
-			model = new Model(tableName);
+			throw new TableNotFound(tableName);
 		model.database = this;
 		model.setup();
 		return model;

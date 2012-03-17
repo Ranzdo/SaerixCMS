@@ -4,12 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@TableConfig(name = "templates")
+@TableConfig(name = "templates", rowclass = TemplateTable.TemplateRow.class)
 public class TemplateTable extends Model {
-	public class TemplateRow extends Row {
-		public TemplateRow(ResultSet set) throws SQLException {
-			super(set);
-		}
+	public static class TemplateRow extends Row {
+		
 	}
 	
 	public TemplateRow getTemplate(String templateName) {
@@ -18,7 +16,7 @@ public class TemplateTable extends Model {
 			p.setString(1, templateName);
 			ResultSet rs = p.executeQuery();
 			if(rs.first())
-				return new TemplateRow(rs);
+				return (TemplateRow) new TemplateRow().set(rs);
 			else
 				return null;
 		}
