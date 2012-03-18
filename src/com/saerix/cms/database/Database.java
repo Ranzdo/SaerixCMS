@@ -12,8 +12,10 @@ import java.util.Properties;
 
 import com.saerix.cms.SaerixCMS;
 import com.saerix.cms.database.basemodels.ControllerModel;
+import com.saerix.cms.database.basemodels.HostModel;
 import com.saerix.cms.database.basemodels.ModelModel;
 import com.saerix.cms.database.basemodels.RouteModel;
+import com.saerix.cms.database.basemodels.UserModel;
 import com.saerix.cms.database.basemodels.ViewModel;
 import com.saerix.cms.database.basemodels.ModelModel.ModelRow;
 
@@ -24,7 +26,9 @@ public final class Database {
 		ModelModel.class,
 		ViewModel.class,
 		RouteModel.class,
-		ControllerModel.class
+		ControllerModel.class,
+		UserModel.class,
+		HostModel.class
 	};
 	
 	private static Map<Thread, Database> databaseConnections = Collections.synchronizedMap(new HashMap<Thread, Database>());
