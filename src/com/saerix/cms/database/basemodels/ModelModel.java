@@ -1,12 +1,16 @@
-package com.saerix.cms.database;
+package com.saerix.cms.database.basemodels;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import com.saerix.cms.SaerixCMS;
+import com.saerix.cms.database.InvalidSuperClass;
+import com.saerix.cms.database.Model;
+import com.saerix.cms.database.Row;
+import com.saerix.cms.database.TableConfig;
 
-@TableConfig(name = "models", rowclass = ModelTable.ModelRow.class)
-public class ModelTable extends Model {
+@TableConfig(name = "models", rowclass = ModelModel.ModelRow.class)
+public class ModelModel extends Model {
 	@SuppressWarnings("unused")
 	private static final String COLUMN_MODEL_ID = "model_id";
 	private static final String COLUMN_MODEL_NAME = "model_name";

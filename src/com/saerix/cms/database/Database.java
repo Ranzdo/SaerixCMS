@@ -11,14 +11,20 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import com.saerix.cms.SaerixCMS;
-import com.saerix.cms.database.ModelTable.ModelRow;
+import com.saerix.cms.database.basemodels.ControllerModel;
+import com.saerix.cms.database.basemodels.ModelModel;
+import com.saerix.cms.database.basemodels.RouteModel;
+import com.saerix.cms.database.basemodels.ViewModel;
+import com.saerix.cms.database.basemodels.ModelModel.ModelRow;
 
 public final class Database {
 	public static final String mysql_prefix = SaerixCMS.getProperties().getProperty("mysql_prefix");
 	
 	private static Class<?>[] baseModels = {
-		ModelTable.class,
-		TemplateTable.class
+		ModelModel.class,
+		ViewModel.class,
+		RouteModel.class,
+		ControllerModel.class
 	};
 	
 	private static Map<Thread, Database> databaseConnections = Collections.synchronizedMap(new HashMap<Thread, Database>());
@@ -93,7 +99,7 @@ public final class Database {
 		for(Class<?> clazz : baseModels)
 			mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), (Class<? extends Model>) clazz);
 		
-		for(ModelRow row : ((ModelTable)Database.getTable("models")).getAllModels()) {
+		for(ModelRow row : ((ModelModel)Database.getTable("models")).getAllModels()) {
 			Class<? extends Model> clazz = row.loadModelClass();
 			mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), clazz);
 		}

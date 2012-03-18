@@ -2,8 +2,6 @@ package com.saerix.cms;
 
 import groovy.lang.GroovyClassLoader;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
@@ -36,6 +34,8 @@ public class SaerixCMS {
 		SaerixCMS.getProperties().put("mysql_password", "");
 		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
 		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
+		SaerixCMS.getProperties().put("port", "80");
+		SaerixCMS.getProperties().put("secure_port", "443");
 		try {
 			new SaerixCMS();
 		} catch (IOException e) {
@@ -46,6 +46,6 @@ public class SaerixCMS {
 	private SaerixHttpServer server;
 	
 	public SaerixCMS() throws IOException {
-		server = new SaerixHttpServer(8000);
+		server = new SaerixHttpServer();
 	}
 }

@@ -9,6 +9,5 @@ import java.lang.annotation.ElementType;
 @Target(ElementType.TYPE)
 public @interface TableConfig {
 	String name();
-
 	Class<? extends Row> rowclass() default Row.class;
 }

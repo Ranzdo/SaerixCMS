@@ -9,6 +9,12 @@ import java.util.Map.Entry;
 public class Row {
 	private HashMap<String, Object> values = new HashMap<String, Object>();
 	
+	public Row() {}
+	
+	protected Row(ResultSet set) throws SQLException {
+		set(set);
+	}
+	
 	protected Row set(ResultSet set) throws SQLException {
 		ResultSetMetaData meta =  set.getMetaData();
 		for(int i = 1; i <= meta.getColumnCount();i++){

@@ -67,7 +67,7 @@ public abstract class Model {
 	}
 	
 	/**
-	 * @return The set class to make row objects of.
+	 * @return The class to make row objects of.
 	 */
 	protected Class<? extends Row> getRowClass() {
 		return tableConfig.rowclass();
@@ -80,11 +80,11 @@ public abstract class Model {
 	private ArrayList<WhereAgrument> where = new ArrayList<WhereAgrument>();
 	private String where_mod = "AND";
 	
-	public void where(String column, Object value) {
+	protected void where(String column, Object value) {
 		where.add(new WhereAgrument(column, value));
 	}
 	
-	public void where_mod(String where_mod) {
+	protected void where_mod(String where_mod) {
 		this.where_mod = where_mod;
 	}
 	
@@ -105,7 +105,7 @@ public abstract class Model {
 	
 	//Limit rows
 	private int limit = -1;
-	public void limit(int limit) {
+	protected void limit(int limit) {
 		this.limit = limit;
 	}
 	
@@ -119,7 +119,7 @@ public abstract class Model {
 	//Order settnings
 	private String orderByColumn = null;
 	private String order = null;
-	public void orderby(String column, String order) {
+	protected void orderby(String column, String order) {
 		this.orderByColumn = column;
 		this.order = order;
 	}
@@ -142,7 +142,7 @@ public abstract class Model {
 	
 	
 	//These executes and despends on the calls above
-	public int update(Map<String, Object> values) throws SQLException {
+	protected int update(Map<String, Object> values) throws SQLException {
 		ArrayList<Object> ovalues = new ArrayList<Object>();
 		StringBuilder sql = new StringBuilder("UPDATE "+getTableName()+" SET ");
 		int counter = 1;
@@ -176,7 +176,7 @@ public abstract class Model {
 		return result;
 	}
 
-	public int remove() throws SQLException {
+	protected int remove() throws SQLException {
 		if(where.size() == 0)
 			throw new IllegalAccessError("Now where arguement when remove() was called, please use trunacte() instead");
 		
@@ -192,7 +192,7 @@ public abstract class Model {
 		return result;
 	}
 	
-	public Result get() throws SQLException {
+	protected Result get() throws SQLException {
 		PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+whereClause()+limitClause()+orderClause());
 		
 		for(int i = 1; i <= where.size();i++)
@@ -212,7 +212,7 @@ public abstract class Model {
 	
 	//Below does not listen to the method above 
 	
-	public int remove(Object primaryKey) throws SQLException {
+	protected int remove(Object primaryKey) throws SQLException {
 		PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
 		ps.setObject(1, primaryKey);
 		int result = ps.executeUpdate();
@@ -220,14 +220,14 @@ public abstract class Model {
 		return result;
 	}
 	
-	public int trunacte() throws SQLException {
+	protected int trunacte() throws SQLException {
 		PreparedStatement ps = prepareStatement("TRUNCATE TABLE "+getTableName());
 		int result = ps.executeUpdate();
 		ps.close();
 		return result;
 	}
 	
-	public Object insert(Map<String, Object> values) throws SQLException {
+	protected Object insert(Map<String, Object> values) throws SQLException {
 		String query = "INSERT INTO "+getTableName()+" (";
 		int counter = 0;
 		for(Entry<String, Object> entry : values.entrySet()) {
@@ -266,7 +266,7 @@ public abstract class Model {
 		return treturn;
 	}
 	
-	public Row getRow(Object primaryKey) throws SQLException {
+	protected Row getRow(Object primaryKey) throws SQLException {
 		PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
 		ps.setObject(1, primaryKey);
 		ResultSet rs = ps.executeQuery();

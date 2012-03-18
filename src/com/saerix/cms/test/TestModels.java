@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import com.saerix.cms.SaerixCMS;
 import com.saerix.cms.database.Database;
-import com.saerix.cms.database.TemplateTable;
+import com.saerix.cms.database.basemodels.ViewModel;
 
 public class TestModels {
 	public static void main(String[] args) throws SQLException {
@@ -15,7 +15,7 @@ public class TestModels {
 		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
 		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
 		
-		System.out.print(((TemplateTable)Database.getTable("templates")).getTemplate("hahaha").toString());
+		System.out.print(((ViewModel)Database.getTable("templates")).getTemplate("hahaha").toString());
 		
 	}
 }
