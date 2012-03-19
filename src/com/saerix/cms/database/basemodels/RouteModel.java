@@ -34,6 +34,10 @@ public class RouteModel extends Model {
 		public RouteType getType() {
 			return RouteType.valueOfId((Integer) getValue("route_type"));
 		}
+		
+		public String getRouteValue() {
+			return (String) getValue("route_value");
+		}
 	}
 	
 	public RouteRow getRoute(int hostId, String suffix) throws SQLException {

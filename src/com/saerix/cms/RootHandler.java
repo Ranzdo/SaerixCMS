@@ -14,6 +14,7 @@ import com.saerix.cms.database.Row;
 import com.saerix.cms.database.basemodels.HostModel;
 import com.saerix.cms.database.basemodels.RouteModel;
 import com.saerix.cms.database.basemodels.RouteModel.RouteRow;
+import com.saerix.cms.database.basemodels.RouteModel.RouteType;
 import com.saerix.cms.util.HttpError;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -37,7 +38,29 @@ public class RootHandler implements HttpHandler {
 			Row host = ((HostModel) Database.getTable("hosts")).getHost(hostValue);
 			int hostId = (Integer) host.getValue("host_id");
 			
-			//TODO RouteRow route = ((RouteModel) Database.getTable("routes")).getRoute(hostId, )
+			String segments = handle.getRequestURI().toString();
+			String[] segmentsArray = {"/",""};
+			if(!segments.equals("/"))
+				segmentsArray = segments.split("/");
+			
+			RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
+			
+			if(routerow == null) {
+				HttpError.send404(handle);
+				return;
+			}
+			
+			RouteType routeType = routerow.getType();
+			
+			if(routeType == RouteType.REDIRECT) {
+				handle.getResponseHeaders().add("Location", routerow.getRouteValue());
+				handle.sendResponseHeaders(301, 0);
+				handle.getResponseBody().close();
+				return;
+			}
+			else if(routeType == RouteType.CONTROLLER) {
+				//TODO
+			}
 			
 			
 			OutputStream os = handle.getResponseBody();
