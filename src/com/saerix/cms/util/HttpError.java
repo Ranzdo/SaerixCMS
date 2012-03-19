@@ -2,6 +2,7 @@ package com.saerix.cms.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 import com.sun.net.httpserver.HttpExchange;
 
@@ -17,10 +18,15 @@ public final class HttpError {
 		responseBody.close();
 	}
 	
-	public static void send500(HttpExchange handle) throws IOException {
+	public static void send500(HttpExchange handle, Exception e) throws IOException {
 		handle.sendResponseHeaders(500, 0);
 		OutputStream responseBody = handle.getResponseBody();
-		responseBody.write(RETURN_500.getBytes());
+		PrintStream ps = new PrintStream(responseBody);
+		ps.write((RETURN_500+"\n\n").getBytes());
+		ps.write("<code>".getBytes());
+		e.printStackTrace(ps);
+		ps.flush();
+		ps.close();
 		responseBody.flush();
 		responseBody.close();
 	}

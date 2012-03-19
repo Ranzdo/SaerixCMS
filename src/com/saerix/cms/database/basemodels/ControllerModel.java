@@ -1,5 +1,8 @@
 package com.saerix.cms.database.basemodels;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import com.saerix.cms.SaerixCMS;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.database.InvalidSuperClass;
@@ -36,5 +39,14 @@ public class ControllerModel extends Model {
 			
 			return (Class<? extends Controller>) clazz;
 		}
-	}	
+		
+		public int getId() {
+			return (Integer) getValue("controller_id");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ControllerRow> getAllControllers() throws SQLException {
+		return (List<ControllerRow>) get().getRows();
+	}
 }

@@ -1,14 +1,11 @@
 package com.saerix.cms;
 
-import groovy.lang.GroovyObject;
-
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.SQLException;
+import java.lang.reflect.Method;
 import java.util.List;
 
-import org.codehaus.groovy.control.CompilationFailedException;
-
+import com.saerix.cms.controller.Controller;
 import com.saerix.cms.database.Database;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.basemodels.HostModel;
@@ -16,6 +13,7 @@ import com.saerix.cms.database.basemodels.RouteModel;
 import com.saerix.cms.database.basemodels.RouteModel.RouteRow;
 import com.saerix.cms.database.basemodels.RouteModel.RouteType;
 import com.saerix.cms.util.HttpError;
+import com.saerix.cms.view.View;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -59,42 +57,28 @@ public class RootHandler implements HttpHandler {
 				return;
 			}
 			else if(routeType == RouteType.CONTROLLER) {
-				//TODO
+				String[] value = routerow.getRouteValue().split(":");
+				Class<? extends Controller> controllerclazz = Controller.getController(Integer.parseInt(value[0]));
+				
+				Controller controller = controllerclazz.newInstance();
+				Method method = controllerclazz.getMethod(value[1]);
+				method.invoke(controller);
+				
+				StringBuilder finalContent = new StringBuilder();
+				for(View view : controller.getViews()) {
+					finalContent.append(view.evaluate());
+				}
+				
+				handle.sendResponseHeaders(200, 0);
+				OutputStream os = handle.getResponseBody();
+				os.write(finalContent.toString().getBytes());
+				os.flush();
+				os.close();
 			}
-			
-			
-			OutputStream os = handle.getResponseBody();
-			Class<?> clazz = null;
-			try {
-				clazz = SaerixCMS.getGroovyClassLoader().parseClass("import com.saerix.cms.database.*; class Test { def test() {def model = Database.getTable(\"users\"); return model.getUser(\"Taerix\"); }}");
-			}
-			catch (CompilationFailedException e) {
-				e.printStackTrace();
-			}
-			
-			GroovyObject groovyObject = null;
-			try {
-				groovyObject = (GroovyObject) clazz.newInstance();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			
-			Object[] args = {};
-			try {
-				Row row = (Row) groovyObject.invokeMethod("test", args);
-				os.write(row.toString().getBytes());
-			}
-			catch (RuntimeException e) {
-				e.printStackTrace();
-			}
-			os.flush();
-			os.close();
-		
 		}
-		catch(SQLException e) {
+		catch(Exception e) {
 			e.printStackTrace();
+			HttpError.send500(handle, e);
 		}
 	}
 

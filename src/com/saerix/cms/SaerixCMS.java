@@ -4,9 +4,12 @@ import groovy.lang.GroovyClassLoader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.saerix.cms.controller.Controller;
 
 public class SaerixCMS {		
 	private static GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
@@ -34,11 +37,14 @@ public class SaerixCMS {
 		SaerixCMS.getProperties().put("mysql_password", "");
 		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
 		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
-		SaerixCMS.getProperties().put("port", "80");
+		SaerixCMS.getProperties().put("port", "8000");
 		SaerixCMS.getProperties().put("secure_port", "443");
 		try {
+			Controller.reloadAllControllers();
 			new SaerixCMS();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}

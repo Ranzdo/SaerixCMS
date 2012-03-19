@@ -97,7 +97,7 @@ public abstract class Model {
 			WhereAgrument arg = where.get(i);
 			whereClause.append(arg.getColumn()+" "+arg.getComparer()+" ?");
 			if(i != where.size()-1)
-				whereClause.append(where_mod);
+				whereClause.append(" "+where_mod+" ");
 		}
 		
 		return whereClause.toString();
