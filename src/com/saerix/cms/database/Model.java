@@ -266,7 +266,7 @@ public abstract class Model {
 		return treturn;
 	}
 	
-	protected Row getRow(Object primaryKey) throws SQLException {
+	public Row getRow(Object primaryKey) throws SQLException {
 		PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
 		ps.setObject(1, primaryKey);
 		ResultSet rs = ps.executeQuery();

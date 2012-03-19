@@ -35,20 +35,26 @@ public final class Database {
 	
 	private static DatabaseCleaner cleaner = new DatabaseCleaner();
 	
-	public static synchronized Model getTable(String tableName) {
+	public static Model getTable(String tableName) {
 		if(cleaner.getState() == Thread.State.NEW)
 			cleaner.start();
-		
-		Database database = databaseConnections.get(Thread.currentThread());
+		Database database = null;
+		synchronized (databaseConnections) {
+			database = databaseConnections.get(Thread.currentThread());
+		}
 		try {
 			if(database == null) {
 				database = new Database();
-				databaseConnections.put(Thread.currentThread(), database);
+				synchronized (databaseConnections) {
+					databaseConnections.put(Thread.currentThread(), database);
+				}
 				database.reloadModels();
 			}
 			else if(!database.con.isValid(3)) {
 				database = new Database();
-				databaseConnections.put(Thread.currentThread(), database);
+				synchronized (databaseConnections) {
+					databaseConnections.put(Thread.currentThread(), database);
+				}
 				database.reloadModels();
 			}
 		}
@@ -60,7 +66,13 @@ public final class Database {
 		return database.getModel(tableName);
 	}
 	
+	public static synchronized void reloadAllModels() {
+		for(Entry<Thread, Database> entry : databaseConnections.entrySet()) {
+			entry.getValue().reloadModels();
+		}
+	}
 	
+	//TODO Is reload of models thread-safe?
 	private Map<String, Class<? extends Model>> mappedModels = new HashMap<String, Class<? extends Model>>();
 	
 	private Connection con;

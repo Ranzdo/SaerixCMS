@@ -43,7 +43,7 @@ public class RootHandler implements HttpHandler {
 			OutputStream os = handle.getResponseBody();
 			Class<?> clazz = null;
 			try {
-				clazz = SaerixCMS.getGroovyClassLoader().parseClass("import com.saerix.cms.database.*; class Test { def test() {def model = Database.getTable(\"users\"); model.updateUsername(\"Ranzdo\", \"Taerix\"); }}");
+				clazz = SaerixCMS.getGroovyClassLoader().parseClass("import com.saerix.cms.database.*; class Test { def test() {def model = Database.getTable(\"users\"); return model.getUser(\"Taerix\"); }}");
 			}
 			catch (CompilationFailedException e) {
 				e.printStackTrace();
