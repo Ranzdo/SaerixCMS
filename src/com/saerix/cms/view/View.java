@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.saerix.cms.SaerixCMS;
+import com.saerix.cms.controller.Controller;
 import com.saerix.cms.database.Database;
 import com.saerix.cms.database.basemodels.ViewModel;
 import com.saerix.cms.database.basemodels.ViewModel.ViewRow;
@@ -23,6 +24,7 @@ public class View {
 	private Map<String, Object> variables;
 	private final ViewRow row;
 	private final String content;
+	private Controller controller = null;
 	
 	private View(ViewRow row) {
 		this.row = row;
@@ -31,6 +33,7 @@ public class View {
 	
 	public String evaluate() {
 		Binding binding = new Binding();
+		binding.setVariable("controller", controller);
 		if(variables != null) {
 			for(Entry<String, Object> var : variables.entrySet())
 				binding.setVariable(var.getKey(), var.getValue());
@@ -78,12 +81,20 @@ public class View {
 			return evaluated.toString();
 		}
 		catch(IOException e) {
-			//I don't if we should handle this Exception... I mean we are reading a string so how could it be an IOException?
+			//I don't if we should handle this Exception... I mean we are reading a string so how could it throw an IOException?
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
+	public Controller getController() {
+		return controller;
+	}
+
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
+
 	public void setVariables(Map<String, Object> variables) {
 		this.variables = variables;
 	}

@@ -76,7 +76,7 @@ public abstract class Model {
 	
 	//These setup the methods below, 
 	
-	//Where agruments
+	//Where arguments
 	private ArrayList<WhereAgrument> where = new ArrayList<WhereAgrument>();
 	private String where_mod = "AND";
 	
@@ -116,7 +116,7 @@ public abstract class Model {
 			return "";
 	}
 	
-	//Order settnings
+	//Order settings
 	private String orderByColumn = null;
 	private String order = null;
 	protected void orderby(String column, String order) {
@@ -141,7 +141,7 @@ public abstract class Model {
 	}
 	
 	
-	//These executes and despends on the calls above
+	//These executes and depends on the calls above
 	protected int update(Map<String, Object> values) throws SQLException {
 		ArrayList<Object> ovalues = new ArrayList<Object>();
 		StringBuilder sql = new StringBuilder("UPDATE "+getTableName()+" SET ");
@@ -228,24 +228,24 @@ public abstract class Model {
 	}
 	
 	protected Object insert(Map<String, Object> values) throws SQLException {
-		String query = "INSERT INTO "+getTableName()+" (";
+		StringBuilder query = new StringBuilder("INSERT INTO "+getTableName()+" (");
 		int counter = 0;
 		for(Entry<String, Object> entry : values.entrySet()) {
-			query = query.concat(entry.getKey());
+			query.append(entry.getKey());
 			counter++;
 			if(counter != values.size()) {
-				query = query.concat(",");
+				query.append(",");
 			}
 		}
-		query = query.concat(") VALUES (");
+		query.append(") VALUES (");
 		for(int i = 0; i < values.size();i++) {
-			query = query.concat("?");
+			query.append("?");
 			if(i != values.size()-1) {
-				query = query.concat(",");
+				query.append(",");
 			}
 		}
-		query = query.concat(")");
-		PreparedStatement ps = database.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		query.append(")");
+		PreparedStatement ps = database.getConnection().prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
 		counter = 1;
 		for(Entry<String, Object> entry : values.entrySet()) {
 			ps.setObject(counter, entry.getValue());

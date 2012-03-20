@@ -2,10 +2,13 @@ package com.saerix.cms;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.saerix.cms.controller.Controller;
+import com.saerix.cms.controller.ControllerParameter;
 import com.saerix.cms.database.Database;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.basemodels.HostModel;
@@ -18,10 +21,16 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class RootHandler implements HttpHandler {
-
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void handle(HttpExchange handle) throws IOException {
 		try {
+			if(!handle.getRequestMethod().equals("POST") && !handle.getRequestMethod().equals("GET")) {
+				HttpError.send404(handle);
+				return;
+			}
+			
 			List<String> ahost = handle.getRequestHeaders().get("Host");
 			if(ahost == null) {
 				HttpError.send404(handle);
@@ -33,13 +42,36 @@ public class RootHandler implements HttpHandler {
 			}
 			
 			String hostValue = ahost.get(0).split(":")[0];
+			
+			String uriRequest = handle.getRequestURI().toString();
+			String[] segmentsAndPara = uriRequest.split("\\?");
+			
+			String segments = segmentsAndPara[0];
+			Map<String, String> getParameters = new HashMap<String, String>();
+			if(segmentsAndPara.length == 2) {
+				for(String parameter : segmentsAndPara[1].split("&")) {
+					String[] para = parameter.split("=");
+					if(para.length == 2) {
+						getParameters.put(URLDecoder.decode(para[0], "UTF-8"), URLDecoder.decode(para[1], "UTF-8"));
+					}
+				}
+			}
+			
+			Map<String, String> postParameters = new HashMap<String, String>();
+			if(handle.getRequestMethod().equals("POST")) {
+				Object o = handle.getAttribute("parameters");
+				if(o instanceof Map<?, ?>) {
+					postParameters = (Map<String, String>) o;
+				}
+			}
+			
+			String[] segmentsArray = segments.split("/");
+			
+			ControllerParameter controllerParameters = new ControllerParameter(hostValue, segmentsArray, getParameters, postParameters);
+			
+			
 			Row host = ((HostModel) Database.getTable("hosts")).getHost(hostValue);
 			int hostId = (Integer) host.getValue("host_id");
-			
-			String segments = handle.getRequestURI().toString();
-			String[] segmentsArray = {"/",""};
-			if(!segments.equals("/"))
-				segmentsArray = segments.split("/");
 			
 			RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
 			
@@ -58,11 +90,7 @@ public class RootHandler implements HttpHandler {
 			}
 			else if(routeType == RouteType.CONTROLLER) {
 				String[] value = routerow.getRouteValue().split(":");
-				Class<? extends Controller> controllerclazz = Controller.getController(Integer.parseInt(value[0]));
-				
-				Controller controller = controllerclazz.newInstance();
-				Method method = controllerclazz.getMethod(value[1]);
-				method.invoke(controller);
+				Controller controller = Controller.invokeController(Integer.parseInt(value[0]), value[1], controllerParameters);
 				
 				StringBuilder finalContent = new StringBuilder();
 				for(View view : controller.getViews()) {
@@ -81,5 +109,4 @@ public class RootHandler implements HttpHandler {
 			HttpError.send500(handle, e);
 		}
 	}
-
 }

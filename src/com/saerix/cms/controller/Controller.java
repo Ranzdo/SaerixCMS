@@ -1,5 +1,6 @@
 package com.saerix.cms.controller;
 
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,12 +16,25 @@ import com.saerix.cms.view.View;
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllers = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
 	
-	public static Class<? extends Controller> getController(int controllerId) {
+	public static Controller invokeController(int controllerId, String methodName, ControllerParameter parameters) throws Exception {
+		if(methodName == null)
+			throw new NullPointerException("The field methodName can not be null.");
+		
+		if(parameters == null)
+			throw new NullPointerException("The field parameters can not be null.");
+		
 		Class<? extends Controller> clazz = null;
 		synchronized(controllers) {
 			clazz = controllers.get(controllerId);
 		}
-		return clazz;
+		if(clazz == null)
+			throw new IllegalArgumentException("The controller with id "+controllerId+" was not found.");
+		
+		Controller controller = clazz.newInstance();
+		controller.controllerParameter = parameters;
+		Method method = clazz.getMethod(methodName);
+		method.invoke(controller);
+		return controller;
 	}
 	
 	public static void reloadController(int controllerId) throws SQLException {
@@ -54,7 +68,7 @@ public class Controller {
 		}
 	}
 	
-	
+	private ControllerParameter controllerParameter;
 	private ArrayList<View> views = new ArrayList<View>();
 	ControllerRow databaseRow;
 	
@@ -66,6 +80,7 @@ public class Controller {
 	protected void showView(String viewName, Map<String, Object> variables) throws SQLException {
 		View view = View.getView(viewName);
 		if(view != null) {
+			view.setController(this);
 			view.setVariables(variables);
 			views.add(view);
 		}
@@ -75,5 +90,26 @@ public class Controller {
 	
 	public List<View> getViews() {
 		return views;
+	}
+	
+	public String getHost() {
+		return controllerParameter.getHost();
+	}
+	
+	public String getSegement(int place) {
+		try {
+			return controllerParameter.getSegments()[place];
+		}
+		catch(ArrayIndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+	
+	public String getPost(String parameter) {
+		return controllerParameter.getPostParameters().get(parameter);
+	}
+	
+	public String getGet(String parameter) {
+		return controllerParameter.getPostParameters().get(parameter);
 	}
 }
