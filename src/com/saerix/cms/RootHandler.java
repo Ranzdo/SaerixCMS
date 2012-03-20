@@ -88,7 +88,12 @@ public class RootHandler implements HttpHandler {
 			else if(routeType == RouteType.CONTROLLER) {
 				String[] value = routerow.getRouteValue().split(":");
 				ControllerParameter controllerParameters = new ControllerParameter(hostValue, segmentsArray, postParameters, getParameters);
-				Controller controller = Controller.invokeController(Integer.parseInt(value[0]), value[1], controllerParameters);
+				Class<? extends Controller> controllerClazz = Controller.getController(Integer.parseInt(value[0]));
+				if(controllerClazz == null) {
+					HttpError.send404(handle);
+					return;
+				}
+				Controller controller = Controller.invokeController(controllerClazz, value[1], controllerParameters);
 				
 				StringBuilder finalContent = new StringBuilder();
 				for(View view : controller.getViews()) {

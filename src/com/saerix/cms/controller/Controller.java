@@ -1,5 +1,6 @@
 package com.saerix.cms.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.saerix.cms.SaerixCMS;
 import com.saerix.cms.database.Database;
+import com.saerix.cms.database.InvalidSuperClass;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
 import com.saerix.cms.view.View;
@@ -16,42 +19,46 @@ import com.saerix.cms.view.View;
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllers = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
 	
-	public static Controller invokeController(int controllerId, String methodName, ControllerParameter parameters) throws Exception {
-		if(methodName == null)
-			throw new NullPointerException("The field methodName can not be null.");
-		
-		if(parameters == null)
-			throw new NullPointerException("The field parameters can not be null.");
-		
+	public static Class<? extends Controller> getController(int controllerId) {
 		Class<? extends Controller> clazz = null;
 		synchronized(controllers) {
 			clazz = controllers.get(controllerId);
 		}
 		if(clazz == null)
 			throw new IllegalArgumentException("The controller with id "+controllerId+" was not found.");
+		return clazz;
+	}
+	
+	public static Controller invokeController(Class<? extends Controller> controllerClass, String methodName, ControllerParameter parameters) throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+		if(controllerClass == null)
+			throw new NullPointerException("The field controllerClass can not be null.");
 		
-		Controller controller = clazz.newInstance();
+		if(methodName == null)
+			throw new NullPointerException("The field methodName can not be null.");
+		
+		if(parameters == null)
+			throw new NullPointerException("The field parameters can not be null.");
+		
+		Controller controller = controllerClass.newInstance();
 		controller.controllerParameter = parameters;
-		Method method = clazz.getMethod(methodName);
+		Method method = controllerClass.getMethod(methodName);
 		method.invoke(controller);
 		return controller;
 	}
 	
-	public static void reloadController(int controllerId) throws SQLException {
-		ControllerRow row = (ControllerRow) Database.getTable("controllers").getRow(controllerId);
-		if(row == null) {
-			Class<? extends Controller> controller;
-			synchronized (controllers) {
-				controller = controllers.remove(controllerId);
-			}
-			if(controller == null) {
-				throw new IllegalArgumentException("Could not find a controller with id "+controllerId);
-			}
-			else
-				return;
-		}
+	public static void reloadController(ControllerRow controllerRow) throws SQLException {
+		if(controllerRow == null)
+			throw new NullPointerException("The field controllerRow can not be null.");
 		
-		Class<? extends Controller> controller = row.loadControllerClass(true);
+		int controllerId = controllerRow.getId();
+		
+		Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package controllers;"+controllerRow.getContent());
+		
+		if(clazz.getSuperclass() != Controller.class)
+			throw new InvalidSuperClass(clazz.getSuperclass(), Controller.class, clazz);
+		
+		@SuppressWarnings("unchecked")
+		Class<? extends Controller> controller = (Class<? extends Controller>) clazz;
 		synchronized (controllers) {
 			controllers.put(controllerId, controller);
 		}
@@ -61,10 +68,7 @@ public class Controller {
 		controllers.clear();
 		List<ControllerRow> rows = ((ControllerModel) Database.getTable("controllers")).getAllControllers();
 		for(ControllerRow row : rows) {
-			Class<? extends Controller> controller = row.loadControllerClass(true);
-			synchronized (controllers) {
-				controllers.put(row.getId(), controller);
-			}
+			reloadController(row);
 		}
 	}
 	
