@@ -2,12 +2,17 @@ package com.saerix.cms.view;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.MetaClass;
+import groovy.lang.Script;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.saerix.cms.SaerixCMS;
 import com.saerix.cms.controller.Controller;
@@ -16,9 +21,17 @@ import com.saerix.cms.database.basemodels.ViewModel;
 import com.saerix.cms.database.basemodels.ViewModel.ViewRow;
 
 public class View {
-	public static View getView(String viewName) throws SQLException {
-		ViewRow row = ((ViewModel)Database.getTable("views")).getView(viewName);
+	public static View getView(int hostId, String viewName) throws SQLException {
+		ViewRow row = ((ViewModel)Database.getTable("views")).getView(hostId, viewName);
 		return new View(row);
+	}
+	
+	public static String mergeViews(Collection<View> views) {
+		StringBuilder content = new StringBuilder();
+		for(View view : views) {
+			content.append(view.evaluate());
+		}
+		return content.toString();
 	}
 	
 	private Map<String, Object> variables;
@@ -32,12 +45,14 @@ public class View {
 	public String evaluate() {
 		Binding binding = new Binding();
 		binding.setVariable("controller", controller);
+		CompilerConfiguration compiler = new CompilerConfiguration();
+		compiler.setScriptBaseClass("ViewBase");
 		if(variables != null) {
 			for(Entry<String, Object> var : variables.entrySet())
 				binding.setVariable(var.getKey(), var.getValue());
 		}
 		
-		GroovyShell shell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), binding);
+		GroovyShell shell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), binding, compiler);
 		
 		StringBuilder evaluated = new StringBuilder();
 		try {
@@ -64,7 +79,7 @@ public class View {
 	        			ignore = false;
 	        		}
 	        		else if(!ignore) {
-	        			Object object = shell.evaluate(script.toString());
+	        			Object object = shell.evaluate("import com.saerix.cms.view.ViewBase;"+script.toString());
 	        			if(object != null)
 	        				evaluated.append(object.toString());
 	        		}

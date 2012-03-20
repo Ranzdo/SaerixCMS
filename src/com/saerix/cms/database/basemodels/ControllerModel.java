@@ -14,6 +14,10 @@ public class ControllerModel extends Model {
 			return (Integer) getValue("controller_id");
 		}
 		
+		public int getHostId() {
+			return (Integer) getValue("host_id");
+		}
+		
 		public String getName() {
 			return (String) getValue("controller_name");
 		}

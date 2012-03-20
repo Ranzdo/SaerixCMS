@@ -32,6 +32,7 @@ public class SaerixCMS {
 	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
 		Class.forName("com.mysql.jdbc.Driver");
 		//properties.load(new FileInputStream("config"));
+		SaerixCMS.getProperties().put("base_url", "http://127.0.0.1");
 		SaerixCMS.getProperties().put("mysql_hostname", "62.20.221.96");
 		SaerixCMS.getProperties().put("mysql_port", "3306");
 		SaerixCMS.getProperties().put("mysql_username", "saerixcms");

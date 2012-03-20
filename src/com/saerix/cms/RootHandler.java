@@ -10,8 +10,8 @@ import java.util.Map;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.controller.ControllerParameter;
 import com.saerix.cms.database.Database;
-import com.saerix.cms.database.Row;
 import com.saerix.cms.database.basemodels.HostModel;
+import com.saerix.cms.database.basemodels.HostModel.HostRow;
 import com.saerix.cms.database.basemodels.RouteModel;
 import com.saerix.cms.database.basemodels.RouteModel.RouteRow;
 import com.saerix.cms.database.basemodels.RouteModel.RouteType;
@@ -67,7 +67,7 @@ public class RootHandler implements HttpHandler {
 			
 			String[] segmentsArray = segments.split("/");
 			
-			Row host = ((HostModel) Database.getTable("hosts")).getHost(hostValue);
+			HostRow host = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostValue);
 			int hostId = (Integer) host.getValue("host_id");
 			
 			RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
@@ -87,7 +87,7 @@ public class RootHandler implements HttpHandler {
 			}
 			else if(routeType == RouteType.CONTROLLER) {
 				String[] value = routerow.getRouteValue().split(":");
-				ControllerParameter controllerParameters = new ControllerParameter(hostValue, segmentsArray, postParameters, getParameters);
+				ControllerParameter controllerParameters = new ControllerParameter(host, segmentsArray, postParameters, getParameters);
 				Class<? extends Controller> controllerClazz = Controller.getController(Integer.parseInt(value[0]));
 				if(controllerClazz == null) {
 					HttpError.send404(handle);
@@ -95,14 +95,9 @@ public class RootHandler implements HttpHandler {
 				}
 				Controller controller = Controller.invokeController(controllerClazz, value[1], controllerParameters);
 				
-				StringBuilder finalContent = new StringBuilder();
-				for(View view : controller.getViews()) {
-					finalContent.append(view.evaluate());
-				}
-				
 				handle.sendResponseHeaders(200, 0);
 				OutputStream os = handle.getResponseBody();
-				os.write(finalContent.toString().getBytes());
+				os.write(View.mergeViews(controller.getViews()).getBytes());
 				os.flush();
 				os.close();
 			}

@@ -21,7 +21,8 @@ public class ViewModel extends Model {
 		}
 	}
 	
-	public ViewRow getView(String viewName) throws SQLException {
+	public ViewRow getView(int hostId, String viewName) throws SQLException {
+		where("host_id", hostId);
 		where("view_name", viewName);
 		return (ViewRow) get().getRow();
 	}
