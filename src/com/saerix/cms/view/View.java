@@ -23,12 +23,10 @@ public class View {
 	
 	private Map<String, Object> variables;
 	private final ViewRow row;
-	private final String content;
 	private Controller controller = null;
 	
 	private View(ViewRow row) {
 		this.row = row;
-		content = row.getContent();
 	}
 	
 	public String evaluate() {
@@ -43,7 +41,7 @@ public class View {
 		
 		StringBuilder evaluated = new StringBuilder();
 		try {
-			StringReader reader = new StringReader(content);
+			StringReader reader = new StringReader(row.getContent());
 			int bytee;
 			boolean ignore = false;
 			while((bytee = reader.read()) != -1) {
@@ -56,7 +54,7 @@ public class View {
 	        			if(bytee == 125)
 	        				step--;
 	        			if(bytee == -1)
-	        				throw new ViewException("Unexpected end of view, missing end tag? ( } )");
+	        				throw new ViewException("Unexpected end of view "+row.getName()+", missing end tag? ( } )");
 	        			script.append((char)bytee);
 	        		}
 	        		if(script.toString().equals("literal")) {

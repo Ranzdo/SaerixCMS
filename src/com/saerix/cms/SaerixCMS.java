@@ -29,12 +29,13 @@ public class SaerixCMS {
 		return properties;
 	}
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+		Class.forName("com.mysql.jdbc.Driver");
 		//properties.load(new FileInputStream("config"));
-		SaerixCMS.getProperties().put("mysql_hostname", "127.0.0.1");
+		SaerixCMS.getProperties().put("mysql_hostname", "62.20.221.96");
 		SaerixCMS.getProperties().put("mysql_port", "3306");
-		SaerixCMS.getProperties().put("mysql_username", "root");
-		SaerixCMS.getProperties().put("mysql_password", "");
+		SaerixCMS.getProperties().put("mysql_username", "saerixcms");
+		SaerixCMS.getProperties().put("mysql_password", "258012");
 		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
 		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
 		SaerixCMS.getProperties().put("port", "8000");

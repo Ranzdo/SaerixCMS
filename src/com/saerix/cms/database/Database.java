@@ -50,22 +50,23 @@ public final class Database {
 				}
 				database.reloadModels();
 			}
-			else if(!database.con.isValid(3)) {
+			/*else if(!database.con.isValid(3)) {
 				database = new Database();
 				synchronized (databaseConnections) {
 					databaseConnections.put(Thread.currentThread(), database);
 				}
 				database.reloadModels();
-			}
-			else
-				throw new IllegalArgumentException("An model to the table "+tableName+" was not found.");
+			}*/
 		}
 		catch(SQLException e) {
 			//TODO If it can't connect to database, what to do?
 			e.printStackTrace();
 		}
-		
-		return database.getModel(tableName);
+		Model model = database.getModel(tableName);
+		if(model == null)
+			throw new IllegalArgumentException("An model to the table "+tableName+" was not found.");
+		else
+			return model;
 	}
 	
 	public static synchronized void reloadAllModels() {
