@@ -67,9 +67,6 @@ public class RootHandler implements HttpHandler {
 			
 			String[] segmentsArray = segments.split("/");
 			
-			ControllerParameter controllerParameters = new ControllerParameter(hostValue, segmentsArray, getParameters, postParameters);
-			
-			
 			Row host = ((HostModel) Database.getTable("hosts")).getHost(hostValue);
 			int hostId = (Integer) host.getValue("host_id");
 			
@@ -90,6 +87,7 @@ public class RootHandler implements HttpHandler {
 			}
 			else if(routeType == RouteType.CONTROLLER) {
 				String[] value = routerow.getRouteValue().split(":");
+				ControllerParameter controllerParameters = new ControllerParameter(hostValue, segmentsArray, postParameters, getParameters);
 				Controller controller = Controller.invokeController(Integer.parseInt(value[0]), value[1], controllerParameters);
 				
 				StringBuilder finalContent = new StringBuilder();

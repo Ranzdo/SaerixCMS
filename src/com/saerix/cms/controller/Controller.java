@@ -110,6 +110,6 @@ public class Controller {
 	}
 	
 	public String getGet(String parameter) {
-		return controllerParameter.getPostParameters().get(parameter);
+		return controllerParameter.getGetParameters().get(parameter);
 	}
 }

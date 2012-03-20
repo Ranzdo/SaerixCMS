@@ -38,6 +38,7 @@ public class SaerixCMS {
 		SaerixCMS.getProperties().put("mysql_password", "258012");
 		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
 		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
+		SaerixCMS.getProperties().put("admin_hostname", "127.0.0.1");
 		SaerixCMS.getProperties().put("port", "8000");
 		SaerixCMS.getProperties().put("secure_port", "443");
 		try {
