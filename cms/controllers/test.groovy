@@ -1,7 +1,7 @@
 
 import com.saerix.cms.controller.*;
 class test extends Controller {
-	def lol() {
+	def index() {
 		showView("lol", [content: "kekeke"])
 	}
 }
