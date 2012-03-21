@@ -42,7 +42,8 @@ public class RootHandler implements HttpHandler {
 			}
 			
 			String hostValue = ahost.get(0).split(":")[0];
-			
+			boolean local = SaerixCMS.getProperties().get("cms_hostname").equals(hostValue);
+				
 			String uriRequest = handle.getRequestURI().toString();
 			String[] segmentsAndPara = uriRequest.split("\\?");
 			
@@ -66,34 +67,67 @@ public class RootHandler implements HttpHandler {
 			}
 			
 			String[] segmentsArray = segments.split("/");
-			
-			HostRow host = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostValue);
-			int hostId = (Integer) host.getValue("host_id");
-			
-			RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
-			
-			if(routerow == null) {
-				HttpError.send404(handle);
-				return;
+			int hostId;
+			if(local)
+				hostId = -1;
+			else {
+				HostRow host = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostValue);
+				hostId = (Integer) host.getValue("host_id");
 			}
 			
-			RouteType routeType = routerow.getType();
+			RouteType routeType;
+			String routeController;
+			String routeMethod;
+			String fullValue = "";
+			
+			if(local) {
+				if(segmentsArray.length < 2){
+					HttpError.send404(handle);
+					return;
+				}
+					
+				routeType = RouteType.CONTROLLER;
+				routeController = segmentsArray[1];
+				routeMethod = segmentsArray.length < 3 ? "index" : segmentsArray[2];
+			}
+			else {
+				RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
+				if(routerow == null) {
+					HttpError.send404(handle);
+					return;
+				}
+				fullValue = routerow.getRouteValue();
+				String[] value = fullValue.split(":");
+				routeType = routerow.getType();
+				routeController = value[0];
+				routeMethod = value[1];
+			}
 			
 			if(routeType == RouteType.REDIRECT) {
-				handle.getResponseHeaders().add("Location", routerow.getRouteValue());
+				handle.getResponseHeaders().add("Location", fullValue);
 				handle.sendResponseHeaders(301, 0);
 				handle.getResponseBody().close();
 				return;
 			}
 			else if(routeType == RouteType.CONTROLLER) {
-				String[] value = routerow.getRouteValue().split(":");
-				ControllerParameter controllerParameters = new ControllerParameter(host, segmentsArray, postParameters, getParameters);
-				Class<? extends Controller> controllerClazz = Controller.getController(Integer.parseInt(value[0]));
+				ControllerParameter controllerParameters = new ControllerParameter(hostId, hostValue, segmentsArray, postParameters, getParameters);
+				Class<? extends Controller> controllerClazz;
+				if(local)
+					controllerClazz = Controller.getLocalController(routeController);
+				else
+					controllerClazz = Controller.getController(Integer.parseInt(routeController));
 				if(controllerClazz == null) {
 					HttpError.send404(handle);
 					return;
 				}
-				Controller controller = Controller.invokeController(controllerClazz, value[1], controllerParameters);
+				Controller controller;
+				try {
+					controller = Controller.invokeController(controllerClazz, routeMethod, controllerParameters);
+				}
+				catch(NoSuchMethodException e) {
+					HttpError.send404(handle);
+					return;
+				}
 				
 				handle.sendResponseHeaders(200, 0);
 				OutputStream os = handle.getResponseBody();

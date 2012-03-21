@@ -1,5 +1,8 @@
 package com.saerix.cms.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -17,11 +20,24 @@ import com.saerix.cms.database.InvalidSuperClass;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
+import com.saerix.cms.util.Util;
 import com.saerix.cms.view.View;
 
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllersById = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
 	private static Map<String, Integer> controllersByName = Collections.synchronizedMap(new LinkedHashMap<String, Integer>());
+	
+	@SuppressWarnings("unchecked")
+	public static Class<? extends Controller> getLocalController(String filePath) throws IOException {
+		File file = new File("cms"+File.separator+"controllers"+File.separator+filePath.replace("/", File.separator)+".groovy");
+		if(!file.exists())
+			return null;
+		Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package cmscontrollers;"+Util.readFile(file));
+		if(clazz.getSuperclass() != Controller.class)
+			throw new InvalidSuperClass(clazz.getSuperclass(), Controller.class, clazz);
+		
+		return (Class<? extends Controller>) clazz;
+	}
 	
 	public static Class<? extends Controller> getController(int hostId, String controllerName) {
 		Integer controllerId = null;
@@ -110,8 +126,8 @@ public class Controller {
 		
 	}
 	
-	protected void showView(String viewName, Map<String, Object> variables) throws SQLException {
-		View view = View.getView(controllerParameter.getHost().getId(), viewName);
+	protected void showView(String viewName, Map<String, Object> variables) throws SQLException, IOException {
+		View view = View.getView(controllerParameter.getHostId(), viewName);
 		if(view != null) {
 			view.setController(this);
 			view.setVariables(variables);
@@ -129,8 +145,8 @@ public class Controller {
 		return controllerParameter;
 	}
 	
-	public String getHost() {
-		return controllerParameter.getHost().getValue();
+	public String getHostName() {
+		return controllerParameter.getHostValue();
 	}
 	
 	public String getSegement(int place) {
@@ -160,5 +176,9 @@ public class Controller {
 	
 	public void setPassedVariables(Map<String, Object> vars) {
 		passedVars = vars;
+	}
+	
+	public void redirect(String segments, Map<String, String> para) {
+		
 	}
 }

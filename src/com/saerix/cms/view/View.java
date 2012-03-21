@@ -2,9 +2,8 @@ package com.saerix.cms.view;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import groovy.lang.MetaClass;
-import groovy.lang.Script;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
@@ -19,11 +18,20 @@ import com.saerix.cms.controller.Controller;
 import com.saerix.cms.database.Database;
 import com.saerix.cms.database.basemodels.ViewModel;
 import com.saerix.cms.database.basemodels.ViewModel.ViewRow;
+import com.saerix.cms.util.Util;
 
 public class View {
-	public static View getView(int hostId, String viewName) throws SQLException {
+	public static View getView(int hostId, String viewName) throws SQLException, IOException {
+		if(hostId == -1) {
+			File file = new File("cms"+File.separator+"views"+File.separator+viewName.replace("/", File.separator)+".html");
+			if(!file.exists())
+				throw new ViewException("Could not find the view in "+viewName);
+			
+			return new View(viewName, Util.readFile(file));
+		}
+		
 		ViewRow row = ((ViewModel)Database.getTable("views")).getView(hostId, viewName);
-		return new View(row);
+		return new View(row.getName(), row.getContent());
 	}
 	
 	public static String mergeViews(Collection<View> views) {
@@ -35,11 +43,13 @@ public class View {
 	}
 	
 	private Map<String, Object> variables;
-	private final ViewRow row;
 	private Controller controller = null;
+	private String viewName;
+	private String content;
 	
-	private View(ViewRow row) {
-		this.row = row;
+	private View(String viewName, String content) {
+		this.viewName = viewName;
+		this.content = content;
 	}
 	
 	public String evaluate() {
@@ -56,7 +66,7 @@ public class View {
 		
 		StringBuilder evaluated = new StringBuilder();
 		try {
-			StringReader reader = new StringReader(row.getContent());
+			StringReader reader = new StringReader(content);
 			int bytee;
 			boolean ignore = false;
 			while((bytee = reader.read()) != -1) {
@@ -69,7 +79,7 @@ public class View {
 	        			if(bytee == 125)
 	        				step--;
 	        			if(bytee == -1)
-	        				throw new ViewException("Unexpected end of view "+row.getName()+", missing end tag? ( } )");
+	        				throw new ViewException("Unexpected end of view "+viewName+", missing end tag? ( } )");
 	        			script.append((char)bytee);
 	        		}
 	        		if(script.toString().equals("literal")) {
@@ -110,9 +120,5 @@ public class View {
 
 	public void setVariables(Map<String, Object> variables) {
 		this.variables = variables;
-	}
-
-	public ViewRow getRow() {
-		return row;
 	}
 }

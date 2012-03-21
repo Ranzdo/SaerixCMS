@@ -13,6 +13,7 @@ public class SaerixHttpServer  {
 	private HttpServer server;
 	// private HttpsServer secureServer;
 	private RootHandler handler = new RootHandler();
+	private ResourceHandler resoruceHandler = new ResourceHandler();
 
 	public SaerixHttpServer() {
 		try {
@@ -55,6 +56,7 @@ public class SaerixHttpServer  {
 	private void startServer() throws IOException {   
 	    HttpContext pagecontext = server.createContext("/", handler);
 	    pagecontext.getFilters().add(new ParameterFilter());
+	    server.createContext("/res/", resoruceHandler);
 	    
 	    server.setExecutor(SaerixCMS.executor());
 	    server.start();
