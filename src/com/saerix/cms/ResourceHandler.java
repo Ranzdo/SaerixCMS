@@ -5,13 +5,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.saerix.cms.util.HttpError;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class ResourceHandler implements HttpHandler {
+	private Map<File, byte[]> chachedFiles = Collections.synchronizedMap(new HashMap<File, byte[]>());
+	
 	@Override
 	public void handle(HttpExchange handle) throws IOException {
 		if(!handle.getRequestMethod().equals("POST") && !handle.getRequestMethod().equals("GET")) {
@@ -61,14 +67,43 @@ public class ResourceHandler implements HttpHandler {
 		}
 		
 		handle.sendResponseHeaders(200, 0);
-		byte[] buffer = new byte[1024];
-		InputStream is = new FileInputStream(file);
-		OutputStream os = handle.getResponseBody();
-		while(is.read(buffer) != -1) {
-			os.write(buffer);
+		
+		byte[] cache;
+		synchronized (chachedFiles) {
+			cache = chachedFiles.get(file);
 		}
-		is.close();
-		os.flush();
-		os.close();
+		
+		if(cache != null) {
+			OutputStream os = handle.getResponseBody();
+			os.write(cache);
+			os.flush();
+			os.close();
+			return;
+		}
+		
+		if(file.length() < 5242880) {
+			InputStream is = new FileInputStream(file);
+			cache = new byte[(int) file.length()];
+			is.read(cache);
+			is.close();
+			synchronized (chachedFiles) {
+				cache = chachedFiles.put(file, cache);
+			}
+			OutputStream os = handle.getResponseBody();
+			os.write(cache);
+			os.flush();
+			os.close();
+		}
+		else {
+			byte[] buffer = new byte[1];
+			InputStream is = new FileInputStream(file);
+			OutputStream os = handle.getResponseBody();
+			while(is.read(buffer) != -1) {
+				os.write(buffer);
+			}
+			is.close();
+			os.flush();
+			os.close();
+		}
 	}
 }

@@ -146,6 +146,8 @@ public class RootHandler implements HttpHandler {
 					return;
 				}
 				
+				handle.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
+				
 				handle.sendResponseHeaders(200, 0);
 				OutputStream os = handle.getResponseBody();
 				os.write(View.mergeViews(controller.getViews()).getBytes());

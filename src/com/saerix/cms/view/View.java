@@ -39,7 +39,7 @@ public class View {
 		
 		EvaluatedView view = null;
 		synchronized (cachedViews) {
-			view = cachedViews.get(hostId+":"+viewName);
+			view = cachedViews.get(hostId+viewName);
 		}
 		if(view == null)
 			return reloadView(hostId, viewName);
@@ -70,7 +70,7 @@ public class View {
 		}
 		
 		synchronized (cachedViews) {
-			cachedViews.put(hostId+":"+viewName, view);
+			cachedViews.put(hostId+viewName, view);
 		}
 		
 		return new View(view);
