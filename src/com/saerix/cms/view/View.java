@@ -37,6 +37,9 @@ public class View {
 			groovyShell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), new Binding(), compiler);
 		}
 		
+		if(SaerixCMS.getInstance().isInDevMode() && hostId == -1)
+			return reloadView(hostId, viewName);
+		
 		EvaluatedView view = null;
 		synchronized (cachedViews) {
 			view = cachedViews.get(hostId+viewName);

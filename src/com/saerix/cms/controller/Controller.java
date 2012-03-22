@@ -25,41 +25,30 @@ import com.saerix.cms.view.View;
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllersById = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
 	private static Map<String, Integer> controllersByName = Collections.synchronizedMap(new LinkedHashMap<String, Integer>());
-	private static Map<File, LocalController> localControllers = Collections.synchronizedMap(new HashMap<File, LocalController>());
-	
-	private static class LocalController {
-		String md5checksum;
-		private Class<? extends Controller> clazz;
-	}
-	
+	private static Map<File, Class<? extends Controller>> localControllers = Collections.synchronizedMap(new HashMap<File, Class<? extends Controller>>());
+
 	@SuppressWarnings("unchecked")
 	public static Class<? extends Controller> getLocalController(String filePath) throws IOException {
 		File file = new File("cms"+File.separator+"controllers"+File.separator+filePath.replace("/", File.separator)+".groovy");
 		if(!file.exists())
 			return null;
 		
-		LocalController controller;
+		Class<? extends Controller> clazz;
 		synchronized(localControllers) {
-			controller = localControllers.get(file);
+			clazz = localControllers.get(file);
 		}
-		String checkSum = Util.getMD5Checksum(file);
-		if(controller != null ? !controller.md5checksum.equals(checkSum) : true) {
-			Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package cmscontrollers;"+Util.readFile(file));
+		
+		if(clazz != null || SaerixCMS.getInstance().isInDevMode()) {
+			clazz = SaerixCMS.getGroovyClassLoader().parseClass("package cmscontrollers;"+Util.readFile(file));
 			if(clazz.getSuperclass() != Controller.class)
 				throw new InvalidSuperClass(clazz.getSuperclass(), Controller.class, clazz);
 			
-			LocalController local = new LocalController();
-			local.clazz = (Class<? extends Controller>) clazz;
-			local.md5checksum = checkSum;
-			
 			synchronized(localControllers) {
-				localControllers.put(file, local);
+				localControllers.put(file, clazz);
 			}
-			
-			return (Class<? extends Controller>) clazz;
 		}
 		
-		return (Class<? extends Controller>) controller.clazz;
+		return (Class<? extends Controller>) clazz;
 	}
 	
 	public static Class<? extends Controller> getController(int hostId, String controllerName) {

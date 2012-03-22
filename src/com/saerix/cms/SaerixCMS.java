@@ -15,6 +15,7 @@ public class SaerixCMS {
 	private static GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
 	private static ExecutorService executor = Executors.newCachedThreadPool();
 	private static Properties properties = new Properties();
+	private static SaerixCMS instance;
 	
 	
 	public static GroovyClassLoader getGroovyClassLoader() {
@@ -29,9 +30,14 @@ public class SaerixCMS {
 		return properties;
 	}
 	
+	public static SaerixCMS getInstance() {
+		return instance;
+	}
+	
 	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
 		Class.forName("com.mysql.jdbc.Driver");
 		//properties.load(new FileInputStream("config"));
+		SaerixCMS.getProperties().put("developer_mode", "true");
 		SaerixCMS.getProperties().put("base_url", "http://127.0.0.1");
 		SaerixCMS.getProperties().put("mysql_hostname", "62.20.221.96");
 		SaerixCMS.getProperties().put("mysql_port", "3306");
@@ -43,8 +49,8 @@ public class SaerixCMS {
 		SaerixCMS.getProperties().put("port", "8000");
 		SaerixCMS.getProperties().put("secure_port", "443");
 		try {
+			instance = new SaerixCMS();
 			Controller.reloadAllControllers();
-			new SaerixCMS();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -56,5 +62,9 @@ public class SaerixCMS {
 	
 	public SaerixCMS() throws IOException {
 		server = new SaerixHttpServer();
+	}
+	
+	public boolean isInDevMode() {
+		return SaerixCMS.getProperties().get("developer_mode").equals("true");
 	}
 }
