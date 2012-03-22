@@ -2,15 +2,20 @@ package com.saerix.cms.view;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.Script;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
+import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.saerix.cms.SaerixCMS;
@@ -21,17 +26,54 @@ import com.saerix.cms.database.basemodels.ViewModel.ViewRow;
 import com.saerix.cms.util.Util;
 
 public class View {
+	private static GroovyShell groovyShell;
+	
+	private static Map<String, EvaluatedView> cachedViews = Collections.synchronizedMap(new HashMap<String, EvaluatedView>());
+	
 	public static View getView(int hostId, String viewName) throws SQLException, IOException {
+		if(groovyShell == null) {
+			CompilerConfiguration compiler = new CompilerConfiguration();
+			compiler.setScriptBaseClass("ViewBase");
+			groovyShell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), new Binding(), compiler);
+		}
+		
+		EvaluatedView view = null;
+		synchronized (cachedViews) {
+			view = cachedViews.get(hostId+":"+viewName);
+		}
+		if(view == null)
+			return reloadView(hostId, viewName);
+		
+		return new View(view);
+	}
+	
+	public static View reloadView(int hostId, String viewName) throws SQLException, IOException {
+		if(groovyShell == null) {
+			CompilerConfiguration compiler = new CompilerConfiguration();
+			compiler.setScriptBaseClass("ViewBase");
+			groovyShell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), new Binding(), compiler);
+		}
+		EvaluatedView view = null;
 		if(hostId == -1) {
 			File file = new File("cms"+File.separator+"views"+File.separator+viewName.replace("/", File.separator)+".html");
 			if(!file.exists())
-				throw new ViewException("Could not find the view in "+viewName);
+				throw new ViewException("Could not find the local view "+viewName);
 			
-			return new View(viewName, Util.readFile(file));
+			view = new EvaluatedView(viewName, Util.readFile(file));
+		}
+		else {
+			ViewRow row = ((ViewModel)Database.getTable("views")).getView(hostId, viewName);
+			if(row == null)
+				throw new ViewException("Could not find the view "+viewName);
+			
+			view = new EvaluatedView(row.getName(), row.getContent());
 		}
 		
-		ViewRow row = ((ViewModel)Database.getTable("views")).getView(hostId, viewName);
-		return new View(row.getName(), row.getContent());
+		synchronized (cachedViews) {
+			cachedViews.put(hostId+":"+viewName, view);
+		}
+		
+		return new View(view);
 	}
 	
 	public static String mergeViews(Collection<View> views) {
@@ -42,30 +84,12 @@ public class View {
 		return content.toString();
 	}
 	
-	private Map<String, Object> variables;
-	private Controller controller = null;
-	private String viewName;
-	private String content;
-	
-	private View(String viewName, String content) {
-		this.viewName = viewName;
-		this.content = content;
-	}
-	
-	public String evaluate() {
-		Binding binding = new Binding();
-		binding.setVariable("controller", controller);
-		CompilerConfiguration compiler = new CompilerConfiguration();
-		compiler.setScriptBaseClass("ViewBase");
-		if(variables != null) {
-			for(Entry<String, Object> var : variables.entrySet())
-				binding.setVariable(var.getKey(), var.getValue());
-		}
+	private static class EvaluatedView {
+		private final Vector<Script> tags = new Vector<Script>();
+		private final String content;
 		
-		GroovyShell shell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), binding, compiler);
-		
-		StringBuilder evaluated = new StringBuilder();
-		try {
+		private EvaluatedView(String viewName, String content) throws CompilationFailedException, IOException {
+			StringBuilder evaluated = new StringBuilder();
 			StringReader reader = new StringReader(content);
 			int bytee;
 			boolean ignore = false;
@@ -89,9 +113,8 @@ public class View {
 	        			ignore = false;
 	        		}
 	        		else if(!ignore) {
-	        			Object object = shell.evaluate("import com.saerix.cms.view.ViewBase;"+script.toString());
-	        			if(object != null)
-	        				evaluated.append(object.toString());
+	        			tags.add(groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
+	        			evaluated.append("{Script:"+tags.size()+"}");
 	        		}
 	        		else {
 	        			evaluated.append("{"+script.toString()+"}");
@@ -100,14 +123,40 @@ public class View {
 				else
 					evaluated.append((char) bytee);
 			}
-			
-			return evaluated.toString();
+			this.content = evaluated.toString();
 		}
-		catch(IOException e) {
-			//I don't if we should handle this Exception... I mean we are reading a string so how could it throw an IOException?
-			e.printStackTrace();
-			return null;
+	}
+	
+	private EvaluatedView evalView;
+	private Map<String, Object> variables;
+	private Controller controller = null;
+	
+	private View(EvaluatedView evalView) throws CompilationFailedException, IOException {
+		this.evalView = evalView;
+	}
+	
+	public String evaluate() {
+		String content = evalView.content;
+		
+		Binding binding = new Binding();
+		binding.setVariable("controller", controller);
+		CompilerConfiguration compiler = new CompilerConfiguration();
+		compiler.setScriptBaseClass("ViewBase");
+		
+		if(variables != null) {
+			for(Entry<String, Object> var : variables.entrySet())
+				binding.setVariable(var.getKey(), var.getValue());
 		}
+		
+		for(int i = 1; i <= evalView.tags.size();i++) {
+			Script script = evalView.tags.get(i-1);
+			script.setBinding(binding);
+			Object object = script.run();
+			if(object != null)
+				content = content.replace("{Script:"+i+"}", object.toString());
+		}
+		
+		return content;
 	}
 	
 	public Controller getController() {
