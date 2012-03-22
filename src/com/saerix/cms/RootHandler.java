@@ -1,6 +1,12 @@
 package com.saerix.cms;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -75,20 +81,26 @@ public class RootHandler implements HttpHandler {
 				hostId = (Integer) host.getValue("host_id");
 			}
 			
-			RouteType routeType;
-			String routeController;
-			String routeMethod;
+			RouteType routeType = RouteType.CONTROLLER;
+			String routeController = null;
+			String routeMethod = null;
 			String fullValue = "";
 			
 			if(local) {
-				if(segmentsArray.length < 2){
-					HttpError.send404(handle);
-					return;
+				FileInputStream fstream = new FileInputStream("cms/routes");
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(new InputStreamReader(in));
+				String line;
+				while ((line = br.readLine()) != null)   {
+					String[] values = line.split("=");
+					if(segmentsAndPara[0].equals(values[0].trim())) {
+						String[] route = values[1].trim().split("/");
+						routeController = route[1];
+						routeMethod = route[2];
+						break;
+					}
 				}
-					
-				routeType = RouteType.CONTROLLER;
-				routeController = segmentsArray[1];
-				routeMethod = segmentsArray.length < 3 ? "index" : segmentsArray[2];
+				in.close();
 			}
 			else {
 				RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
@@ -101,6 +113,11 @@ public class RootHandler implements HttpHandler {
 				routeType = routerow.getType();
 				routeController = value[0];
 				routeMethod = value[1];
+			}
+			
+			if(routeController == null || routeMethod == null) {
+				HttpError.send404(handle);
+				return;
 			}
 			
 			if(routeType == RouteType.REDIRECT) {
