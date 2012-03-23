@@ -4,13 +4,12 @@ import com.saerix.cms.*;
 import com.saerix.cms.database.*
 import com.saerix.cms.controller.*
 import com.saerix.cms.views.*
-import com.saerix.cms.SaerixCMS;
 
 abstract class ViewBase extends Script {
 	def view_controller(String controllerName, String methodName, Map<String, Object> passedVars) {
-		def parentController = getProperty("controller")
+		Controller parentController = getProperty("controller")
 		def controllerClass = Controller.getController(parentController.getControllerParameter().getHostId(), controllerName)
-		def controller = Controller.invokeController(controllerClass, methodName, parentController.getControllerParameter())
+		Controller controller = Controller.invokeController(controllerClass, methodName, parentController.getControllerParameter())
 		
 		controller.setPassedVariables(passedVars)
 		
@@ -18,7 +17,7 @@ abstract class ViewBase extends Script {
 	}
 	
 	def view(String viewName, Map<String, Object> map) {
-		def parentController = getProperty("controller")
+		Controller parentController = getProperty("controller")
 		
 		View view = View.getView(parentController.getControllerParameter().getHostId(), viewName)
 		view.setVariables(map)
@@ -32,7 +31,7 @@ abstract class ViewBase extends Script {
 	}
 	
 	def base_url() {
-		def parentController = getProperty("controller")
+		Controller parentController = getProperty("controller")
 		return parentController.base_url();
 	}
 	
@@ -47,7 +46,7 @@ abstract class ViewBase extends Script {
 	def writeGetParameters(Map<String, String> getParameters) {
 		String returnThis = "?"
 		for ( e in getParameters) {
-			returnThis += URLDecoder.decode(e.key, "UTF-8")+"="+URLDecoder.decode(e.value, "UTF-8")+"&"
+			returnThis += URLEncoder.encode(e.key, "UTF-8")+"="+URLEncoder.encode(e.value, "UTF-8")+"&"
 		}
 		
 		return returnThis.substring(0, returnThis.length()-2)

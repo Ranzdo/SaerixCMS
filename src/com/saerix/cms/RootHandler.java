@@ -19,6 +19,8 @@ import com.saerix.cms.database.basemodels.HostModel.HostRow;
 import com.saerix.cms.database.basemodels.RouteModel;
 import com.saerix.cms.database.basemodels.RouteModel.RouteRow;
 import com.saerix.cms.database.basemodels.RouteModel.RouteType;
+import com.saerix.cms.libapi.Listener;
+import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.util.HttpError;
 import com.saerix.cms.view.View;
 import com.sun.net.httpserver.HttpExchange;
@@ -78,6 +80,13 @@ public class RootHandler implements HttpHandler {
 				HostRow host = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostValue);
 				hostId = (Integer) host.getValue("host_id");
 			}
+			
+			//Run the library listeners
+			PageLoadEvent pageLoadEvent = new PageLoadEvent(hostId, hostValue, false, segmentsArray, getParameters, postParameters, handle);
+			for(Listener listener : SaerixCMS.getInstance().getLibraryLoader().getListeners()) {
+				listener.onPageLoad(pageLoadEvent);
+			}
+			
 			
 			RouteType routeType = RouteType.CONTROLLER;
 			String routeController = null;

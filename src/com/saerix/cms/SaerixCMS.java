@@ -10,13 +10,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.saerix.cms.controller.Controller;
+import com.saerix.cms.libapi.LibraryLoader;
 
 public class SaerixCMS {		
 	private static GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
 	private static ExecutorService executor = Executors.newCachedThreadPool();
 	private static Properties properties = new Properties();
 	private static SaerixCMS instance;
-	
 	
 	public static GroovyClassLoader getGroovyClassLoader() {
 		return gClassLoader;
@@ -57,14 +57,20 @@ public class SaerixCMS {
 			e.printStackTrace();
 		}
 	}
-
+	
 	private SaerixHttpServer server;
+	private LibraryLoader libLoader;
 	
 	public SaerixCMS() throws IOException {
+		libLoader = new LibraryLoader();
 		server = new SaerixHttpServer();
 	}
 	
 	public boolean isInDevMode() {
 		return SaerixCMS.getProperties().get("developer_mode").equals("true");
+	}
+	
+	public LibraryLoader getLibraryLoader() {
+		return libLoader;
 	}
 }
