@@ -193,4 +193,21 @@ public class Controller {
 	public void redirect(String segments, Map<String, String> para) {
 		
 	}
+	
+	public String base_url() {
+		String protocol;
+		String port = "";
+		if(controllerParameter.isSecure()) {
+			protocol = "https://";
+			if(!SaerixCMS.getProperties().get("secure_port").equals("443"))
+				port = ":"+SaerixCMS.getProperties().get("secure_port");
+		}
+		else {
+			protocol = "http://";
+			if(!SaerixCMS.getProperties().get("secure_port").equals("80"))
+				port = ":"+SaerixCMS.getProperties().get("secure_port");
+		}
+		
+		return protocol+getHostName()+port+"/";
+	}
 }

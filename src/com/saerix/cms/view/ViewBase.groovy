@@ -33,7 +33,7 @@ abstract class ViewBase extends Script {
 	
 	def base_url() {
 		def parentController = getProperty("controller")
-		return "http://"+parentController.getHostName()+":"+SaerixCMS.getProperties().get("port")+"/"
+		return parentController.base_url();
 	}
 	
 	def anchor(String text, String segments, Map<String, String> getParameters) {

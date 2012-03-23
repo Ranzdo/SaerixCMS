@@ -125,7 +125,7 @@ public class RootHandler implements HttpHandler {
 				return;
 			}
 			else if(routeType == RouteType.CONTROLLER) {
-				ControllerParameter controllerParameters = new ControllerParameter(hostId, hostValue, segmentsArray, postParameters, getParameters);
+				ControllerParameter controllerParameters = new ControllerParameter(hostId, hostValue, segmentsArray, postParameters, getParameters, false);
 				Class<? extends Controller> controllerClazz;
 				if(local)
 					controllerClazz = Controller.getLocalController(routeController);

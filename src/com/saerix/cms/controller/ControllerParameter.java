@@ -8,13 +8,15 @@ public class ControllerParameter {
 	private final String[] segments;
 	private final Map<String, String> postParameters;
 	private final Map<String, String> getParameters;
+	private final boolean secure;
 	
-	public ControllerParameter(int hostId, String hostValue, String[] segments, Map<String, String> postParameters, Map<String, String> getParameters) {
+	public ControllerParameter(int hostId, String hostValue, String[] segments, Map<String, String> postParameters, Map<String, String> getParameters, boolean secure) {
 		this.hostId = hostId;
 		this.hostValue = hostValue;
 		this.segments = segments;
 		this.postParameters = postParameters;
 		this.getParameters = getParameters;
+		this.secure = secure;
 	}
 
 	public int getHostId() {
@@ -35,5 +37,9 @@ public class ControllerParameter {
 
 	public Map<String, String> getGetParameters() {
 		return getParameters;
+	}
+
+	public boolean isSecure() {
+		return secure;
 	}
 }
