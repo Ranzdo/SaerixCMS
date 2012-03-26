@@ -128,9 +128,7 @@ public class RootHandler implements HttpHandler {
 			}
 			
 			if(routeType == RouteType.REDIRECT) {
-				handle.getResponseHeaders().add("Location", fullValue);
-				handle.sendResponseHeaders(301, 0);
-				handle.getResponseBody().close();
+				redirect(handle, fullValue);
 				return;
 			}
 			else if(routeType == RouteType.CONTROLLER) {
@@ -153,6 +151,11 @@ public class RootHandler implements HttpHandler {
 					return;
 				}
 				
+				if(controller.willRedirect() != null) {
+					redirect(handle, controller.willRedirect());
+					return;
+				}
+				
 				handle.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
 				
 				handle.sendResponseHeaders(200, 0);
@@ -166,5 +169,11 @@ public class RootHandler implements HttpHandler {
 			e.printStackTrace();
 			HttpError.send500(handle, e);
 		}
+	}
+	
+	private void redirect(HttpExchange handle, String url) throws IOException {
+		handle.getResponseHeaders().add("Location", url);
+		handle.sendResponseHeaders(301, 0);
+		handle.getResponseBody().close();
 	}
 }

@@ -19,6 +19,7 @@ import com.saerix.cms.database.InvalidSuperClass;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
+import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.util.Util;
 import com.saerix.cms.view.View;
 
@@ -130,6 +131,7 @@ public class Controller {
 		}
 	}
 	
+	private String redirect = null;
 	private ControllerParameter controllerParameter;
 	private Map<String, Object> passedVars = null;
 	private ArrayList<View> views = new ArrayList<View>();
@@ -138,7 +140,7 @@ public class Controller {
 		
 	}
 	
-	protected void showView(String viewName, Map<String, Object> variables) throws SQLException, IOException {
+	public void showView(String viewName, Map<String, Object> variables) throws SQLException, IOException {
 		View view = View.getView(controllerParameter.getHostId(), viewName);
 		if(view != null) {
 			view.setController(this);
@@ -161,9 +163,9 @@ public class Controller {
 		return controllerParameter.getHostValue();
 	}
 	
-	public String getSegement(int place) {
+	public String getSegement(int index) {
 		try {
-			return controllerParameter.getSegments()[place];
+			return controllerParameter.getSegments()[index];
 		}
 		catch(ArrayIndexOutOfBoundsException e) {
 			return null;
@@ -191,23 +193,18 @@ public class Controller {
 	}
 	
 	public void redirect(String segments, Map<String, String> para) {
-		
+		redirect = URLUtil.getURL(getHostName(), segments, para, controllerParameter.isSecure());
+	}
+	
+	public void redirect(String url) {
+		redirect = url;
+	}
+	
+	public String willRedirect() {
+		return redirect;
 	}
 	
 	public String base_url() {
-		String protocol;
-		String port = "";
-		if(controllerParameter.isSecure()) {
-			protocol = "https://";
-			if(!SaerixCMS.getProperties().get("secure_port").equals("443"))
-				port = ":"+SaerixCMS.getProperties().get("secure_port");
-		}
-		else {
-			protocol = "http://";
-			if(!SaerixCMS.getProperties().get("secure_port").equals("80"))
-				port = ":"+SaerixCMS.getProperties().get("secure_port");
-		}
-		
-		return protocol+getHostName()+port+"/";
+		return URLUtil.getURL(getHostName(), "", null, controllerParameter.isSecure());
 	}
 }

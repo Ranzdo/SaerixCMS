@@ -3,6 +3,7 @@ package com.saerix.cms.view
 import com.saerix.cms.*;
 import com.saerix.cms.database.*
 import com.saerix.cms.controller.*
+import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.views.*
 
 abstract class ViewBase extends Script {
@@ -16,11 +17,11 @@ abstract class ViewBase extends Script {
 		return View.mergeViews(Controller.invokeController(controllerClass, methodName, parentController.getControllerParameter()).getViews())
 	}
 	
-	def view(String viewName, Map<String, Object> map) {
+	def view(String viewName, Map<String, Object> vars) {
 		Controller parentController = getProperty("controller")
 		
 		View view = View.getView(parentController.getControllerParameter().getHostId(), viewName)
-		view.setVariables(map)
+		view.setVariables(vars)
 		view.setController(parentController)
 		
 		return view.evaluate()
@@ -35,20 +36,12 @@ abstract class ViewBase extends Script {
 		return parentController.base_url();
 	}
 	
-	def anchor(String text, String segments, Map<String, String> getParameters) {
-		return anchor(text, segments+writeGetParameters(getParameters))
+	def anchor(String text, String segments, Map<String, String> parameters) {
+		Controller parentController = getProperty("controller")
+		return "<a href=\""+URLUtil.getURL(segments, parameters, parameters, parentController.getControllerParameter().isSecure())+"\">"+text+"</a>"
 	}
 	
 	def anchor(String text, String segments) {
-		return "<a href=\""+base_url()+segments+"\">"+text+"</a>";
-	}
-	
-	def writeGetParameters(Map<String, String> getParameters) {
-		String returnThis = "?"
-		for ( e in getParameters) {
-			returnThis += URLEncoder.encode(e.key, "UTF-8")+"="+URLEncoder.encode(e.value, "UTF-8")+"&"
-		}
-		
-		return returnThis.substring(0, returnThis.length()-2)
+		return anchor(text, segments, null);
 	}
 }

@@ -134,7 +134,7 @@ public class View {
 	private Map<String, Object> variables;
 	private Controller controller = null;
 	
-	private View(EvaluatedView evalView) throws CompilationFailedException, IOException {
+	private View(EvaluatedView evalView) {
 		this.evalView = evalView;
 	}
 	
@@ -143,8 +143,6 @@ public class View {
 		
 		Binding binding = new Binding();
 		binding.setVariable("controller", controller);
-		CompilerConfiguration compiler = new CompilerConfiguration();
-		compiler.setScriptBaseClass("ViewBase");
 		
 		if(variables != null) {
 			for(Entry<String, Object> var : variables.entrySet())
