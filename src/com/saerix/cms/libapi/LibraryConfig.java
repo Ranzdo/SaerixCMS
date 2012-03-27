@@ -9,7 +9,8 @@ import java.util.HashMap;
 
 public class LibraryConfig {
 	private final String[] MUST_HAVE_KEYS = {
-		"main"	
+		"main",
+		"name"
 	};
 	
 	private HashMap<String, String> config = new HashMap<String, String>();
@@ -20,11 +21,14 @@ public class LibraryConfig {
 		String line;
 		int count = 1;
 		while ((line = br.readLine()) != null)   {
-			String[] split = line.split(":");
+			if(line.equals("") || line.startsWith("//"))
+				continue;
+			
+			String[] split = line.split("=");
 			if(split.length != 2)
 				throw new LibraryException("Could not parse the config file for the library "+filename+". Syntax error at line "+count+" .");
 				
-			config.put(split[0], split[1]);
+			config.put(split[0].trim(), split[1].trim());
 			count++;
 		}
 		in.close();

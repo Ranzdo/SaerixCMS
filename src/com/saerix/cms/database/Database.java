@@ -62,6 +62,7 @@ public final class Database {
 			//TODO If it can't connect to database, what to do?
 			e.printStackTrace();
 		}
+
 		Model model = database.getModel(tableName);
 		if(model == null)
 			throw new IllegalArgumentException("An model to the table "+tableName+" was not found.");

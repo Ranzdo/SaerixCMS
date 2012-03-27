@@ -11,15 +11,16 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipException;
 
-public class LibraryLoader {
-	private LibraryClassLoader libClassLoader = new LibraryClassLoader((URLClassLoader)ClassLoader.getSystemClassLoader());
-	
+import com.saerix.cms.SaerixCMS;
+
+public class LibraryLoader {	
 	private Map<String, Library> libraries = Collections.synchronizedMap(new HashMap<String, Library>());
 	private Vector<Listener> listeners = new Vector<Listener>();
 	
 	public LibraryLoader() {
-		
+		reloadLibraries();
 	}
 	
 	public void registerListener(Listener listener) {
@@ -39,24 +40,31 @@ public class LibraryLoader {
 		try {
 			File libdir = new File("libraries"+File.separator);
 			for(File file : libdir.listFiles()) {
-				JarFile jar = new JarFile(file);
+				JarFile jar;
+				try {
+					jar = new JarFile(file);
+				}
+				catch(ZipException e) {
+					continue;
+				}
 				for (Enumeration<JarEntry> list = jar.entries(); list.hasMoreElements(); ) {
 					JarEntry entry = list.nextElement();
 					if(entry.getName().equals("plugin.conf")) {
 						LibraryConfig libConfig = new LibraryConfig(jar.getInputStream(entry), jar.getName());
 						
-						libClassLoader.addLibJar(file);
+						SaerixCMS.getGroovyClassLoader().addURL(file.toURI().toURL());
 						
 						try {
-							Class<?> mainClass = libClassLoader.loadClass(libConfig.get("main"));
+							Class<?> mainClass = SaerixCMS.getGroovyClassLoader().loadClass(libConfig.get("main"));
 							
-							if(!mainClass.isAssignableFrom(Library.class))
+							if(!Library.class.isAssignableFrom(Library.class))
 								throw new LibraryException("Main class is not assignable with the Library class.");
 
 							@SuppressWarnings("unchecked")
 							Class<? extends Library> clazz = (Class<? extends Library>) mainClass;
 							Library lib = clazz.newInstance();
 							lib.config = libConfig;
+							lib.loader = this;
 							lib.onEnable();
 							libraries.put(libConfig.get("name"), lib);
 							
@@ -73,8 +81,6 @@ public class LibraryLoader {
 						break;
 					}
 			    }
-				
-				
 			}
 		}
 		catch(IOException e) {
