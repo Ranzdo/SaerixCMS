@@ -59,7 +59,7 @@ public class LibraryLoader {
 							
 							if(!Library.class.isAssignableFrom(Library.class))
 								throw new LibraryException("Main class is not assignable with the Library class.");
-
+							
 							@SuppressWarnings("unchecked")
 							Class<? extends Library> clazz = (Class<? extends Library>) mainClass;
 							Library lib = clazz.newInstance();

@@ -9,18 +9,18 @@ import com.saerix.cms.views.*
 abstract class ViewBase extends Script {
 	def view_controller(String controllerName, String methodName, Map<String, Object> passedVars) {
 		Controller parentController = getProperty("controller")
-		def controllerClass = Controller.getController(parentController.getControllerParameter().getHostId(), controllerName)
-		Controller controller = Controller.invokeController(controllerClass, methodName, parentController.getControllerParameter())
+		def controllerClass = Controller.getController(parentController.getPageLoadEvent().getHostId(), controllerName)
+		Controller controller = Controller.invokeController(controllerClass, methodName, parentController.getPageLoadEvent())
 		
 		controller.setPassedVariables(passedVars)
 		
-		return View.mergeViews(Controller.invokeController(controllerClass, methodName, parentController.getControllerParameter()).getViews())
+		return View.mergeViews(Controller.invokeController(controllerClass, methodName, parentController.getPageLoadEvent()).getViews())
 	}
 	
 	def view(String viewName, Map<String, Object> vars) {
 		Controller parentController = getProperty("controller")
 		
-		View view = View.getView(parentController.getControllerParameter().getHostId(), viewName)
+		View view = View.getView(parentController.getPageLoadEvent().getHostId(), viewName)
 		view.setVariables(vars)
 		view.setController(parentController)
 		
@@ -38,7 +38,7 @@ abstract class ViewBase extends Script {
 	
 	def anchor(String text, String segments, Map<String, String> parameters) {
 		Controller parentController = getProperty("controller")
-		return "<a href=\""+URLUtil.getURL(segments, parameters, parameters, parentController.getControllerParameter().isSecure())+"\">"+text+"</a>"
+		return "<a href=\""+URLUtil.getURL(segments, parameters, parameters, parentController.getPageLoadEvent().isSecure())+"\">"+text+"</a>"
 	}
 	
 	def anchor(String text, String segments) {

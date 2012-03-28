@@ -6,13 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.saerix.cms.controller.Controller;
-import com.saerix.cms.controller.ControllerParameter;
 import com.saerix.cms.database.Database;
 import com.saerix.cms.database.basemodels.HostModel;
 import com.saerix.cms.database.basemodels.HostModel.HostRow;
@@ -54,23 +51,11 @@ public class RootHandler implements HttpHandler {
 			String[] segmentsAndPara = uriRequest.split("\\?");
 			
 			String segments = segmentsAndPara[0];
-			Map<String, String> getParameters = new HashMap<String, String>();
-			if(segmentsAndPara.length == 2) {
-				for(String parameter : segmentsAndPara[1].split("&")) {
-					String[] para = parameter.split("=");
-					if(para.length == 2) {
-						getParameters.put(URLDecoder.decode(para[0], "UTF-8"), URLDecoder.decode(para[1], "UTF-8"));
-					}
-				}
-			}
+			Map<String, List<String>> getParameters = (Map<String, List<String>>) handle.getAttribute("getparameters");
 			
-			Map<String, String> postParameters = new HashMap<String, String>();
-			if(handle.getRequestMethod().equals("POST")) {
-				Object o = handle.getAttribute("parameters");
-				if(o instanceof Map<?, ?>) {
-					postParameters = (Map<String, String>) o;
-				}
-			}
+			Map<String, List<String>> postParameters = (Map<String, List<String>>) handle.getAttribute("postparameters");
+			
+			Map<String, List<String>> cookies = (Map<String, List<String>>) handle.getAttribute("cookies");
 			
 			String[] segmentsArray = segments.split("/");
 			int hostId;
@@ -82,7 +67,7 @@ public class RootHandler implements HttpHandler {
 			}
 			
 			//Run the library listeners
-			PageLoadEvent pageLoadEvent = new PageLoadEvent(hostId, hostValue, false, segmentsArray, getParameters, postParameters, handle);
+			PageLoadEvent pageLoadEvent = new PageLoadEvent(hostId, hostValue, false, segmentsArray, getParameters, postParameters, cookies, handle);
 			for(Listener listener : SaerixCMS.getInstance().getLibraryLoader().getListeners()) {
 				listener.onPageLoad(pageLoadEvent);
 			}
@@ -132,7 +117,6 @@ public class RootHandler implements HttpHandler {
 				return;
 			}
 			else if(routeType == RouteType.CONTROLLER) {
-				ControllerParameter controllerParameters = new ControllerParameter(hostId, hostValue, segmentsArray, postParameters, getParameters, false);
 				Class<? extends Controller> controllerClazz;
 				if(local)
 					controllerClazz = Controller.getLocalController(routeController);
@@ -144,7 +128,7 @@ public class RootHandler implements HttpHandler {
 				}
 				Controller controller;
 				try {
-					controller = Controller.invokeController(controllerClazz, routeMethod, controllerParameters);
+					controller = Controller.invokeController(controllerClazz, routeMethod, pageLoadEvent);
 				}
 				catch(NoSuchMethodException e) {
 					HttpError.send404(handle);

@@ -19,6 +19,7 @@ import com.saerix.cms.database.InvalidSuperClass;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
+import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.util.Util;
 import com.saerix.cms.view.View;
@@ -34,10 +35,7 @@ public class Controller {
 		if(!file.exists())
 			return null;
 		
-		Class<? extends Controller> clazz;
-		synchronized(localControllers) {
-			clazz = localControllers.get(file);
-		}
+		Class<? extends Controller> clazz = localControllers.get(file);
 		
 		if(clazz != null || SaerixCMS.getInstance().isInDevMode()) {
 			clazz = SaerixCMS.getGroovyClassLoader().parseClass("package cmscontrollers;"+Util.readFile(file));
@@ -53,10 +51,8 @@ public class Controller {
 	}
 	
 	public static Class<? extends Controller> getController(int hostId, String controllerName) {
-		Integer controllerId = null;
-		synchronized(controllersByName) {
-			controllerId = controllersByName.get(hostId+":"+controllerName);
-		}
+		Integer controllerId = controllersByName.get(hostId+":"+controllerName);
+		
 		if(controllerId == null)
 			throw new IllegalArgumentException("The controller with the name "+controllerName+" was not found.");
 		
@@ -64,27 +60,24 @@ public class Controller {
 	}
 	
 	public static Class<? extends Controller> getController(int controllerId) {
-		Class<? extends Controller> clazz = null;
-		synchronized(controllersById) {
-			clazz = controllersById.get(controllerId);
-		}
+		Class<? extends Controller> clazz = controllersById.get(controllerId);
 		if(clazz == null)
 			throw new IllegalArgumentException("The controller with id "+controllerId+" was not found.");
 		return clazz;
 	}
 	
-	public static Controller invokeController(Class<? extends Controller> controllerClass, String methodName, ControllerParameter parameters) throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+	public static Controller invokeController(Class<? extends Controller> controllerClass, String methodName, PageLoadEvent pageLoadEvent) throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
 		if(controllerClass == null)
 			throw new NullPointerException("The field controllerClass can not be null.");
 		
 		if(methodName == null)
 			throw new NullPointerException("The field methodName can not be null.");
 		
-		if(parameters == null)
+		if(pageLoadEvent == null)
 			throw new NullPointerException("The field parameters can not be null.");
 		
 		Controller controller = controllerClass.newInstance();
-		controller.controllerParameter = parameters;
+		controller.controllerParameter = pageLoadEvent;
 		Method method = controllerClass.getMethod(methodName);
 		method.invoke(controller);
 		return controller;
@@ -132,7 +125,7 @@ public class Controller {
 	}
 	
 	private String redirect = null;
-	private ControllerParameter controllerParameter;
+	private PageLoadEvent controllerParameter;
 	private Map<String, Object> passedVars = null;
 	private ArrayList<View> views = new ArrayList<View>();
 	
@@ -155,12 +148,12 @@ public class Controller {
 		return views;
 	}
 	
-	public ControllerParameter getControllerParameter() {
+	public PageLoadEvent getPageLoadEvent() {
 		return controllerParameter;
 	}
 	
 	public String getHostName() {
-		return controllerParameter.getHostValue();
+		return controllerParameter.getHostName();
 	}
 	
 	public String getSegement(int index) {
@@ -173,11 +166,15 @@ public class Controller {
 	}
 	
 	public String getPost(String parameter) {
-		return controllerParameter.getPostParameters().get(parameter);
+		List<String> list = controllerParameter.getPostParameters().get(parameter);
+		
+		return list == null ? "" : list.size() < 0 ? "" : list.get(0);
 	}
 	
 	public String getGet(String parameter) {
-		return controllerParameter.getGetParameters().get(parameter);
+		List<String> list = controllerParameter.getGetParameters().get(parameter);
+		
+		return list == null ? "" : list.size() < 0 ? "" : list.get(0);
 	}
 	
 	public Model getModel(String tableName) {

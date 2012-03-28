@@ -40,10 +40,7 @@ public class View {
 		if(SaerixCMS.getInstance().isInDevMode() && hostId == -1)
 			return reloadView(hostId, viewName);
 		
-		EvaluatedView view = null;
-		synchronized (cachedViews) {
-			view = cachedViews.get(hostId+viewName);
-		}
+		EvaluatedView view = cachedViews.get(hostId+viewName);
 		if(view == null)
 			return reloadView(hostId, viewName);
 		

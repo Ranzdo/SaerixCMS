@@ -1,5 +1,6 @@
 package com.saerix.cms.libapi.events;
 
+import java.util.List;
 import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -9,19 +10,21 @@ public class PageLoadEvent extends Event {
 	private final String hostName;
 	private final boolean secure;
 	private final String[] segments;
-	private final Map<String, String> getParameters;
-	private final Map<String, String> postParameters;
+	private final Map<String, List<String>> getParameters;
+	private final Map<String, List<String>> postParameters;
+	private final Map<String, List<String>> cookies;
 	private final HttpExchange handle;
 	
 	public PageLoadEvent(int hostId, String hostName, boolean secure,
-			String[] segments, Map<String, String> getParameters,
-			Map<String, String> postParameters, HttpExchange handle) {
+			String[] segments, Map<String, List<String>> getParameters2,
+			Map<String, List<String>> postParameters2, Map<String, List<String>> cookies2, HttpExchange handle) {
 		this.hostId = hostId;
 		this.hostName = hostName;
 		this.secure = secure;
 		this.segments = segments;
-		this.getParameters = getParameters;
-		this.postParameters = postParameters;
+		this.getParameters = getParameters2;
+		this.postParameters = postParameters2;
+		this.cookies = cookies2;
 		this.handle = handle;
 	}
 
@@ -41,13 +44,18 @@ public class PageLoadEvent extends Event {
 		return segments;
 	}
 
-	public Map<String, String> getGetParameters() {
+	public Map<String, List<String>> getGetParameters() {
 		return getParameters;
 	}
 
-	public Map<String, String> getPostParameters() {
+	public Map<String, List<String>> getPostParameters() {
 		return postParameters;
 	}
+	
+	public Map<String, List<String>> getCookies() {
+		return cookies;
+	}
+
 
 	public HttpExchange getHandle() {
 		return handle;

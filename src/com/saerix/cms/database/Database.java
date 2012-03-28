@@ -38,10 +38,9 @@ public final class Database {
 	public static Model getTable(String tableName) {
 		if(cleaner.getState() == Thread.State.NEW)
 			cleaner.start();
-		Database database = null;
-		synchronized (databaseConnections) {
-			database = databaseConnections.get(Thread.currentThread());
-		}
+		
+		Database database = databaseConnections.get(Thread.currentThread());
+		
 		try {
 			if(database == null) {
 				database = new Database();
