@@ -58,6 +58,7 @@ public class SaerixCMS {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private SaerixHttpServer server;
 	private LibraryLoader libLoader;
 	

@@ -69,14 +69,24 @@ public final class Database {
 			return model;
 	}
 	
-	public static synchronized void reloadAllModels() {
-		for(Entry<Thread, Database> entry : databaseConnections.entrySet()) {
-			entry.getValue().reloadModels();
+	public static void reloadAllModels() {
+		synchronized (databaseConnections) {
+			for(Entry<Thread, Database> entry : databaseConnections.entrySet()) {
+				entry.getValue().reloadModels();
+			}
 		}
 	}
 	
-	//TODO Is reload of models thread-safe?
-	private Map<String, Class<? extends Model>> mappedModels = new HashMap<String, Class<? extends Model>>();
+	public static void reloadModel(ModelRow row) {
+		synchronized (databaseConnections) {
+			for(Entry<Thread, Database> entry : databaseConnections.entrySet()) {
+				entry.getValue().reloadModel2(row);
+			}
+		}
+	}
+	
+	//TODO Is reload of models thread-safe? probly not
+	private Map<String, Class<? extends Model>> mappedModels = Collections.synchronizedMap(new HashMap<String, Class<? extends Model>>());
 	
 	private Connection con;
 	
@@ -119,9 +129,20 @@ public final class Database {
 			mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), (Class<? extends Model>) clazz);
 		
 		for(ModelRow row : ((ModelModel)Database.getTable("models")).getAllModels()) {
-			Class<? extends Model> clazz = row.loadModelClass();
-			mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), clazz);
+			reloadModel(row);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void reloadModel2(ModelRow row) {
+		Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package models"+row.getHostId()+";"+row.getContent());
+		if(!Model.class.isAssignableFrom(clazz))
+			throw new IllegalArgumentException("The supplied class does not extend model.");
+		
+		if(!clazz.isAnnotationPresent(TableConfig.class))
+			throw new IllegalArgumentException("Table config not set.");
+		
+		mappedModels.put(clazz.getAnnotation(TableConfig.class).name(), (Class<? extends Model>) clazz);
 	}
 	
 	public Connection getConnection() {

@@ -89,7 +89,7 @@ public class Controller {
 		
 		int controllerId = controllerRow.getId();
 		
-		Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package controllers;"+controllerRow.getContent());
+		Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package controllers"+controllerRow.getHostId()+";"+controllerRow.getContent());
 		
 		if(clazz.getSuperclass() != Controller.class)
 			throw new InvalidSuperClass(clazz.getSuperclass(), Controller.class, clazz);
@@ -168,13 +168,13 @@ public class Controller {
 	public String getPost(String parameter) {
 		List<String> list = controllerParameter.getPostParameters().get(parameter);
 		
-		return list == null ? "" : list.size() < 0 ? "" : list.get(0);
+		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
 	
 	public String getGet(String parameter) {
 		List<String> list = controllerParameter.getGetParameters().get(parameter);
 		
-		return list == null ? "" : list.size() < 0 ? "" : list.get(0);
+		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
 	
 	public Model getModel(String tableName) {
