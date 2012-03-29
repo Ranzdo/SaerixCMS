@@ -1,1 +1,3 @@
-/page = /test/index
+/ = /main/index
+/editor = /editor/index
+/login = /user/login
