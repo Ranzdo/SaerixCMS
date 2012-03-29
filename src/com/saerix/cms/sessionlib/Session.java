@@ -22,7 +22,11 @@ public class Session {
 		lastActivity = System.currentTimeMillis();
 	}
 	
-	public UserData getUserData() {
+	public UserData userdata() {
 		return userData;
+	}
+	
+	public void destroy() {
+		SessionLibrary.getInstance().destroy();
 	}
 }

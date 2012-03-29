@@ -21,6 +21,8 @@ import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
 import com.saerix.cms.libapi.Library;
 import com.saerix.cms.libapi.events.PageLoadEvent;
+import com.saerix.cms.sessionlib.Session;
+import com.saerix.cms.sessionlib.SessionLibrary;
 import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.util.Util;
 import com.saerix.cms.view.View;
@@ -134,7 +136,7 @@ public class Controller {
 		
 	}
 	
-	public void showView(String viewName, Map<String, Object> variables) throws SQLException, IOException {
+	public void view(String viewName, Map<String, Object> variables) throws SQLException, IOException {
 		View view = View.getView(controllerParameter.getHostId(), viewName);
 		if(view != null) {
 			view.setController(this);
@@ -143,6 +145,10 @@ public class Controller {
 		}
 		else
 			throw new IllegalArgumentException("Could not find a view "+viewName);
+	}
+	
+	public void view(String viewName) throws SQLException, IOException {
+		view(viewName, null);
 	}
 	
 	public List<View> getViews() {
@@ -157,7 +163,7 @@ public class Controller {
 		return controllerParameter.getHostName();
 	}
 	
-	public String getSegement(int index) {
+	public String segment(int index) {
 		try {
 			return controllerParameter.getSegments()[index];
 		}
@@ -166,19 +172,19 @@ public class Controller {
 		}
 	}
 	
-	public String getPost(String parameter) {
+	public String post(String parameter) {
 		List<String> list = controllerParameter.getPostParameters().get(parameter);
 		
 		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
 	
-	public String getGet(String parameter) {
+	public String get(String parameter) {
 		List<String> list = controllerParameter.getGetParameters().get(parameter);
 		
 		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
 	
-	public Model getModel(String tableName) {
+	public Model model(String tableName) {
 		return Database.getTable(tableName);
 	}
 	
@@ -208,5 +214,9 @@ public class Controller {
 	
 	public Library lib(String libName) {
 		return SaerixCMS.getInstance().getLibraryLoader().getLib(libName);
+	}
+	
+	public Session session() {
+		return ((SessionLibrary)lib("session")).session();
 	}
 }

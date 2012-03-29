@@ -8,6 +8,12 @@ import com.saerix.cms.libapi.LibraryConfig;
 
 @LibraryConfig(name = "session")
 public class SessionLibrary extends Library {
+	private static SessionLibrary instance;
+
+	public static SessionLibrary getInstance() {
+		return instance;
+	}
+	
 	private RandomString sessionIdGenerator = new RandomString(20);
 	
 	private String sessionKey = "session";
@@ -20,6 +26,7 @@ public class SessionLibrary extends Library {
 	@Override
 	public void onEnable() {
 		getLibraryLoader().registerListener(new SessionListener(this));
+		instance = this;
 	}
 	
 	public Session getSession(String id) {
