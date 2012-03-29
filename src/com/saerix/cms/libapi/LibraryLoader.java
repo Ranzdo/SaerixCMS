@@ -13,8 +13,13 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
 import com.saerix.cms.SaerixCMS;
+import com.saerix.cms.sessionlib.SessionLibrary;
 
-public class LibraryLoader {	
+public class LibraryLoader {
+	private Class<?>[] baseLibraries = {
+		SessionLibrary.class
+	};
+	
 	private Map<String, Library> libraries = Collections.synchronizedMap(new HashMap<String, Library>());
 	private Vector<Listener> listeners = new Vector<Listener>();
 	
@@ -34,8 +39,15 @@ public class LibraryLoader {
 		return listeners;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void reloadLibraries() {
 		libraries.clear();
+		
+		//Load base first
+		for(Class<?> clazz : baseLibraries) {
+			loadLibrary((Class<? extends Library>) clazz, null);
+		}
+		
 		try {
 			File libdir = new File("libraries"+File.separator);
 			for(File file : libdir.listFiles()) {
@@ -49,7 +61,7 @@ public class LibraryLoader {
 				for (Enumeration<JarEntry> list = jar.entries(); list.hasMoreElements(); ) {
 					JarEntry entry = list.nextElement();
 					if(entry.getName().equals("plugin.conf")) {
-						LibraryConfig libConfig = new LibraryConfig(jar.getInputStream(entry), jar.getName());
+						LibraryConfigFile libConfig = new LibraryConfigFile(jar.getInputStream(entry), jar.getName());
 						
 						SaerixCMS.getGroovyClassLoader().addURL(file.toURI().toURL());
 						
@@ -59,21 +71,11 @@ public class LibraryLoader {
 							if(!Library.class.isAssignableFrom(Library.class))
 								throw new LibraryException("Main class is not assignable with the Library class.");
 							
-							@SuppressWarnings("unchecked")
 							Class<? extends Library> clazz = (Class<? extends Library>) mainClass;
-							Library lib = clazz.newInstance();
-							lib.config = libConfig;
-							lib.loader = this;
-							lib.onEnable();
-							libraries.put(libConfig.get("name"), lib);
+							
+							loadLibrary(clazz, libConfig);
 							
 						} catch (ClassNotFoundException e) {
-							e.printStackTrace();
-						} catch (LibraryException e) {
-							e.printStackTrace();
-						} catch (InstantiationException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
 							e.printStackTrace();
 						}
 						
@@ -83,6 +85,25 @@ public class LibraryLoader {
 			}
 		}
 		catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadLibrary(Class<? extends Library> clazz, LibraryConfigFile libConfig) {
+		try {
+			if(!clazz.isAnnotationPresent(LibraryConfig.class))
+				throw new LibraryException("LibraryConfig annonation missng in the class "+clazz.getName());
+				
+			Library lib = clazz.newInstance();
+			lib.config = libConfig;
+			lib.loader = this;
+			lib.onEnable();
+			libraries.put(clazz.getAnnotation(LibraryConfig.class).name(), lib);
+		} catch (LibraryException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
 	}

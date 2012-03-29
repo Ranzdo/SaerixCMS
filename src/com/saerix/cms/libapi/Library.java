@@ -2,7 +2,7 @@ package com.saerix.cms.libapi;
 
 public abstract class Library {
 	LibraryLoader loader;
-	LibraryConfig config;
+	LibraryConfigFile config;
 
 	public abstract void onEnable();
 	
@@ -10,7 +10,7 @@ public abstract class Library {
 		return loader;
 	}
 	
-	public LibraryConfig getConfig() {
+	public LibraryConfigFile getConfig() {
 		return config;
 	}
 }
