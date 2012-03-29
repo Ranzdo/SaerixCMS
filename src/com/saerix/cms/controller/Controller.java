@@ -19,6 +19,7 @@ import com.saerix.cms.database.InvalidSuperClass;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
+import com.saerix.cms.libapi.Library;
 import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.util.Util;
@@ -37,7 +38,7 @@ public class Controller {
 		
 		Class<? extends Controller> clazz = localControllers.get(file);
 		
-		if(clazz != null || SaerixCMS.getInstance().isInDevMode()) {
+		if(clazz == null || SaerixCMS.getInstance().isInDevMode()) {
 			clazz = SaerixCMS.getGroovyClassLoader().parseClass("package cmscontrollers;"+Util.readFile(file));
 			if(clazz.getSuperclass() != Controller.class)
 				throw new InvalidSuperClass(clazz.getSuperclass(), Controller.class, clazz);
@@ -203,5 +204,9 @@ public class Controller {
 	
 	public String base_url() {
 		return URLUtil.getURL(getHostName(), "", null, controllerParameter.isSecure());
+	}
+	
+	public Library lib(String libName) {
+		return SaerixCMS.getInstance().getLibraryLoader().getLib(libName);
 	}
 }

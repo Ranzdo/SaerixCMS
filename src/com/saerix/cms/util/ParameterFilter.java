@@ -42,8 +42,10 @@ public class ParameterFilter extends Filter {
 
     private void parsePostParameters(HttpExchange exchange)
         throws IOException {
+    	 Map<String, List<String>> parameters = new HashMap<String, List<String>>();
+    	 exchange.setAttribute("postparameters", parameters);
+    	 
         if ("post".equalsIgnoreCase(exchange.getRequestMethod())) {
-            Map<String, List<String>> parameters = new HashMap<String, List<String>>();
             InputStreamReader isr =
                 new InputStreamReader(exchange.getRequestBody(),"utf-8");
             BufferedReader br = new BufferedReader(isr);
@@ -56,6 +58,7 @@ public class ParameterFilter extends Filter {
     
     private void parseCookies(HttpExchange exchange) {
     	Map<String, List<String>> parameters = new HashMap<String, List<String>>();
+    	exchange.setAttribute("cookies", parameters);
     	
     	List<String> cookielist = exchange.getRequestHeaders().get("Cookie");
     	if(cookielist == null ? true : cookielist.size() < 1)
@@ -68,11 +71,11 @@ public class ParameterFilter extends Filter {
     		if(cookiesplit[0].equals(""))
     			continue;
     		
-    		String key = cookiesplit[0];
+    		String key = cookiesplit[0].trim();
     		String value = "";
     		
     		if(cookiesplit.length > 1) {
-    			value = cookiesplit[1];
+    			value = cookiesplit[1].trim();
     		}
     		
 			if (parameters.containsKey(key)) {
@@ -92,8 +95,6 @@ public class ParameterFilter extends Filter {
 				 parameters.put(key, newList);
 			 }
     	}
-    	
-    	exchange.setAttribute("cookies", parameters);
     }
     
      private void parseQuery(String query, Map<String, List<String>> parameters)
