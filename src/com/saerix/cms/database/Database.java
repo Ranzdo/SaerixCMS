@@ -157,7 +157,7 @@ public final class Database {
 				ArrayList<Thread> toRemove = new ArrayList<Thread>();
 				for(Entry<Thread, Database> entry : databaseConnections.entrySet()) {
 					Database database = entry.getValue();
-					if(System.currentTimeMillis()-database.lastActive > 60000) {
+					if(System.currentTimeMillis() - database.lastActive > 60000) {
 						toRemove.add(entry.getKey());
 					}
 				}
