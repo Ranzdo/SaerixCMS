@@ -113,8 +113,13 @@ public class View {
 	        			ignore = false;
 	        		}
 	        		else if(!ignore) {
-	        			tags.add(groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
-	        			evaluated.append("{Script:"+tags.size()+"}");
+	        			try{
+		        			tags.add(groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
+		        			evaluated.append("{Script:"+tags.size()+"}");
+	        			}
+	        			catch(Exception e) {
+	        				evaluated.append(e.getMessage());
+	        			}
 	        		}
 	        		else {
 	        			evaluated.append("{"+script.toString()+"}");
@@ -149,7 +154,13 @@ public class View {
 		for(int i = 1; i <= evalView.tags.size();i++) {
 			Script script = evalView.tags.get(i-1);
 			script.setBinding(binding);
-			Object object = script.run();
+			Object object;
+			try{
+				object = script.run();
+			}
+			catch(Exception e) {
+				object = e.getMessage();
+			}
 			if(object != null)
 				content = content.replace("{Script:"+i+"}", object.toString());
 		}
