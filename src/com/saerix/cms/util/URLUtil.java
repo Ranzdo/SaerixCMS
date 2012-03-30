@@ -34,8 +34,8 @@ public class URLUtil {
 		}
 		else {
 			protocol = "http://";
-			if(!SaerixCMS.getProperties().get("secure_port").equals("80"))
-				port = ":"+SaerixCMS.getProperties().get("secure_port");
+			if(!SaerixCMS.getProperties().get("port").equals("80"))
+				port = ":"+SaerixCMS.getProperties().get("port");
 		}
 		
 		return protocol+hostName+port+"/"+segments+glueParameters(parameters);

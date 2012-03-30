@@ -39,10 +39,10 @@ public class SaerixCMS {
 		//properties.load(new FileInputStream("config"));
 		SaerixCMS.getProperties().put("developer_mode", "true");
 		SaerixCMS.getProperties().put("base_url", "http://127.0.0.1");
-		SaerixCMS.getProperties().put("mysql_hostname", "62.20.221.96");
+		SaerixCMS.getProperties().put("mysql_hostname", "127.0.0.1");
 		SaerixCMS.getProperties().put("mysql_port", "3306");
-		SaerixCMS.getProperties().put("mysql_username", "saerixcms");
-		SaerixCMS.getProperties().put("mysql_password", "258012");
+		SaerixCMS.getProperties().put("mysql_username", "root");
+		SaerixCMS.getProperties().put("mysql_password", "");
 		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
 		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
 		SaerixCMS.getProperties().put("cms_hostname", "127.0.0.1");

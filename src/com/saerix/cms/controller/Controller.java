@@ -200,8 +200,8 @@ public class Controller {
 		redirect = URLUtil.getURL(getHostName(), segments, para, controllerParameter.isSecure());
 	}
 	
-	public void redirect(String url) {
-		redirect = url;
+	public void redirect(String segments) {
+		redirect = URLUtil.getURL(getHostName(), segments, null, controllerParameter.isSecure());
 	}
 	
 	public String willRedirect() {

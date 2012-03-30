@@ -34,12 +34,12 @@ public class UserModel extends Model {
 		return (UserRow) get().getRow();
 	}
 	
-	public int register(String username, String password) throws SQLException {
+	public long register(String username, String password) throws SQLException {
 		Map<String, Object> insert = new HashMap<String, Object>();
 		insert.put("username", username);
 		insert.put("password", hashPassword(password));
 		
-		return (Integer) insert(insert);
+		return (Long) insert(insert);
 	}
 	
 	private String hashPassword(String password) {

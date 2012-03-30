@@ -1,7 +1,9 @@
 package com.saerix.cms.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.MappedByteBuffer;
@@ -11,15 +13,14 @@ import java.security.MessageDigest;
 
 public class Util {
 	public static String readFile(File file) throws IOException {
-		  FileInputStream stream = new FileInputStream(file);
-		  try {
-		    FileChannel fc = stream.getChannel();
-		    MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-		    return Charset.availableCharsets().get("UTF-8").decode(bb).toString();
+		  BufferedReader in = new BufferedReader(new FileReader(file));
+		  String returnThis = "";
+		  String s;
+		  while((s = in.readLine()) != null) {
+				returnThis += new String(s.concat("\n").getBytes("UTF-8"));
 		  }
-		  finally {
-		    stream.close();
-		  }
+		  in.close();
+		  return returnThis;
 	}
 	
 	public static byte[] createChecksum(File file) {
