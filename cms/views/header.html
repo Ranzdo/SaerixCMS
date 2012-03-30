@@ -2,13 +2,36 @@
 <html>
 <head>
 <title>SaerixCMS - {title}</title>
-<link href="{base_url()}res/style.css" rel="stylesheet" type="text/css" />
+<link href="{resource_url('css/style.css')}" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="{resource_url('css/codemirror.css')}" />
+<link rel="stylesheet" type="text/css" href="{resource_url('css/jqueryslidemenu.css')}" />
 
-<script src="{base_url()}res/jquery.js" type="text/javascript"></script>
-<script src="{base_url()}res/script.js" type="text/javascript"></script>
-    
+{literal}
+<!--[if lte IE 7]>
+<style type="text/css">
+html .jqueryslidemenu{height: 1%;} /*Holly Hack for IE7 and below*/
+</style>
+<![endif]-->
+{/literal}
+
+<script src="{resource_url('js/jquery.js')}" type="text/javascript"></script>
+<script type="text/javascript" src="{resource_url('js/jqueryslidemenu.js')}"></script>
+<script src="{resource_url('js/codemirror.js')}" type="text/javascript"></script>
+
+<script src="{resource_url('js/script.js')}" type="text/javascript"></script>
+
 </head>
 
 <body>
+<div id="wrapper">
+<div id="header"></div>
+<div id="menu">
 
+<ul>
+<li>Home</li>
+<li>Editor</li>
+</ul>
 
+<br style="clear:left;"/>
+</div>
+<div id="content">

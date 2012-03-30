@@ -5,6 +5,6 @@ import com.saerix.cms.view.*;
 
 class editor extends Controller {
 	def index() {
-		
+		view("editor")
 	}
 }

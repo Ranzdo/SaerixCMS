@@ -38,10 +38,15 @@ abstract class ViewBase extends Script {
 	
 	def anchor(String text, String segments, Map<String, String> parameters) {
 		Controller parentController = getProperty("controller")
-		return "<a href=\""+URLUtil.getURL(segments, parameters, parameters, parentController.getPageLoadEvent().isSecure())+"\">"+text+"</a>"
+		return "<a href=\""+URLUtil.getURL(parentController.getHostName(), segments, parameters, parentController.getPageLoadEvent().isSecure())+"\">"+text+"</a>"
 	}
 	
 	def anchor(String text, String segments) {
 		return anchor(text, segments, null);
+	}
+	
+	def resource_url(String resourcename) {
+		Controller parentController = getProperty("controller")
+		return URLUtil.getURL(parentController.getHostName(), "res/"+resourcename, null, parentController.getPageLoadEvent().isSecure());
 	}
 }

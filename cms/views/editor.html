@@ -1,0 +1,46 @@
+{view('header', [title:'Editor'])}
+<div class="file-browser">
+<ul>
+<li>Controllers
+<ul>
+<li>index</li>
+<li>user</li>
+</ul>
+</li>
+<li>Models
+<ul>
+<li>users</li>
+<li>events</li>
+</ul>
+</li>
+<li>Views
+<ul>
+<li>index</li>
+<li>login</li>
+</ul>
+</li>
+<li>Librarys
+<ul>
+<li>haha</li>
+<li>haha</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="editor">
+<textarea id="code" name="code">
+
+</textarea>
+</div>
+{literal}
+<script>
+	var editor = CodeMirror.fromTextArea(document.getElementById("code"),{
+	        lineNumbers: true,
+	        matchBrackets: true,
+	        mode: "text/html"
+	});
+</script>
+{/literal}
+
+
+{view('footer')}

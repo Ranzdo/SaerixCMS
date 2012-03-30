@@ -13,7 +13,7 @@ class user extends Controller {
 			def user = model("users").verify(post("username"), post("password"))
 			if(user != null) {
 				session().userdata().set("loggedin", true)
-				session().userdata().set("user_id", user.id())
+				session().userdata().set("user", user))
 				redirect("")
 			}
 			else
