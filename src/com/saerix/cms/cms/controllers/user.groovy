@@ -1,3 +1,4 @@
+package com.saerix.cms.cms.controllers
 import com.saerix.cms.controller.*;
 import com.saerix.cms.database.*;
 import com.saerix.cms.database.basemodels.*;
@@ -13,7 +14,7 @@ class user extends Controller {
 			def user = model("users").verify(post("username"), post("password"))
 			if(user != null) {
 				session().userdata().set("loggedin", true)
-				session().userdata().set("user", user))
+				session().userdata().set("user", user)
 				redirect("")
 			}
 			else

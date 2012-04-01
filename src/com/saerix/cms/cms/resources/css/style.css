@@ -17,7 +17,6 @@ background-color:#FFFFFF;
 
 /* File browser */
 .file-browser {
-	float:left;
 	margin-right:50px;
 }
 
@@ -27,6 +26,6 @@ background-color:#FFFFFF;
 
 
 /* Editor */
-.CodeMirror {
+#editor {
 	
 }

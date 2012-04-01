@@ -4,7 +4,6 @@ package com.saerix.cms.sessionlib;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.saerix.cms.libapi.Listener;
@@ -25,7 +24,7 @@ public class SessionListener extends Listener {
 		List<String> cookies = event.getCookies().get(library.getSessionKey());
 		Session session;
 		
-		if(cookies == null ? true : (session = library.getSession(glue(cookies))) == null) {
+		if(cookies == null ? true : cookies.size() < 1 ? true : (session = library.getSession(cookies.get(0))) == null) {
 			session = setANewSession(event.getHandle());
 		}
 		
@@ -49,13 +48,5 @@ public class SessionListener extends Listener {
 		handle.getResponseHeaders().put("Set-Cookie", setCookies);
 		library.addSession(session);
 		return session;
-	}
-	
-	private String glue(Collection<String> list) {
-		String string = "";
-		for(String s : list) {
-			string += s;
-		}
-		return string;
 	}
 }

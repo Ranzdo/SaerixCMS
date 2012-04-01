@@ -1,6 +1,5 @@
 package com.saerix.cms.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,33 +23,15 @@ import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.sessionlib.Session;
 import com.saerix.cms.sessionlib.SessionLibrary;
 import com.saerix.cms.util.URLUtil;
-import com.saerix.cms.util.Util;
 import com.saerix.cms.view.View;
 
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllersById = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
 	private static Map<String, Integer> controllersByName = Collections.synchronizedMap(new LinkedHashMap<String, Integer>());
-	private static Map<File, Class<? extends Controller>> localControllers = Collections.synchronizedMap(new HashMap<File, Class<? extends Controller>>());
 
 	@SuppressWarnings("unchecked")
-	public static Class<? extends Controller> getLocalController(String filePath) throws IOException {
-		File file = new File("cms"+File.separator+"controllers"+File.separator+filePath.replace("/", File.separator)+".groovy");
-		if(!file.exists())
-			return null;
-		
-		Class<? extends Controller> clazz = localControllers.get(file);
-		
-		if(clazz == null || SaerixCMS.getInstance().isInDevMode()) {
-			clazz = SaerixCMS.getGroovyClassLoader().parseClass("package cmscontrollers;"+Util.readFile(file));
-			if(clazz.getSuperclass() != Controller.class)
-				throw new InvalidSuperClass(clazz.getSuperclass(), Controller.class, clazz);
-			
-			synchronized(localControllers) {
-				localControllers.put(file, clazz);
-			}
-		}
-		
-		return (Class<? extends Controller>) clazz;
+	public static Class<? extends Controller> getLocalController(String filePath) throws ClassNotFoundException {
+		return (Class<? extends Controller>) Class.forName("com.saerix.cms.cms.controllers."+filePath.replace("/", "."));
 	}
 	
 	public static Class<? extends Controller> getController(int hostId, String controllerName) {
@@ -81,8 +62,10 @@ public class Controller {
 		
 		Controller controller = controllerClass.newInstance();
 		controller.controllerParameter = pageLoadEvent;
-		Method method = controllerClass.getMethod(methodName);
-		method.invoke(controller);
+		if(controller.onload()) {
+			Method method = controllerClass.getMethod(methodName);
+			method.invoke(controller);
+		}
 		return controller;
 	}
 	
@@ -131,6 +114,7 @@ public class Controller {
 	private PageLoadEvent controllerParameter;
 	private Map<String, Object> passedVars = null;
 	private ArrayList<View> views = new ArrayList<View>();
+	private boolean show_404 = false;
 	
 	public Controller() {
 		
@@ -149,6 +133,10 @@ public class Controller {
 	
 	public void view(String viewName) throws SQLException, IOException {
 		view(viewName, null);
+	}
+	
+	public void echo(String echo) throws IOException {
+		views.add(new View(echo));
 	}
 	
 	public List<View> getViews() {
@@ -218,5 +206,17 @@ public class Controller {
 	
 	public Session session() {
 		return ((SessionLibrary)lib("session")).session();
+	}
+	
+	public void show_404() {
+		show_404 = true;
+	}
+	
+	public boolean willShow404() {
+		return show_404;
+	}
+	
+	public boolean onload() {
+		return true;
 	}
 }

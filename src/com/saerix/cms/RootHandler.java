@@ -1,8 +1,6 @@
 package com.saerix.cms;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -12,8 +10,8 @@ import java.util.Map;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.database.Database;
 import com.saerix.cms.database.basemodels.HostModel;
-import com.saerix.cms.database.basemodels.HostModel.HostRow;
 import com.saerix.cms.database.basemodels.RouteModel;
+import com.saerix.cms.database.basemodels.HostModel.HostRow;
 import com.saerix.cms.database.basemodels.RouteModel.RouteRow;
 import com.saerix.cms.database.basemodels.RouteModel.RouteType;
 import com.saerix.cms.libapi.Listener;
@@ -63,7 +61,12 @@ public class RootHandler implements HttpHandler {
 				hostId = -1;
 			else {
 				HostRow host = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostValue);
-				hostId = (Integer) host.getValue("host_id");
+				if(host == null) {
+					HttpError.send404(handle);
+					return;
+				}
+				else
+					hostId = (Integer) host.getValue("host_id");
 			}
 			
 			//Run the library listeners
@@ -79,9 +82,7 @@ public class RootHandler implements HttpHandler {
 			String fullValue = "";
 			
 			if(local) {
-				FileInputStream fstream = new FileInputStream("cms/routes");
-				DataInputStream in = new DataInputStream(fstream);
-				BufferedReader br = new BufferedReader(new InputStreamReader(in));
+				BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/com/saerix/cms/cms/routes")));
 				String line;
 				while ((line = br.readLine()) != null)   {
 					String[] values = line.split("=");
@@ -92,13 +93,14 @@ public class RootHandler implements HttpHandler {
 						break;
 					}
 				}
-				in.close();
+				br.close();
 			}
 			else {
 				RouteRow routerow = ((RouteModel) Database.getTable("routes")).getRoute(hostId, segments);
 				if(routerow == null) {
-					HttpError.send404(handle);
-					return;
+					
+					
+					
 				}
 				fullValue = routerow.getRouteValue();
 				String[] value = fullValue.split(":");
@@ -131,6 +133,11 @@ public class RootHandler implements HttpHandler {
 					controller = Controller.invokeController(controllerClazz, routeMethod, pageLoadEvent);
 				}
 				catch(NoSuchMethodException e) {
+					HttpError.send404(handle);
+					return;
+				}
+				
+				if(controller.willShow404()) {
 					HttpError.send404(handle);
 					return;
 				}

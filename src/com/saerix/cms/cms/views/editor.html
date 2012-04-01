@@ -1,0 +1,65 @@
+{view('header', [title:'Editor'])}
+<table cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td valign="top" width="100">
+<div class="file-browser">
+<ul>
+<li>Controllers
+<ul>
+{
+String b = "";
+for(controller in controllers)
+	b += "<li><a href=\"javascript:switch_item('controller', '"+controller.getId()+"', 'text/x-groovy')\">"+controller.getName()+"</a></li>"
+return b
+}
+</ul>
+</li>
+<li>Models
+<ul>
+{
+String b = "";
+for(model in models)
+	b += "<li><a href=\"javascript:switch_item('model', '"+model.getId()+"', 'text/x-groovy')\">"+model.getName()+"</a></li>"
+return b
+}
+</ul>
+</li>
+<li>Views
+<ul>
+{
+String b = "";
+for(view in views)
+	b += "<li><a href=\"javascript:switch_item('view', '"+view.getId()+"', 'view')\">"+view.getName()+"</a></li>"
+return b
+}
+</ul>
+</li>
+<li>Librarys
+<ul>
+<li>haha</li>
+<li>haha</li>
+</ul>
+</li>
+</ul>
+</div>
+</td>
+<td valign="top">
+<div id="editor">
+<div id="msgdiv">
+Click on an item to begin editing
+</div>
+
+<div id="codediv" style="display:none">
+<textarea id="code" name="code">
+
+</textarea>
+<br />
+<input type="button" value="Save" id="save" />
+</div>
+</div>
+</td>
+</tr>
+</table>
+
+
+{view('footer')}

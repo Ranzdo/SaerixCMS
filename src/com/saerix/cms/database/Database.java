@@ -69,7 +69,7 @@ public final class Database {
 			return model;
 	}
 	
-	public static void reloadAllModels() {
+	public static void reloadAllModels() throws SQLException {
 		synchronized (databaseConnections) {
 			for(Entry<Thread, Database> entry : databaseConnections.entrySet()) {
 				entry.getValue().reloadModels();
@@ -121,7 +121,7 @@ public final class Database {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void reloadModels() {
+	public void reloadModels() throws SQLException {
 		lastActive = System.currentTimeMillis();
 		mappedModels.clear();
 		

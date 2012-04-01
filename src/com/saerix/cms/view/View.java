@@ -4,18 +4,17 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Vector;
 
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.saerix.cms.SaerixCMS;
@@ -37,9 +36,6 @@ public class View {
 			groovyShell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), new Binding(), compiler);
 		}
 		
-		if(SaerixCMS.getInstance().isInDevMode() && hostId == -1)
-			return reloadView(hostId, viewName);
-		
 		EvaluatedView view = cachedViews.get(hostId+viewName);
 		if(view == null)
 			return reloadView(hostId, viewName);
@@ -55,11 +51,11 @@ public class View {
 		}
 		EvaluatedView view = null;
 		if(hostId == -1) {
-			File file = new File("cms"+File.separator+"views"+File.separator+viewName.replace("/", File.separator)+".html");
-			if(!file.exists())
+			String res = "/com/saerix/cms/cms/views/"+viewName+".html";
+			if(!Util.resourceExists(res))
 				throw new ViewException("Could not find the local view "+viewName);
 			
-			view = new EvaluatedView(viewName, Util.readFile(file));
+			view = new EvaluatedView(viewName, Util.readResource(res));
 		}
 		else {
 			ViewRow row = ((ViewModel)Database.getTable("views")).getView(hostId, viewName);
@@ -85,10 +81,10 @@ public class View {
 	}
 	
 	private static class EvaluatedView {
-		private final Vector<Script> tags = new Vector<Script>();
+		private final ArrayList<Script> tags = new ArrayList<Script>();
 		private final String content;
 		
-		private EvaluatedView(String viewName, String content) throws CompilationFailedException, IOException {
+		private EvaluatedView(String viewName, String content) throws IOException {
 			StringBuilder evaluated = new StringBuilder();
 			StringReader reader = new StringReader(content);
 			int bytee;
@@ -102,7 +98,7 @@ public class View {
 	        				step++;
 	        			if(bytee == 125)
 	        				step--;
-	        			if(bytee == -1)
+	        			if(bytee == -1 && !ignore)
 	        				throw new ViewException("Unexpected end of view "+viewName+", missing end tag? ( } )");
 	        			script.append((char)bytee);
 	        		}
@@ -118,7 +114,7 @@ public class View {
 		        			evaluated.append("{Script:"+tags.size()+"}");
 	        			}
 	        			catch(Exception e) {
-	        				evaluated.append(e.getMessage());
+	        				evaluated.append("<span style=\"color:red;\">"+e.getMessage()+"</span>");
 	        			}
 	        		}
 	        		else {
@@ -130,9 +126,11 @@ public class View {
 			}
 			this.content = evaluated.toString();
 		}
+		
 	}
 	
 	private EvaluatedView evalView;
+	private String content;
 	private Map<String, Object> variables;
 	private Controller controller = null;
 	
@@ -140,7 +138,14 @@ public class View {
 		this.evalView = evalView;
 	}
 	
+	public View(String content) {
+		this.content = content;
+	}
+	
 	public String evaluate() {
+		if(content != null)
+			return content;
+		
 		String content = evalView.content;
 		
 		Binding binding = new Binding();
@@ -161,11 +166,17 @@ public class View {
 			catch(Exception e) {
 				object = e.getMessage();
 			}
-			if(object != null)
+			if(object != null) {
 				content = content.replace("{Script:"+i+"}", object.toString());
+			}
 		}
 		
-		return content;
+		try {
+			return new String(content.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	public Controller getController() {

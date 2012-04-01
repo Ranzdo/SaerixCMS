@@ -1,5 +1,6 @@
 package com.saerix.cms.database.basemodels;
 import java.sql.SQLException;
+import java.util.List;
 
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
@@ -25,5 +26,10 @@ public class ViewModel extends Model {
 		where("host_id", hostId);
 		where("view_name", viewName);
 		return (ViewRow) get().getRow();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ViewRow> getAllViews() throws SQLException {
+		return (List<ViewRow>) get().getRows();
 	}
 }

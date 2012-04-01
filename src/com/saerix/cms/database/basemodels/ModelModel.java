@@ -29,12 +29,7 @@ public class ModelModel extends Model {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ModelRow> getAllModels() {
-		try {
-			return (List<ModelRow>) get().getRows();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public List<ModelRow> getAllModels() throws SQLException {
+		return (List<ModelRow>) get().getRows();
 	}
 }

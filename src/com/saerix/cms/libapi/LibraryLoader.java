@@ -50,6 +50,9 @@ public class LibraryLoader {
 		
 		try {
 			File libdir = new File("libraries"+File.separator);
+			if(!libdir.exists())
+				return;
+			
 			for(File file : libdir.listFiles()) {
 				JarFile jar;
 				try {

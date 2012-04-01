@@ -40,13 +40,35 @@ public class ResourceHandler implements HttpHandler {
 		String[] segmentsArray = segments.split("/");
 		String hostValue = ahost.get(0).split(":")[0];
 		
-		File dir;
+		//CMS res
 		if(hostValue.equals(SaerixCMS.getProperties().get("cms_hostname"))) {
-			dir = new File("resources"+File.separator+"cms_resources"+File.separator);
+			StringBuilder path = new StringBuilder();
+			for(int i = 2; i < segmentsArray.length;i++) {
+				path.append("/"+segmentsArray[i]);
+			}
+			
+			
+			InputStream is = getClass().getResourceAsStream("/com/saerix/cms/cms/resources"+path.toString());
+			if(is == null) {
+				HttpError.send404(handle);
+				return;
+			}
+			
+			handle.sendResponseHeaders(200, 0);
+			
+			byte[] buffer = new byte[1];
+			OutputStream os = handle.getResponseBody();
+			while(is.read(buffer) != -1) {
+				os.write(buffer);
+			}
+			is.close();
+			os.flush();
+			os.close();
+			return;
 		}
-		else {
-			dir = new File("resources"+File.separator+hostValue);
-		}
+		
+		File dir = new File("resources"+File.separator+hostValue);
+	
 		
 		if(!dir.exists()) {
 			HttpError.send404(handle);
