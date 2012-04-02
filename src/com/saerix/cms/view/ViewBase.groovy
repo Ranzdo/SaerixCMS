@@ -7,14 +7,6 @@ import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.views.*
 
 abstract class ViewBase extends Script {
-	def view_controller(String controllerName, String methodName, Map<String, Object> passedVars) {
-		Controller parentController = getProperty("controller")
-		def controllerClass = parentController.getHost().getController(controllerName);
-		Controller controller = Controller.invokeController(controllerClass, methodName, parentController.getPageLoadEvent())
-		controller.setPassedVariables(passedVars)
-		return View.mergeViews(Controller.invokeController(controllerClass, methodName, parentController.getPageLoadEvent()).getViews())
-	}
-	
 	def view(String viewName, Map<String, Object> vars) {
 		Controller parentController = getProperty("controller")
 		
