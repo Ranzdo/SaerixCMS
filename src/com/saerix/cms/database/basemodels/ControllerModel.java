@@ -31,4 +31,10 @@ public class ControllerModel extends Model {
 	public List<ControllerRow> getAllControllers() throws SQLException {
 		return (List<ControllerRow>) get().getRows();
 	}
+	
+	public ControllerRow getController(int hostId, String controllerName) throws SQLException {
+		where("host_id", hostId);
+		where("controller_name", controllerName);
+		return (ControllerRow) get().getRow();
+	}
 }

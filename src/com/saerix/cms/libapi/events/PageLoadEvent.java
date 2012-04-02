@@ -3,11 +3,11 @@ package com.saerix.cms.libapi.events;
 import java.util.List;
 import java.util.Map;
 
+import com.saerix.cms.host.Host;
 import com.sun.net.httpserver.HttpExchange;
 
 public class PageLoadEvent extends Event {
-	private final int hostId;
-	private final String hostName;
+	private final Host host;
 	private final boolean secure;
 	private final String[] segments;
 	private final Map<String, List<String>> getParameters;
@@ -15,11 +15,10 @@ public class PageLoadEvent extends Event {
 	private final Map<String, List<String>> cookies;
 	private final HttpExchange handle;
 	
-	public PageLoadEvent(int hostId, String hostName, boolean secure,
+	public PageLoadEvent(Host host, boolean secure,
 			String[] segments, Map<String, List<String>> getParameters2,
 			Map<String, List<String>> postParameters2, Map<String, List<String>> cookies2, HttpExchange handle) {
-		this.hostId = hostId;
-		this.hostName = hostName;
+		this.host = host;
 		this.secure = secure;
 		this.segments = segments;
 		this.getParameters = getParameters2;
@@ -27,13 +26,9 @@ public class PageLoadEvent extends Event {
 		this.cookies = cookies2;
 		this.handle = handle;
 	}
-
-	public int getHostId() {
-		return hostId;
-	}
-
-	public String getHostName() {
-		return hostName;
+	
+	public Host getHost() {
+		return host;
 	}
 
 	public boolean isSecure() {

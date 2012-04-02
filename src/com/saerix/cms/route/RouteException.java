@@ -6,4 +6,8 @@ public class RouteException extends Exception {
 	public RouteException(String msg) {
 		super(msg);
 	}
+
+	public RouteException() {
+		super();
+	}
 }

@@ -1,6 +1,5 @@
 package com.saerix.cms.controller;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -18,12 +17,15 @@ import com.saerix.cms.database.InvalidSuperClass;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
+import com.saerix.cms.host.Host;
 import com.saerix.cms.libapi.Library;
 import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.sessionlib.Session;
 import com.saerix.cms.sessionlib.SessionLibrary;
 import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.view.View;
+import com.saerix.cms.view.ViewException;
+import com.saerix.cms.view.ViewNotFoundException;
 
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllersById = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
@@ -66,7 +68,7 @@ public class Controller {
 			throw new NullPointerException("The field parameters can not be null.");
 		
 		Controller controller = controllerClass.newInstance();
-		controller.controllerParameter = pageLoadEvent;
+		controller.event = pageLoadEvent;
 		if(controller.onload()) {
 			method.invoke(controller);
 		}
@@ -115,7 +117,7 @@ public class Controller {
 	}
 	
 	private String redirect = null;
-	private PageLoadEvent controllerParameter;
+	private PageLoadEvent event;
 	private Map<String, Object> passedVars = null;
 	private ArrayList<View> views = new ArrayList<View>();
 	private int returnCode = 200;
@@ -124,22 +126,23 @@ public class Controller {
 		
 	}
 	
-	public void view(String viewName, Map<String, Object> variables) throws SQLException, IOException {
-		View view = View.getView(controllerParameter.getHostId(), viewName);
-		if(view != null) {
-			view.setController(this);
-			view.setVariables(variables);
-			views.add(view);
-		}
-		else
-			throw new IllegalArgumentException("Could not find a view "+viewName);
+	public void set(PageLoadEvent event) {
+		if(event == null)
+			this.event = event;
 	}
 	
-	public void view(String viewName) throws SQLException, IOException {
+	public void view(String viewName, Map<String, Object> variables) throws ViewNotFoundException, ViewException {
+		View view = event.getHost().getView(viewName);
+		view.setController(this);
+		view.setVariables(variables);
+		views.add(view);
+	}
+	
+	public void view(String viewName) throws ViewNotFoundException, ViewException {
 		view(viewName, null);
 	}
 	
-	public void echo(String echo) throws IOException {
+	public void echo(String echo) {
 		views.add(new View(echo));
 	}
 	
@@ -148,16 +151,16 @@ public class Controller {
 	}
 	
 	public PageLoadEvent getPageLoadEvent() {
-		return controllerParameter;
+		return event;
 	}
 	
 	public String getHostName() {
-		return controllerParameter.getHostName();
+		return event.getHost().getHostName();
 	}
 	
 	public String segment(int index) {
 		try {
-			return controllerParameter.getSegments()[index];
+			return event.getSegments()[index];
 		}
 		catch(ArrayIndexOutOfBoundsException e) {
 			return null;
@@ -165,13 +168,13 @@ public class Controller {
 	}
 	
 	public String post(String parameter) {
-		List<String> list = controllerParameter.getPostParameters().get(parameter);
+		List<String> list = event.getPostParameters().get(parameter);
 		
 		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
 	
 	public String get(String parameter) {
-		List<String> list = controllerParameter.getGetParameters().get(parameter);
+		List<String> list = event.getGetParameters().get(parameter);
 		
 		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
@@ -190,13 +193,13 @@ public class Controller {
 	
 	public void redirect(String segments, Map<String, String> para) {
 		returnCode = 302;
-		redirect = URLUtil.getURL(getHostName(), segments, para, controllerParameter.isSecure());
+		redirect = URLUtil.getURL(getHostName(), segments, para, event.isSecure());
 	}
 	
 	public void redirect(String url, boolean local) {
 		returnCode = 302;
 		if(local)
-			redirect = URLUtil.getURL(getHostName(), url, null, controllerParameter.isSecure());
+			redirect = URLUtil.getURL(getHostName(), url, null, event.isSecure());
 		else
 			redirect = url;
 	}
@@ -210,11 +213,11 @@ public class Controller {
 	}
 	
 	public String base_url() {
-		return URLUtil.getURL(getHostName(), "", null, controllerParameter.isSecure());
+		return URLUtil.getURL(getHostName(), "", null, event.isSecure());
 	}
 	
 	public Library lib(String libName) {
-		return SaerixCMS.getInstance().getLibraryLoader().getLib(libName);
+		return event.getHost().getLibraryLoader().getLib(libName);
 	}
 	
 	public Session session() {
@@ -235,5 +238,9 @@ public class Controller {
 
 	public void setReturnCode(int returnCode) {
 		this.returnCode = returnCode;
+	}
+
+	public Host getHost() {
+		return event.getHost();
 	}
 }

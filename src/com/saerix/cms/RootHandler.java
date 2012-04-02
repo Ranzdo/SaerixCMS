@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.saerix.cms.controller.Controller;
-import com.saerix.cms.database.Database;
-import com.saerix.cms.database.basemodels.HostModel;
-import com.saerix.cms.database.basemodels.HostModel.HostRow;
+import com.saerix.cms.host.Host;
 import com.saerix.cms.libapi.Listener;
 import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.route.Route;
@@ -39,8 +37,8 @@ public class RootHandler implements HttpHandler {
 				return;
 			}
 			
-			String hostValue = ahost.get(0).split(":")[0];
-			boolean local = SaerixCMS.getProperties().get("cms_hostname").equals(hostValue);
+			//Gathering all the info we need
+			String hostName = ahost.get(0).split(":")[0];
 				
 			String uriRequest = handle.getRequestURI().toString();
 			String[] segmentsAndPara = uriRequest.split("\\?");
@@ -53,26 +51,19 @@ public class RootHandler implements HttpHandler {
 			Map<String, List<String>> cookies = (Map<String, List<String>>) handle.getAttribute("cookies");
 			
 			String[] segmentsArray = URLUtil.splitSegments(segments);
-			int hostId;
-			if(local)
-				hostId = -1;
-			else {
-				HostRow host = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostValue);
-				if(host == null) {
-					HttpError.send404(handle);
-					return;
-				}
-				else
-					hostId = (Integer) host.getValue("host_id");
-			}
+			
+			Host host = Host.getHost(hostName);
+			
+			
 			
 			//Run the library listeners
-			PageLoadEvent pageLoadEvent = new PageLoadEvent(hostId, hostValue, false, segmentsArray, getParameters, postParameters, cookies, handle);
-			for(Listener listener : SaerixCMS.getInstance().getLibraryLoader().getListeners()) {
+			PageLoadEvent pageLoadEvent = new PageLoadEvent(host, false, segmentsArray, getParameters, postParameters, cookies, handle);
+			for(Listener listener : host.getLibraryLoader().getListeners()) {
 				listener.onPageLoad(pageLoadEvent);
 			}
 			
-			Route route = Route.getRoute(hostId, segments);
+			Route route = host.getRoute(segments);
+			
 			Controller controller = route.invokeRoute(pageLoadEvent);
 			
 			int returnCode = controller.getReturnCode();
