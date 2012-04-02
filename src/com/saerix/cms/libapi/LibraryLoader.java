@@ -13,6 +13,8 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
 import com.saerix.cms.SaerixCMS;
+import com.saerix.cms.controller.Controller;
+import com.saerix.cms.database.Model;
 import com.saerix.cms.sessionlib.SessionLibrary;
 
 public class LibraryLoader {
@@ -29,6 +31,14 @@ public class LibraryLoader {
 	
 	public void registerListener(Listener listener) {
 		listeners.add(listener);
+	}
+	
+	public void registerController(String segments, Class<? extends Controller> controller) {
+		//TODO
+	}
+	
+	public void registerModel(Class<? extends Model> model) {
+		//TODO
 	}
 	
 	public Library getLib(String name) {

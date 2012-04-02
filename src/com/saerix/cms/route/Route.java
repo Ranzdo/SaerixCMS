@@ -57,14 +57,13 @@ public class Route {
 			}
 		}
 		
-		//If we end up here there is no route for the segements, so we pick the default one. If that is not the case enither, then we throw 404
-		if(segmentArray.length < 2)
+		//If we end up here there is no route for the segments, so we pick the default one. If that is not the case neither, then we send a 404 route
+		if(segmentArray.length == 1 && segmentArray.length == 2)
 			return get404Route();
 		
 		try {
-			return new Route(hostId, segmentArray[0], segmentArray[1]);
-		}
-		catch(ControllerException e) {
+			return new Route(hostId, segmentArray[0], segmentArray.length == 1 ? "index" : segmentArray[1]);
+		} catch(RouteException e) {
 			return get404Route();
 		}
 	}
@@ -85,16 +84,16 @@ public class Route {
 	private Method method;
 	private Controller controllerObject;
 	
-	private Route(int hostId, String controllerName, String methodName) throws ControllerException {
+	private Route(int hostId, String controllerName, String methodName) throws RouteException {
 		try {
 			this.controller = Controller.getController(hostId, controllerName);
 			this.method = controller.getMethod(methodName);
-		}
-		catch(NoSuchMethodException e) {
-			throw new ControllerException("The method "+methodName+" does not exists in the controller "+controllerName);
-		}
-		catch(SecurityException e) {
-			throw new ControllerException("The method "+methodName+" is not accessible in the controller "+controllerName);
+		} catch(NoSuchMethodException e) {
+			throw new RouteException("The method "+methodName+" does not exists in the controller "+controllerName+".");
+		} catch(SecurityException e) {
+			throw new RouteException("The method "+methodName+" is not accessible in the controller "+controllerName+".");
+		} catch (ControllerException e) {
+			throw new RouteException("The controller "+controllerName+" does not exist.");
 		}
 	}
 	
