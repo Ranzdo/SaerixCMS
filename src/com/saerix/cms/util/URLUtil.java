@@ -41,4 +41,23 @@ public class URLUtil {
 		return protocol+hostName+port+"/"+segments+glueParameters(parameters);
 	}
 	
+	public static String[] splitSegments(String segments) {
+		String[] a = segments.split("/");
+		if(a.length == 0) {
+			String[] n = new String[1];
+			n[0] = "";
+			return n;
+		}
+		if(a[0].equals("") && a.length == 1)
+			return a;
+		
+		String[] n = new String[a.length-1];
+		
+		for(int i = 1; i < a.length;i++) {
+			n[i-1] = a[i];
+		}
+		
+		return n;
+	}
+	
 }

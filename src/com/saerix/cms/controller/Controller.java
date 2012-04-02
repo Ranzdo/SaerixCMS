@@ -28,34 +28,39 @@ import com.saerix.cms.view.View;
 public class Controller {
 	private static Map<Integer, Class<? extends Controller>> controllersById = Collections.synchronizedMap(new HashMap<Integer, Class<? extends Controller>>());
 	private static Map<String, Integer> controllersByName = Collections.synchronizedMap(new LinkedHashMap<String, Integer>());
-
-	@SuppressWarnings("unchecked")
-	public static Class<? extends Controller> getLocalController(String filePath) throws ClassNotFoundException {
-		return (Class<? extends Controller>) Class.forName("com.saerix.cms.cms.controllers."+filePath.replace("/", "."));
-	}
 	
-	public static Class<? extends Controller> getController(int hostId, String controllerName) {
+	@SuppressWarnings("unchecked")
+	public static Class<? extends Controller> getController(int hostId, String controllerName) throws ControllerException {
+		if(hostId == -1) {
+			try {
+				return (Class<? extends Controller>) Class.forName("com.saerix.cms.cms.controllers."+controllerName);
+			}
+			catch(ClassNotFoundException e) {
+				throw new ControllerException("The controller with the name "+controllerName+" was not found.");
+			}
+		}
+		
 		Integer controllerId = controllersByName.get(hostId+":"+controllerName);
 		
 		if(controllerId == null)
-			throw new IllegalArgumentException("The controller with the name "+controllerName+" was not found.");
+			throw new ControllerException("The controller with the name "+controllerName+" was not found.");
 		
 		return getController(controllerId);
 	}
 	
-	public static Class<? extends Controller> getController(int controllerId) {
+	public static Class<? extends Controller> getController(int controllerId) throws ControllerException {
 		Class<? extends Controller> clazz = controllersById.get(controllerId);
 		if(clazz == null)
-			throw new IllegalArgumentException("The controller with id "+controllerId+" was not found.");
+			throw new ControllerException("The controller with id "+controllerId+" was not found.");
 		return clazz;
 	}
 	
-	public static Controller invokeController(Class<? extends Controller> controllerClass, String methodName, PageLoadEvent pageLoadEvent) throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+	public static Controller invokeController(Class<? extends Controller> controllerClass, Method method, PageLoadEvent pageLoadEvent) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if(controllerClass == null)
 			throw new NullPointerException("The field controllerClass can not be null.");
 		
-		if(methodName == null)
-			throw new NullPointerException("The field methodName can not be null.");
+		if(method == null)
+			throw new NullPointerException("The field method can not be null.");
 		
 		if(pageLoadEvent == null)
 			throw new NullPointerException("The field parameters can not be null.");
@@ -63,7 +68,6 @@ public class Controller {
 		Controller controller = controllerClass.newInstance();
 		controller.controllerParameter = pageLoadEvent;
 		if(controller.onload()) {
-			Method method = controllerClass.getMethod(methodName);
 			method.invoke(controller);
 		}
 		return controller;
@@ -114,7 +118,7 @@ public class Controller {
 	private PageLoadEvent controllerParameter;
 	private Map<String, Object> passedVars = null;
 	private ArrayList<View> views = new ArrayList<View>();
-	private boolean show_404 = false;
+	private int returnCode = 200;
 	
 	public Controller() {
 		
@@ -185,14 +189,23 @@ public class Controller {
 	}
 	
 	public void redirect(String segments, Map<String, String> para) {
+		returnCode = 302;
 		redirect = URLUtil.getURL(getHostName(), segments, para, controllerParameter.isSecure());
 	}
 	
-	public void redirect(String segments) {
-		redirect = URLUtil.getURL(getHostName(), segments, null, controllerParameter.isSecure());
+	public void redirect(String url, boolean local) {
+		returnCode = 302;
+		if(local)
+			redirect = URLUtil.getURL(getHostName(), url, null, controllerParameter.isSecure());
+		else
+			redirect = url;
 	}
 	
-	public String willRedirect() {
+	public void redirect(String segements) {
+		redirect(segements, true);
+	}
+	
+	public String redirectTo() {
 		return redirect;
 	}
 	
@@ -209,14 +222,18 @@ public class Controller {
 	}
 	
 	public void show_404() {
-		show_404 = true;
-	}
-	
-	public boolean willShow404() {
-		return show_404;
+		returnCode = 404;
 	}
 	
 	public boolean onload() {
 		return true;
+	}
+
+	public int getReturnCode() {
+		return returnCode;
+	}
+
+	public void setReturnCode(int returnCode) {
+		this.returnCode = returnCode;
 	}
 }
