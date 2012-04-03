@@ -4,12 +4,11 @@ import groovy.lang.GroovyClassLoader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.saerix.cms.controller.Controller;
+import com.saerix.cms.libapi.LibraryException;
 
 public class SaerixCMS {		
 	private static GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
@@ -49,10 +48,11 @@ public class SaerixCMS {
 		SaerixCMS.getProperties().put("secure_port", "443");
 		try {
 			instance = new SaerixCMS();
-			Controller.reloadAllControllers();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (SQLException e) {
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (LibraryException e) {
 			e.printStackTrace();
 		}
 	}
@@ -60,8 +60,8 @@ public class SaerixCMS {
 	@SuppressWarnings("unused")
 	private SaerixHttpServer server;
 	
-	public SaerixCMS() throws IOException {
-		server = new SaerixHttpServer();
+	public SaerixCMS() throws IOException, NumberFormatException, LibraryException {
+		server = new SaerixHttpServer(this, Integer.parseInt(SaerixCMS.getProperties().get("port").toString()), Integer.parseInt(SaerixCMS.getProperties().get("secure_port").toString()), SaerixCMS.getProperties().get("cms_hostname").toString());
 	}
 	
 	public boolean isInDevMode() {

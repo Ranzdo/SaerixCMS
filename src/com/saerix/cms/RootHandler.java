@@ -17,6 +17,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class RootHandler implements HttpHandler {
+	private final SaerixHttpServer server;
+	
+	public RootHandler(SaerixHttpServer server) {
+		this.server = server;
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -52,9 +57,7 @@ public class RootHandler implements HttpHandler {
 			
 			String[] segmentsArray = URLUtil.splitSegments(segments);
 			
-			Host host = Host.getHost(hostName);
-			
-			
+			Host host = server.getHost(hostName);
 			
 			//Run the library listeners
 			PageLoadEvent pageLoadEvent = new PageLoadEvent(host, false, segmentsArray, getParameters, postParameters, cookies, handle);

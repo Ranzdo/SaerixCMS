@@ -18,6 +18,7 @@ CodeMirror.defineMode("view", function(config, parserConfig) {
 });
 
 var editor = null;
+var editor_items = new Object();
 
 function switch_item(type, id, mode) {
 	if(editor == null) {
@@ -30,8 +31,17 @@ function switch_item(type, id, mode) {
 		});
 	}
 	
-	$.get(url+'editor/item?type='+type+'&id='+id, function(data) {
+	key = type+id;
+	
+	if('key' in editor_items) {
 		 editor.setOption("mode", mode);
-		 editor.setValue(data);
-	}).error(function() { alert("Could not load the file."); });
+		 editor.setValue(editor_items[key]);
+	}
+	else {
+		$.get(url+'editor/item?type='+type+'&id='+id, function(data) {
+			 editor.setOption("mode", mode);
+			 editor.setValue(data);
+			 editor_items[type+id] = data;
+		}).error(function() { alert("Could not load the file."); });
+	}
 }

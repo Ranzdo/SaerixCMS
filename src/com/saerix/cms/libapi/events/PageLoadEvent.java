@@ -51,7 +51,6 @@ public class PageLoadEvent extends Event {
 		return cookies;
 	}
 
-
 	public HttpExchange getHandle() {
 		return handle;
 	}

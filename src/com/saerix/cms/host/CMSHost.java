@@ -21,7 +21,7 @@ import com.saerix.cms.view.ViewException;
 
 public class CMSHost extends Host {
 
-	protected CMSHost(String hostName) throws LibraryException {
+	public CMSHost(String hostName) throws LibraryException {
 		super(hostName);
 	}
 
@@ -53,6 +53,7 @@ public class CMSHost extends Host {
 
 	@Override
 	public Collection<String> loadLibraries() {
+		//We should always only include the base libs
 		return new ArrayList<String>();
 	}
 

@@ -33,7 +33,7 @@ public class DatabaseHost extends Host {
 	private Map<String, Class<? extends Controller>> loadedControllers = Collections.synchronizedMap(new HashMap<String, Class<? extends Controller>>());
 	private Map<String, EvaluatedView> loadedViews = Collections.synchronizedMap(new HashMap<String, EvaluatedView>());
 	
-	protected DatabaseHost(int hostId, String hostName) throws LibraryException {
+	public DatabaseHost(int hostId, String hostName) throws LibraryException {
 		super(hostName);
 		this.hostId = hostId;
 	}

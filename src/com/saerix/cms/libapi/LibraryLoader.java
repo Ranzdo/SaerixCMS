@@ -11,7 +11,7 @@ import com.saerix.cms.database.Model;
 import com.saerix.cms.sessionlib.SessionLibrary;
 
 public class LibraryLoader {
-	private Class<?>[] baseLibraries = {
+	private static Class<?>[] baseLibraries = {
 		SessionLibrary.class
 	};
 	

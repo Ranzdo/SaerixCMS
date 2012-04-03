@@ -42,13 +42,14 @@ public class URLUtil {
 	}
 	
 	public static String[] splitSegments(String segments) {
+		segments = segments.trim();
 		String[] a = segments.split("/");
 		if(a.length == 0) {
 			String[] n = new String[1];
 			n[0] = "";
 			return n;
 		}
-		if(a[0].equals("") && a.length == 1)
+		if((a[0].equals("") && a.length == 1) || (!a[0].equals("") && a.length > 1))
 			return a;
 		
 		String[] n = new String[a.length-1];

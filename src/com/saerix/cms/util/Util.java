@@ -8,17 +8,29 @@ import java.io.InputStreamReader;
 public class Util {
 	public static String readResource(String file) throws IOException {
 		InputStream is = Util.class.getResourceAsStream(file);
-		BufferedReader in = new BufferedReader(new InputStreamReader(is));
+		InputStreamReader isreader = new InputStreamReader(is);
+		BufferedReader in = new BufferedReader(isreader);
 		String returnThis = "";
 		String s;
 		while((s = in.readLine()) != null) {
 			returnThis += s.concat("\n");
 		}
+		in.close();
+		isreader.close();
 		is.close();
 		return returnThis;
 	}
 	
 	public static boolean resourceExists(String file) {
-		return Util.class.getResourceAsStream(file) != null;
+		InputStream is = Util.class.getResourceAsStream(file);
+		if(is != null) {
+			try {
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return is != null;
 	}
 }
