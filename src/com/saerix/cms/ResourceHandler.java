@@ -15,7 +15,14 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class ResourceHandler implements HttpHandler {
+
+	private SaerixHttpServer server;
+	
 	private Map<File, byte[]> chachedFiles = Collections.synchronizedMap(new HashMap<File, byte[]>());
+	
+	public ResourceHandler(SaerixHttpServer server) {
+		this.server = server;
+	}
 	
 	@Override
 	public void handle(HttpExchange handle) throws IOException {
@@ -41,7 +48,7 @@ public class ResourceHandler implements HttpHandler {
 		String hostValue = ahost.get(0).split(":")[0];
 		
 		//CMS res
-		if(hostValue.equals(SaerixCMS.getProperties().get("cms_hostname"))) {
+		if(hostValue.equals(server.getInstance().getProperties().get("cms_hostname"))) {
 			StringBuilder path = new StringBuilder();
 			for(int i = 2; i < segmentsArray.length;i++) {
 				path.append("/"+segmentsArray[i]);
@@ -94,13 +101,13 @@ public class ResourceHandler implements HttpHandler {
 			cache = chachedFiles.get(file);
 		}
 		
-		if(cache != null && !SaerixCMS.getInstance().isInDevMode()) {
+		if(cache != null && !server.getInstance().isInDevMode()) {
 			OutputStream os = handle.getResponseBody();
 			os.write(cache);
 			os.flush();
 			os.close();
 		}
-		else if(file.length() < 5242880 && !SaerixCMS.getInstance().isInDevMode()) {
+		else if(file.length() < 5242880 && !server.getInstance().isInDevMode()) {
 			InputStream is = new FileInputStream(file);
 			cache = new byte[(int) file.length()];
 			is.read(cache);

@@ -1,7 +1,9 @@
 package com.saerix.cms.host;
 
 import java.util.Collection;
+import java.util.Map;
 
+import com.saerix.cms.SaerixHttpServer;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.controller.ControllerException;
 import com.saerix.cms.libapi.LibraryException;
@@ -17,9 +19,11 @@ import com.saerix.cms.view.ViewNotFoundException;
 public abstract class Host {
 	private LibraryLoader libraryLoader = new LibraryLoader();
 	
+	private final SaerixHttpServer server;
 	private final String hostName;
 	
-	protected Host(String hostName) throws LibraryException {
+	protected Host(SaerixHttpServer server, String hostName) throws LibraryException {
+		this.server = server;
 		this.hostName = hostName;
 	}
 	
@@ -27,6 +31,27 @@ public abstract class Host {
 		return hostName;
 	}
 	
+	public SaerixHttpServer getServer() {
+		return server;
+	}
+	
+	public String getURL(String segments, Map<String, String> parameters, boolean secure) {
+		String protocol;
+		String port = "";
+		if(secure) {
+			protocol = "https://";
+			if(!server.getInstance().getProperties().get("secure_port").equals("443"))
+				port = ":"+server.getInstance().getProperties().get("secure_port");
+		}
+		else {
+			protocol = "http://";
+			if(!server.getInstance().getProperties().get("port").equals("80"))
+				port = ":"+server.getInstance().getProperties().get("port");
+		}
+		
+		return protocol+hostName+port+"/"+segments+URLUtil.glueParameters(parameters);
+	}
+
 	public Class<? extends Controller> getController(String controllerName) throws ControllerException {
 		Class<? extends Controller> controllerClass = getNativeController(controllerName);
 		return controllerClass;

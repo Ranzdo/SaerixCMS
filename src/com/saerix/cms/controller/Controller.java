@@ -6,14 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.saerix.cms.database.Database;
+import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.host.Host;
 import com.saerix.cms.libapi.Library;
 import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.sessionlib.Session;
 import com.saerix.cms.sessionlib.SessionLibrary;
-import com.saerix.cms.util.URLUtil;
 import com.saerix.cms.view.View;
 import com.saerix.cms.view.ViewException;
 import com.saerix.cms.view.ViewNotFoundException;
@@ -101,8 +100,12 @@ public class Controller {
 		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
 	}
 	
-	public Model model(String tableName) {
-		return Database.getTable(tableName);
+	public Model model(String tableName) throws DatabaseException {
+		return model("main", tableName);
+	}
+	
+	public Model model(String databaseName, String tableName) throws DatabaseException {
+		return getPageLoadEvent().getHost().getServer().getInstance().getModelLoader().loadModel(databaseName, tableName);
 	}
 	
 	public Object getPassedVariable(String variableName) {
@@ -115,13 +118,13 @@ public class Controller {
 	
 	public void redirect(String segments, Map<String, String> para) {
 		returnCode = 302;
-		redirect = URLUtil.getURL(getHostName(), segments, para, event.isSecure());
+		redirect = event.getHost().getURL(segments, para, event.isSecure());
 	}
 	
 	public void redirect(String url, boolean local) {
 		returnCode = 302;
 		if(local)
-			redirect = URLUtil.getURL(getHostName(), url, null, event.isSecure());
+			redirect = event.getHost().getURL(url, null, event.isSecure());
 		else
 			redirect = url;
 	}
@@ -135,7 +138,7 @@ public class Controller {
 	}
 	
 	public String base_url() {
-		return URLUtil.getURL(getHostName(), "", null, event.isSecure());
+		return event.getHost().getURL( "", null, event.isSecure());
 	}
 	
 	public Library lib(String libName) {

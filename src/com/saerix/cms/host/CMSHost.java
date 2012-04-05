@@ -7,7 +7,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.saerix.cms.SaerixHttpServer;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.controller.ControllerException;
 import com.saerix.cms.controller.ControllerNotFoundException;
@@ -21,10 +24,12 @@ import com.saerix.cms.view.ViewException;
 
 public class CMSHost extends Host {
 
-	public CMSHost(String hostName) throws LibraryException {
-		super(hostName);
+	public CMSHost(SaerixHttpServer server, String hostName) throws LibraryException {
+		super(server, hostName);
 	}
-
+	
+	private Map<String, EvaluatedView> loadedViews = new HashMap<String, EvaluatedView>();
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends Controller> getNativeController(String controllerName) throws ControllerException {
@@ -44,7 +49,7 @@ public class CMSHost extends Host {
 			if(!Util.resourceExists(res))
 				throw new ViewException("Could not find the local view "+viewName);
 			
-			return new EvaluatedView(viewName, Util.readResource(res));
+			return new EvaluatedView(getServer().getInstance().getGroovyClassLoader(), viewName, Util.readResource(res));
 		}
 		catch(IOException e) {
 			throw (ViewException) new ViewException().initCause(e);

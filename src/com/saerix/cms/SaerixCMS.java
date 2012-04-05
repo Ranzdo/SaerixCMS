@@ -2,69 +2,80 @@ package com.saerix.cms;
 
 import groovy.lang.GroovyClassLoader;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.saerix.cms.database.DatabaseException;
+import com.saerix.cms.database.ModelLoader;
 import com.saerix.cms.libapi.LibraryException;
 
-public class SaerixCMS {		
-	private static GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
-	private static ExecutorService executor = Executors.newCachedThreadPool();
-	private static Properties properties = new Properties();
-	private static SaerixCMS instance;
+public class SaerixCMS {
 	
-	public static GroovyClassLoader getGroovyClassLoader() {
-		return gClassLoader;
-	}
-	
-	public static ExecutorService executor() {
-		return executor;
-	}
-	
-	public static Properties getProperties() {
-		return properties;
-	}
-	
-	public static SaerixCMS getInstance() {
-		return instance;
-	}
-	
-	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
-		Class.forName("com.mysql.jdbc.Driver");
+	public static void main(String[] args) {
+		SaerixCMS cms = new SaerixCMS();
 		//properties.load(new FileInputStream("config"));
-		SaerixCMS.getProperties().put("developer_mode", "true");
-		SaerixCMS.getProperties().put("base_url", "http://127.0.0.1");
-		SaerixCMS.getProperties().put("mysql_hostname", "127.0.0.1");
-		SaerixCMS.getProperties().put("mysql_port", "3306");
-		SaerixCMS.getProperties().put("mysql_username", "root");
-		SaerixCMS.getProperties().put("mysql_password", "");
-		SaerixCMS.getProperties().put("mysql_database", "saerixcms");
-		SaerixCMS.getProperties().put("mysql_prefix", "cms_");
-		SaerixCMS.getProperties().put("cms_hostname", "127.0.0.1");
-		SaerixCMS.getProperties().put("port", "8000");
-		SaerixCMS.getProperties().put("secure_port", "443");
+		cms.getProperties().put("developer_mode", "true");
+		cms.getProperties().put("base_url", "http://127.0.0.1");
+		cms.getProperties().put("mysql_hostname", "127.0.0.1");
+		cms.getProperties().put("mysql_port", "3306");
+		cms.getProperties().put("mysql_username", "root");
+		cms.getProperties().put("mysql_password", "");
+		cms.getProperties().put("mysql_database", "saerixcms");
+		cms.getProperties().put("mysql_prefix", "cms_");
+		cms.getProperties().put("cms_hostname", "127.0.0.1");
+		cms.getProperties().put("port", "8000");
+		cms.getProperties().put("secure_port", "443");
 		try {
-			instance = new SaerixCMS();
+			Class.forName("com.mysql.jdbc.Driver");
+			cms.enable();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (LibraryException e) {
 			e.printStackTrace();
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 	
 	@SuppressWarnings("unused")
 	private SaerixHttpServer server;
+	private GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
+	private ExecutorService executor = Executors.newCachedThreadPool();
+	private Properties properties = new Properties();
+	private ModelLoader modelLoader;
 	
-	public SaerixCMS() throws IOException, NumberFormatException, LibraryException {
-		server = new SaerixHttpServer(this, Integer.parseInt(SaerixCMS.getProperties().get("port").toString()), Integer.parseInt(SaerixCMS.getProperties().get("secure_port").toString()), SaerixCMS.getProperties().get("cms_hostname").toString());
+	@SuppressWarnings("unchecked")
+	public void enable() throws NumberFormatException, IOException, LibraryException, DatabaseException {
+		modelLoader = new ModelLoader(properties);
+		
+		
+		server = new SaerixHttpServer(this, Integer.parseInt(getProperties().get("port").toString()), Integer.parseInt(getProperties().get("secure_port").toString()), getProperties().get("cms_hostname").toString());
 	}
 	
 	public boolean isInDevMode() {
-		return SaerixCMS.getProperties().get("developer_mode").equals("true");
+		return getProperties().get("developer_mode").equals("true");
 	}
+	
+	public GroovyClassLoader getGroovyClassLoader() {
+		return gClassLoader;
+	}
+	
+	public ExecutorService executor() {
+		return executor;
+	}
+	
+	public Properties getProperties() {
+		return properties;
+	}
+	
+	public ModelLoader getModelLoader() {
+		return modelLoader;
+	}
+	
 }

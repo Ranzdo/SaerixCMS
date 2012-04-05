@@ -28,7 +28,7 @@ abstract class ViewBase extends Script {
 	
 	def url(String segments, Map<String, String> parameters) {
 		Controller parentController = getProperty("controller")
-		return URLUtil.getURL(parentController.getHostName(), segments, parameters, parentController.getPageLoadEvent().isSecure())
+		return parentController.getHost().getURL(segments, parameters, parentController.getPageLoadEvent().isSecure())
 	}
 	
 	def url(String segments) {
@@ -45,6 +45,6 @@ abstract class ViewBase extends Script {
 	
 	def resource_url(String resourcename) {
 		Controller parentController = getProperty("controller")
-		return URLUtil.getURL(parentController.getHostName(), "res/"+resourcename, null, parentController.getPageLoadEvent().isSecure());
+		return parentController.getHost().getURL("res/"+resourcename, null, parentController.getPageLoadEvent().isSecure());
 	}
 }

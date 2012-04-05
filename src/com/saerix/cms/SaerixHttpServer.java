@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.saerix.cms.database.Database;
+import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.basemodels.HostModel;
 import com.saerix.cms.database.basemodels.HostModel.HostRow;
 import com.saerix.cms.host.CMSHost;
@@ -27,11 +27,11 @@ public class SaerixHttpServer  {
 	private HttpServer server;
 	// private HttpsServer secureServer;
 	private RootHandler handler = new RootHandler(this);
-	private ResourceHandler resoruceHandler = new ResourceHandler();
+	private ResourceHandler resoruceHandler = new ResourceHandler(this);
 
 	public SaerixHttpServer(SaerixCMS instance, int port, int secure_port, String cmsHostName) throws IOException, LibraryException {
 		this.instance = instance;
-		this.cmsHost = new CMSHost(cmsHostName);
+		this.cmsHost = new CMSHost(this, cmsHostName);
 		server = HttpServer.create(new InetSocketAddress(port), 0);
 		startServer();
 		
@@ -70,7 +70,7 @@ public class SaerixHttpServer  {
 	    pagecontext.getFilters().add(new ParameterFilter());
 	    server.createContext("/res/", resoruceHandler);
 	    
-	    server.setExecutor(SaerixCMS.executor());
+	    server.setExecutor(getInstance().executor());
 	    server.start();
 	}
 	
@@ -89,14 +89,16 @@ public class SaerixHttpServer  {
 		
 		try {
 			try {
-				HostRow row = (HostRow) ((HostModel) Database.getTable("hosts")).getHost(hostName);
+				HostRow row = (HostRow) ((HostModel) instance.getModelLoader().loadModel("main", "hosts")).getHost(hostName);
 				if(row != null) {
-					host = new DatabaseHost(row.getId(), hostName);
+					host = new DatabaseHost(this, row.getId(), hostName);
 					loadedHosts.put(hostName, host);
 					return host;
 				}
 			}
 			catch(SQLException e) {
+				throw (HostException) new HostException().initCause(e);
+			} catch (DatabaseException e) {
 				throw (HostException) new HostException().initCause(e);
 			}
 		

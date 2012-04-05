@@ -1,11 +1,13 @@
 package com.saerix.cms.sessionlib;
 
 public class Session {
+	private SessionLibrary lib;
 	private final String id;
 	private long lastActivity;
 	private UserData userData = new UserData();
 	
-	public Session(String id) {
+	public Session(SessionLibrary lib, String id) {
+		this.lib = lib;
 		this.id = id;
 		activity();
 	}
@@ -27,6 +29,6 @@ public class Session {
 	}
 	
 	public void destroy() {
-		SessionLibrary.getInstance().destroy();
+		lib.destroy(id);
 	}
 }

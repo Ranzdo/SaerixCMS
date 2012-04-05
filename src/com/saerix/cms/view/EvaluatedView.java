@@ -1,6 +1,7 @@
 package com.saerix.cms.view;
 
 import groovy.lang.Binding;
+import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
@@ -11,20 +12,18 @@ import java.util.ArrayList;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
-import com.saerix.cms.SaerixCMS;
-
 public class EvaluatedView {
 	private static GroovyShell groovyShell;
 	
 	private ArrayList<Script> tags = new ArrayList<Script>();
 	private String content;
 	
-	public EvaluatedView(String viewName, String content) throws ViewException {
+	public EvaluatedView(GroovyClassLoader parent, String viewName, String content) throws ViewException {
 		try {
 			if(groovyShell == null) {
 				CompilerConfiguration compiler = new CompilerConfiguration();
 				compiler.setScriptBaseClass("ViewBase");
-				groovyShell = new GroovyShell(SaerixCMS.getGroovyClassLoader(), new Binding(), compiler);
+				groovyShell = new GroovyShell(parent, new Binding(), compiler);
 			}
 			
 			StringBuilder evaluated = new StringBuilder();

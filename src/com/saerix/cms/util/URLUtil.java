@@ -5,8 +5,6 @@ import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.saerix.cms.SaerixCMS;
-
 public class URLUtil {
 	public static String glueParameters(Map<String, String> parameters) {
 		if(parameters == null)
@@ -22,23 +20,6 @@ public class URLUtil {
 		}
 				
 		return returnThis.substring(0, returnThis.length()-2);
-	}
-	
-	public static String getURL(String hostName, String segments, Map<String, String> parameters, boolean secure) {
-		String protocol;
-		String port = "";
-		if(secure) {
-			protocol = "https://";
-			if(!SaerixCMS.getProperties().get("secure_port").equals("443"))
-				port = ":"+SaerixCMS.getProperties().get("secure_port");
-		}
-		else {
-			protocol = "http://";
-			if(!SaerixCMS.getProperties().get("port").equals("80"))
-				port = ":"+SaerixCMS.getProperties().get("port");
-		}
-		
-		return protocol+hostName+port+"/"+segments+glueParameters(parameters);
 	}
 	
 	public static String[] splitSegments(String segments) {

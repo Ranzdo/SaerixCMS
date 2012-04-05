@@ -11,25 +11,23 @@ import java.util.Map.Entry;
 
 public abstract class Model {
 	Database database;
+	LoadedModel loaded;
 	private String primaryKeyColumn;
-	private TableConfig tableConfig;
 	
 	public Model() {
-		tableConfig = getClass().getAnnotation(TableConfig.class);
-		if(tableConfig == null)
-			throw new TableConfigNotSet(getClass());
+		
 	}
 	
-	void setup() {
+	void setup() throws DatabaseException {
 		try {
-			ResultSet keys = database.getConnection().getMetaData().getPrimaryKeys(null, null, getTableName());
+			ResultSet keys = getConnection().getMetaData().getPrimaryKeys(null, null, getTableName());
 			if(keys.first())
 				primaryKeyColumn = keys.getString("COLUMN_NAME");
 			else
-				throw new TableHasNoPrimaryKeys(getTableName());
+				throw new DatabaseException("The table "+getTableName()+" has no primary keys. Have atleast one.");
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			throw (DatabaseException) new DatabaseException().initCause(e);
 		}
 	}
 	
@@ -37,7 +35,7 @@ public abstract class Model {
 	 * @return The table name with prefix
 	 */
 	public String getTableName() {
-		return Database.mysql_prefix+tableConfig.name();
+		return database.getTablePrefix()+loaded.getTableName();
 	}
 	
 	/**
@@ -61,8 +59,9 @@ public abstract class Model {
 	
 	/**
 	 * @return The connection to the database
+	 * @throws SQLException 
 	 */
-	public Connection getConnection() {
+	public Connection getConnection() throws SQLException {
 		return database.getConnection();
 	}
 	
@@ -70,7 +69,7 @@ public abstract class Model {
 	 * @return The class to make row objects of.
 	 */
 	protected Class<? extends Row> getRowClass() {
-		return tableConfig.rowclass();
+		return loaded.getRowClass();
 	}
 	
 	
@@ -178,7 +177,7 @@ public abstract class Model {
 
 	protected int remove() throws SQLException {
 		if(where.size() == 0)
-			throw new IllegalAccessError("Now where arguement when remove() was called, please use trunacte() instead");
+			throw new SQLException("No where arguement when remove() was called, please use trunacte() instead");
 		
 		PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+whereClause()+limitClause());
 		

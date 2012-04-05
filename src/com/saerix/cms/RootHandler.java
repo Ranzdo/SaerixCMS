@@ -2,6 +2,8 @@ package com.saerix.cms;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,8 @@ public class RootHandler implements HttpHandler {
 	public RootHandler(SaerixHttpServer server) {
 		this.server = server;
 	}
+	
+	private Map<String, Class<? extends Controller>> loadedControllers = Collections.synchronizedMap(new HashMap<String, Class<? extends Controller>>());
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -54,6 +58,8 @@ public class RootHandler implements HttpHandler {
 			Map<String, List<String>> postParameters = (Map<String, List<String>>) handle.getAttribute("postparameters");
 			
 			Map<String, List<String>> cookies = (Map<String, List<String>>) handle.getAttribute("cookies");
+			
+			
 			
 			String[] segmentsArray = URLUtil.splitSegments(segments);
 			

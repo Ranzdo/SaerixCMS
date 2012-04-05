@@ -7,11 +7,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.saerix.cms.SaerixCMS;
+import com.saerix.cms.SaerixHttpServer;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.controller.ControllerException;
 import com.saerix.cms.controller.ControllerNotFoundException;
-import com.saerix.cms.database.Database;
+import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.basemodels.ControllerModel;
 import com.saerix.cms.database.basemodels.RouteModel;
 import com.saerix.cms.database.basemodels.ControllerModel.ControllerRow;
@@ -33,21 +33,21 @@ public class DatabaseHost extends Host {
 	private Map<String, Class<? extends Controller>> loadedControllers = Collections.synchronizedMap(new HashMap<String, Class<? extends Controller>>());
 	private Map<String, EvaluatedView> loadedViews = Collections.synchronizedMap(new HashMap<String, EvaluatedView>());
 	
-	public DatabaseHost(int hostId, String hostName) throws LibraryException {
-		super(hostName);
+	public DatabaseHost(SaerixHttpServer server, int hostId, String hostName) throws LibraryException {
+		super(server, hostName);
 		this.hostId = hostId;
 	}
 
 	public Class<? extends Controller> reloadController(String controllerName) throws ControllerException, ControllerNotFoundException {
 		try {
-			ControllerRow row = ((ControllerModel)Database.getTable("controllers")).getController(hostId, controllerName);
+			ControllerRow row = ((ControllerModel)getServer().getInstance().getModelLoader().loadModel("main", "controllers")).getController(hostId, controllerName);
 			
 			if(row == null)
 				throw new ControllerNotFoundException(controllerName);
 			
 			int controllerId = row.getId();
 			
-			Class<?> clazz = SaerixCMS.getGroovyClassLoader().parseClass("package controllers"+controllerId+";"+row.getContent());
+			Class<?> clazz = getServer().getInstance().getGroovyClassLoader().parseClass("package controllers"+controllerId+";"+row.getContent());
 			
 			if(!Controller.class.isAssignableFrom(clazz))
 				throw new ControllerException("The controller "+controllerName+" loaded from database does not extend the Controller class.");
@@ -59,6 +59,9 @@ public class DatabaseHost extends Host {
 			
 			return controller;
 		}
+		catch(DatabaseException e) {
+			throw (ControllerException) new ControllerException().initCause(e);
+		}
 		catch(SQLException e) {
 			throw (ControllerException) new ControllerException().initCause(e);
 		}
@@ -66,18 +69,20 @@ public class DatabaseHost extends Host {
 
 	public EvaluatedView reloadView(String viewName) throws ViewException, ViewNotFoundException {
 		try {
-			ViewRow row = ((ViewModel)Database.getTable("views")).getView(hostId, viewName);
+			ViewRow row = ((ViewModel)getServer().getInstance().getModelLoader().loadModel("main", "views")).getView(hostId, viewName);
 			
 			if(row == null)
 				throw new ViewNotFoundException(viewName);
 			
-			EvaluatedView eval = new EvaluatedView(viewName, row.getContent());
+			EvaluatedView eval = new EvaluatedView(getServer().getInstance().getGroovyClassLoader(), viewName, row.getContent());
 			
 			loadedViews.put(viewName, eval);
 			
 			return eval;
 		}
 		catch(SQLException e) {
+			throw (ViewException) new ViewException().initCause(e);
+		} catch (DatabaseException e) {
 			throw (ViewException) new ViewException().initCause(e);
 		}
 	}
@@ -109,7 +114,7 @@ public class DatabaseHost extends Host {
 	@Override
 	public Route getNativeRoute(String segments) throws RouteException {
 		try {
-			RouteModel routes = (RouteModel) Database.getTable("routes");
+			RouteModel routes = (RouteModel) getServer().getInstance().getModelLoader().loadModel("main","routes");
 			RouteRow row = routes.getRoute(hostId, segments);
 			if(row != null) {
 				if(row.getType() == RouteType.REDIRECT)
@@ -124,6 +129,8 @@ public class DatabaseHost extends Host {
 			}
 		}
 		catch(SQLException e) {
+			throw (RouteException) new RouteException().initCause(e);
+		} catch (DatabaseException e) {
 			throw (RouteException) new RouteException().initCause(e);
 		}
 		

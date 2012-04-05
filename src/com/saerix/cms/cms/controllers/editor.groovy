@@ -19,7 +19,8 @@ class editor extends Controller {
 		view("editor", [
 			controllers : model("controllers").getAllControllers(),
 			models : model("models").getAllModels(),
-			views : model("views").getAllViews()
+			views : model("views").getAllViews(),
+			post : post("test")
 		]);
 	}
 	

@@ -15,12 +15,12 @@ public class ModelModel extends Model {
 			return (Integer) getValue("model_id");
 		}
 
-		public int getHostId() {
-			return (Integer) getValue("host_id");
+		public int getDatabaseId() {
+			return (Integer) getValue("database_id");
 		}
 		
-		public String getName() {
-			return (String) getValue("model_name");
+		public String getTableName() {
+			return (String) getValue("model_tablename");
 		}
 		
 		public String getContent() {

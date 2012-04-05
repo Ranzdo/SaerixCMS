@@ -7,13 +7,7 @@ import com.saerix.cms.libapi.Library;
 import com.saerix.cms.libapi.LibraryConfig;
 
 @LibraryConfig(name = "session")
-public class SessionLibrary extends Library {
-	private static SessionLibrary instance;
-
-	public static SessionLibrary getInstance() {
-		return instance;
-	}
-	
+public class SessionLibrary extends Library {	
 	private RandomString sessionIdGenerator = new RandomString(20);
 	
 	private String sessionKey = "session";
@@ -26,7 +20,6 @@ public class SessionLibrary extends Library {
 	@Override
 	public void onEnable() {
 		getLibraryLoader().registerListener(new SessionListener(this));
-		instance = this;
 	}
 	
 	public Session getSession(String id) {
@@ -50,7 +43,7 @@ public class SessionLibrary extends Library {
 	}
 	
 	Session generateNewSession() {
-		return new Session(sessionIdGenerator.nextString());
+		return new Session(this, sessionIdGenerator.nextString());
 	}
 	
 	public void setExpireTime(int sec) {
@@ -61,14 +54,11 @@ public class SessionLibrary extends Library {
 		return expire;
 	}
 	
-	
 	public Session session() {
 		return cachedSessions.get(Thread.currentThread());
 	}
 	
-	public void destroy() {
-		removeSession(cachedSessions.get(Thread.currentThread()));
+	public void destroy(String id) {
+		removeSession(sessions.get(id));
 	}
-	
-	
 }
