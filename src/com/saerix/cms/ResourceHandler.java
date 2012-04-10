@@ -48,9 +48,9 @@ public class ResourceHandler implements HttpHandler {
 		String hostValue = ahost.get(0).split(":")[0];
 		
 		//CMS res
-		if(hostValue.equals(server.getInstance().getProperties().get("cms_hostname"))) {
+		if(segmentsArray.length > 1 ? segmentsArray[1].equalsIgnoreCase("admin") : false) {
 			StringBuilder path = new StringBuilder();
-			for(int i = 2; i < segmentsArray.length;i++) {
+			for(int i = 3; i < segmentsArray.length;i++) {
 				path.append("/"+segmentsArray[i]);
 			}
 			

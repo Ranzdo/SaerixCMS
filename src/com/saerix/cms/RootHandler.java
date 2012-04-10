@@ -55,21 +55,18 @@ public class RootHandler implements HttpHandler {
 			
 			Map<String, List<String>> cookies = (Map<String, List<String>>) handle.getAttribute("cookies");
 			
-			
+			Host host = server.getHost(hostName);
 			
 			String[] segmentsArray = URLUtil.splitSegments(segments);
 			
-			Host host = server.getHost(hostName);
-			
 			//Run the library listeners
 			PageLoadEvent pageLoadEvent = new PageLoadEvent(host, false, segmentsArray, getParameters, postParameters, cookies, handle);
-			for(Listener listener : host.getLibraryLoader().getListeners()) {
-				listener.onPageLoad(pageLoadEvent);
-			}
 			
-			Route route = host.getRoute(segments);
+			host.onPageLoad(pageLoadEvent);
 			
-			Controller controller = route.invokeRoute(pageLoadEvent);
+			Route route = host.getRoute(pageLoadEvent);
+			
+			Controller controller = route.invokeRoute();
 			
 			int returnCode = controller.getReturnCode();
 			

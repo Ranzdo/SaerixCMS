@@ -19,9 +19,14 @@ public class LibraryLoader {
 	private Vector<Listener> listeners = new Vector<Listener>();
 	
 	@SuppressWarnings("unchecked")
-	public LibraryLoader() throws LibraryException {
-		for(Class<?> clazz : baseLibraries) {
-			loadLibrary((Class<? extends Library>) clazz);
+	public LibraryLoader() {
+		try {
+			for(Class<?> clazz : baseLibraries) {
+				loadLibrary((Class<? extends Library>) clazz);
+			}
+		}
+		catch (LibraryException e) {
+			e.printStackTrace();
 		}
 	}
 	

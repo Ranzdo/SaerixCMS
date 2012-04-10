@@ -88,16 +88,26 @@ public class Controller {
 		}
 	}
 	
-	public String post(String parameter) {
+	public String post(String parameter, boolean returnNull) {
 		List<String> list = event.getPostParameters().get(parameter);
+		String defaultString = returnNull ? null : "";
 		
-		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
+		return list == null ? defaultString : list.size() < 1 ? defaultString : list.get(0);
+	}
+	
+	public String post(String parameter) {
+		return post(parameter, false);
+	}
+	
+	public String get(String parameter, boolean returnNull) {
+		List<String> list = event.getGetParameters().get(parameter);
+		String defaultString = returnNull ? null : "";
+		
+		return list == null ? defaultString : list.size() < 1 ? defaultString : list.get(0);
 	}
 	
 	public String get(String parameter) {
-		List<String> list = event.getGetParameters().get(parameter);
-		
-		return list == null ? "" : list.size() < 1 ? "" : list.get(0);
+		return get(parameter, false);
 	}
 	
 	public Model model(String tableName) throws DatabaseException {

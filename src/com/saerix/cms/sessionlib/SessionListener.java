@@ -41,7 +41,7 @@ public class SessionListener extends Listener {
 		Session session = library.generateNewSession();
 		ArrayList<String> setCookies = new ArrayList<String>();
 		try {
-			setCookies.add(URLEncoder.encode(library.getSessionKey(), "UTF-8")+"="+URLEncoder.encode(session.getId(), "UTF-8"));
+			setCookies.add(URLEncoder.encode(library.getSessionKey(), "UTF-8")+"="+URLEncoder.encode(session.getId(), "UTF-8")+"; Path=/;");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}

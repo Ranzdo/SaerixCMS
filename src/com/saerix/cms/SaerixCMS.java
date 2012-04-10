@@ -17,14 +17,13 @@ public class SaerixCMS {
 		SaerixCMS cms = new SaerixCMS();
 		//properties.load(new FileInputStream("config"));
 		cms.getProperties().put("developer_mode", "true");
-		cms.getProperties().put("base_url", "http://127.0.0.1");
 		cms.getProperties().put("mysql_hostname", "62.20.221.96");
 		cms.getProperties().put("mysql_port", "3306");
 		cms.getProperties().put("mysql_username", "saerixcms");
 		cms.getProperties().put("mysql_password", "258012");
 		cms.getProperties().put("mysql_database", "saerixcms");
 		cms.getProperties().put("mysql_prefix", "cms_");
-		cms.getProperties().put("cms_hostname", "127.0.0.1");
+		cms.getProperties().put("default_hostname", "127.0.0.1");
 		cms.getProperties().put("port", "8000");
 		cms.getProperties().put("secure_port", "443");
 		try {
@@ -54,7 +53,7 @@ public class SaerixCMS {
 		databaseLoader = new DatabaseLoader(gClassLoader, properties);
 		
 		
-		server = new SaerixHttpServer(this, Integer.parseInt(getProperties().get("port").toString()), Integer.parseInt(getProperties().get("secure_port").toString()), getProperties().get("cms_hostname").toString());
+		server = new SaerixHttpServer(this, Integer.parseInt(getProperties().get("port").toString()), Integer.parseInt(getProperties().get("secure_port").toString()), getProperties().get("default_hostname").toString());
 	}
 	
 	public boolean isInDevMode() {

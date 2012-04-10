@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 
-public abstract class Database {
+public class Database {
 	
 	private Properties properties;
 	private HashMap<Thread, Connection> connections = new HashMap<Thread, Connection>();

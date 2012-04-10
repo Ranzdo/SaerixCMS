@@ -33,4 +33,16 @@ public class Util {
 		
 		return is != null;
 	}
+	
+	public static String glue(String[] array, String glue, int offset) {
+		StringBuilder builder = new StringBuilder();
+		for(int i = offset; i < array.length;i++) {
+			builder.append(array[i]+glue);
+		}
+		return builder.toString();
+	}
+	
+	public static String glue(String[] array, String glue) {
+		return glue(array, glue, 0);
+	}
 }

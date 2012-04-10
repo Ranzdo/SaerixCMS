@@ -26,8 +26,10 @@ public class Route {
 	private Class<? extends Controller> controller;
 	private Method method;
 	private Controller controllerObject;
+	private PageLoadEvent event;
 	
-	public Route(Host host, String controllerName, String methodName) throws RouteException {
+	public Route(Host host, String controllerName, String methodName, PageLoadEvent event) throws RouteException {
+		this.event = event;
 		try {
 			this.controller = host.getController(controllerName);
 			this.method = controller.getMethod(methodName);
@@ -44,10 +46,10 @@ public class Route {
 		this.controllerObject = controller;
 	}
 	
-	public Controller invokeRoute(PageLoadEvent pageLoadEvent) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public Controller invokeRoute() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if(controllerObject != null)
 			return controllerObject;
 			
-		return Controller.invokeController(controller, method, pageLoadEvent);
+		return Controller.invokeController(controller, method, event);
 	}
 }

@@ -50,6 +50,10 @@ public class SessionLibrary extends Library {
 		this.expire = sec*1000;
 	}
 	
+	public void setSessionKey(String sessionKey) {
+		this.sessionKey = sessionKey;
+	}
+	
 	public long getExpireTime() {
 		return expire;
 	}

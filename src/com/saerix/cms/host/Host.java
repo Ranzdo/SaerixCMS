@@ -6,8 +6,9 @@ import java.util.Map;
 import com.saerix.cms.SaerixHttpServer;
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.controller.ControllerException;
-import com.saerix.cms.libapi.LibraryException;
 import com.saerix.cms.libapi.LibraryLoader;
+import com.saerix.cms.libapi.Listener;
+import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.route.Route;
 import com.saerix.cms.route.RouteException;
 import com.saerix.cms.util.URLUtil;
@@ -22,7 +23,7 @@ public abstract class Host {
 	private final SaerixHttpServer server;
 	private final String hostName;
 	
-	protected Host(SaerixHttpServer server, String hostName) throws LibraryException {
+	protected Host(SaerixHttpServer server, String hostName) {
 		this.server = server;
 		this.hostName = hostName;
 	}
@@ -57,19 +58,19 @@ public abstract class Host {
 		return controllerClass;
 	}
 	
-	public Route getRoute(String segments) throws RouteException {
-		Route route = getHostRoute(segments);
+	public Route getRoute(PageLoadEvent pageLoadEvent) throws RouteException {
+		String[] segmentArray = pageLoadEvent.getSegments();
+		
+		Route route = getHostRoute(pageLoadEvent);
 		if(route != null)
 			return route;
 		
-		String[] segmentArray = URLUtil.splitSegments(segments);
-		
 		//If we end up here there is no route for the segments, so we pick the default one. If that is not the case neither, then we send a 404 route
-		if(segmentArray.length == 1 && segmentArray.length == 2)
+		if(segmentArray.length == 0)
 			return Route.get404Route();
 		
 		try {
-			return new Route(this, segmentArray[0], segmentArray.length == 1 ? "index" : segmentArray[1]);
+			return new Route(this, segmentArray[0], segmentArray.length == 1 ? "index" : segmentArray[1], pageLoadEvent);
 		} catch(RouteException e) {
 			return Route.get404Route();
 		}
@@ -82,9 +83,15 @@ public abstract class Host {
 	public LibraryLoader getLibraryLoader() {
 		return libraryLoader;
 	}
+
+	public void onPageLoad(PageLoadEvent pageLoadEvent) {
+		for(Listener listener : getLibraryLoader().getListeners()) {
+			listener.onPageLoad(pageLoadEvent);
+		}
+	}
 	
 	protected abstract Class<? extends Controller> getHostController(String controllerName) throws ControllerException;
 	protected abstract EvaluatedView getHostView(String viewName) throws ViewException;
 	protected abstract Collection<String> loadLibraries();
-	protected abstract Route getHostRoute(String segements) throws RouteException;
+	protected abstract Route getHostRoute(PageLoadEvent pageLoadEvent) throws RouteException;
 }

@@ -45,14 +45,14 @@ public class MainDatabase extends Database {
 			List<ModelRow> rows = ((ModelModel)getModel("models")).getModels(-1);
 			
 			for(ModelRow row : rows) {
-				loadDatabaseModel(row);
+				reloadDatabaseModel(row);
 			}
 		} catch (SQLException e) {
 			throw (DatabaseException) new DatabaseException().initCause(e);
 		}
 	}
 	
-	private void loadDatabaseModel(ModelRow row) throws DatabaseException {
+	public void reloadDatabaseModel(ModelRow row) throws DatabaseException {
 		Class<?> clazz = classLoader.parseClass(row.getContent());
 		if(!Model.class.isAssignableFrom(clazz))
 			throw new DatabaseException("The model class \""+clazz.getName()+"\" does not extend the model class.");
@@ -65,5 +65,4 @@ public class MainDatabase extends Database {
 		
 		registerModel(new LoadedModel(row.getTableName(), model, rowclass));
 	}
-
 }

@@ -1,14 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SaerixCMS - Login</title>
+	<title>SaerixCMS - Login</title>
+	<link href="{resource_url('css/style.css')}" rel="stylesheet" type="text/css" />
+	{literal}
+	<style>
+	#wrapper {
+		padding:10px;
+	}
+	</style>
+	{/literal}
 </head>
 <body>
-
-<form action="" method="post">
-<input type="text" name="username" /><br />
-<input type="text" name="password" /><br />
-<input type="submit" name="submit" />
-</form>
+<div id="header"><img src="{resource_url('img/logo.png')}" /></div>
+	<div id="wrapper">
+	<h2>Login to the CMS</h2>
+		<form action="" method="post">
+			<table cellpadding="3" cellspacing="0" border="0" class="input-table">
+			<tr>
+			<th>Username</th>
+			<td><input type="text" name="username" class="input-text" /></td>
+			</tr>
+			<tr>
+			<th>Password</th>
+			<td><input type="password" name="password" class="input-text" /></td>
+			</tr>
+			<tr>
+			<td></td>
+			<td style="text-align:right;"><input type="submit" name="submit" value="Login" class="button green" /></td>
+			</tr>
+			</table>
+		</form>
+	</div>
 </body>
 </html>

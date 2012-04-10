@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
+import com.saerix.cms.database.DefaultHost;
 import com.saerix.cms.database.basemodels.HostModel;
 import com.saerix.cms.database.basemodels.HostModel.HostRow;
-import com.saerix.cms.host.CMSHost;
 import com.saerix.cms.host.DatabaseHost;
 import com.saerix.cms.host.Host;
 import com.saerix.cms.host.HostException;
@@ -23,7 +23,7 @@ import com.sun.net.httpserver.HttpServer;
 public class SaerixHttpServer  {
 	private SaerixCMS instance;
 	private Map<String, Host> loadedHosts = Collections.synchronizedMap(new HashMap<String, Host>());
-	private CMSHost cmsHost;
+	private DefaultHost defHost;
 	private HttpServer server;
 	// private HttpsServer secureServer;
 	private RootHandler handler = new RootHandler(this);
@@ -31,7 +31,7 @@ public class SaerixHttpServer  {
 
 	public SaerixHttpServer(SaerixCMS instance, int port, int secure_port, String cmsHostName) throws IOException, LibraryException {
 		this.instance = instance;
-		this.cmsHost = new CMSHost(this, cmsHostName);
+		this.defHost = new DefaultHost(this, cmsHostName);
 		server = HttpServer.create(new InetSocketAddress(port), 0);
 		startServer();
 		
@@ -69,6 +69,7 @@ public class SaerixHttpServer  {
 	    HttpContext pagecontext = server.createContext("/", handler);
 	    pagecontext.getFilters().add(new ParameterFilter());
 	    server.createContext("/res/", resoruceHandler);
+	    server.createContext("/admin/res/", resoruceHandler);
 	    
 	    server.setExecutor(getInstance().executor());
 	    server.start();
@@ -88,25 +89,20 @@ public class SaerixHttpServer  {
 			return host;
 		
 		try {
-			try {
-				HostRow row = (HostRow) ((HostModel) instance.getDatabaseLoader().getMainDatabase().getModel("hosts")).getHost(hostName);
-				if(row != null) {
-					host = new DatabaseHost(this, row.getId(), hostName);
-					loadedHosts.put(hostName, host);
-					return host;
-				}
+			HostRow row = (HostRow) ((HostModel) instance.getDatabaseLoader().getMainDatabase().getModel("hosts")).getHost(hostName);
+			if(row != null) {
+				host = new DatabaseHost(this, row.getId(), hostName);
+				loadedHosts.put(hostName, host);
+				return host;
 			}
-			catch(SQLException e) {
-				throw (HostException) new HostException().initCause(e);
-			} catch (DatabaseException e) {
-				throw (HostException) new HostException().initCause(e);
-			}
-		
-		return cmsHost;
-		
 		}
-		catch(LibraryException e) {
+		catch(SQLException e) {
+			throw (HostException) new HostException().initCause(e);
+		} catch (DatabaseException e) {
 			throw (HostException) new HostException().initCause(e);
 		}
+	
+		return defHost;
+		
 	}
 }

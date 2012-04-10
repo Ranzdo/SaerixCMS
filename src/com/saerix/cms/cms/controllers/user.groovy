@@ -10,7 +10,7 @@ class user extends Controller {
 		if(session().userdata().getBoolean("loggedin"))
 			redirect("")
 		
-		if(!post("submit").equals("")) {
+		if(!post("submit", true) != null) {
 			def user = model("users").verify(post("username"), post("password"))
 			if(user != null) {
 				session().userdata().set("loggedin", true)
@@ -21,7 +21,7 @@ class user extends Controller {
 				view("login", [error : "Wrong username or password"])
 		}
 		else
-			view("login", [error : "asdasdöäå"]);
+			view("login", [error : null]);
 	}
 	
 	def logout() {

@@ -19,23 +19,62 @@ import com.saerix.cms.database.basemodels.ViewModel;
 import com.saerix.cms.database.basemodels.RouteModel.RouteRow;
 import com.saerix.cms.database.basemodels.RouteModel.RouteType;
 import com.saerix.cms.database.basemodels.ViewModel.ViewRow;
-import com.saerix.cms.libapi.LibraryException;
+import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.route.Route;
 import com.saerix.cms.route.RouteException;
 import com.saerix.cms.util.URLUtil;
+import com.saerix.cms.util.Util;
 import com.saerix.cms.view.EvaluatedView;
 import com.saerix.cms.view.ViewException;
 import com.saerix.cms.view.ViewNotFoundException;
 
 public class DatabaseHost extends Host {
 	private int hostId;
+	private CMSHost adminHost;
 	
 	private Map<String, Class<? extends Controller>> loadedControllers = Collections.synchronizedMap(new HashMap<String, Class<? extends Controller>>());
 	private Map<String, EvaluatedView> loadedViews = Collections.synchronizedMap(new HashMap<String, EvaluatedView>());
 	
-	public DatabaseHost(SaerixHttpServer server, int hostId, String hostName) throws LibraryException {
+	public DatabaseHost(SaerixHttpServer server, int hostId, String hostName) {
 		super(server, hostName);
 		this.hostId = hostId;
+		this.adminHost = new CMSHost(server, this);
+	}
+	
+	@Override
+	public Route getRoute(PageLoadEvent pageLoadEvent) throws RouteException {
+		String[] segmentArray = pageLoadEvent.getSegments();
+		
+		if(segmentArray.length >= 1 ? segmentArray[0].equalsIgnoreCase("admin") : false) {
+			return adminHost.getRoute(createAdminPageLoadEvent(pageLoadEvent));
+		}
+		
+		return super.getRoute(pageLoadEvent);
+	}
+	
+	private PageLoadEvent createAdminPageLoadEvent(PageLoadEvent pageLoadEvent) {
+		String[] segmentArray = pageLoadEvent.getSegments();
+		String[] newArray;
+		if(segmentArray.length-1 == 0) {
+			newArray = new String[1];
+			newArray[0] = "";
+		}
+		else {
+			newArray = new String[segmentArray.length-1];
+			for(int i = 1; i < segmentArray.length; i++)
+				newArray[i-1] = segmentArray[i];
+		}
+		
+		return new PageLoadEvent(adminHost, pageLoadEvent.isSecure(), newArray, pageLoadEvent.getGetParameters(), pageLoadEvent.getPostParameters(), pageLoadEvent.getCookies(), pageLoadEvent.getHandle());
+	}
+	
+	@Override
+	public void onPageLoad(PageLoadEvent pageLoadEvent) {
+		String[] segmentArray = pageLoadEvent.getSegments();
+		if(segmentArray.length >= 1 ? segmentArray[0].equalsIgnoreCase("admin") : false) {
+			adminHost.onPageLoad(createAdminPageLoadEvent(pageLoadEvent));
+		}
+		super.onPageLoad(pageLoadEvent);
 	}
 
 	public Class<? extends Controller> reloadController(String controllerName) throws ControllerException, ControllerNotFoundException {
@@ -112,10 +151,10 @@ public class DatabaseHost extends Host {
 	}
 
 	@Override
-	public Route getHostRoute(String segments) throws RouteException {
+	public Route getHostRoute(PageLoadEvent pageLoadEvent) throws RouteException {
 		try {
 			RouteModel routes = (RouteModel) getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("routes");
-			RouteRow row = routes.getRoute(hostId, segments);
+			RouteRow row = routes.getRoute(hostId, Util.glue(pageLoadEvent.getSegments(), "/"));
 			if(row != null) {
 				if(row.getType() == RouteType.REDIRECT)
 					return Route.get302Route(row.getRouteValue());
@@ -123,9 +162,9 @@ public class DatabaseHost extends Host {
 				String[] route = URLUtil.splitSegments(row.getRouteValue());
 				
 				if(route.length != 2)
-					throw new RouteException("Invalid route for "+segments+" on row "+row);
+					throw new RouteException("Invalid route for "+Util.glue(pageLoadEvent.getSegments(), "/")+" on row "+row);
 				
-				return new Route(this, route[0], route[1]);
+				return new Route(this, route[0], route[1], pageLoadEvent);
 			}
 		}
 		catch(SQLException e) {
