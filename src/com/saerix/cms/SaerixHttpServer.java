@@ -89,7 +89,7 @@ public class SaerixHttpServer  {
 		
 		try {
 			try {
-				HostRow row = (HostRow) ((HostModel) instance.getModelLoader().loadModel("main", "hosts")).getHost(hostName);
+				HostRow row = (HostRow) ((HostModel) instance.getDatabaseLoader().getMainDatabase().getModel("hosts")).getHost(hostName);
 				if(row != null) {
 					host = new DatabaseHost(this, row.getId(), hostName);
 					loadedHosts.put(hostName, host);

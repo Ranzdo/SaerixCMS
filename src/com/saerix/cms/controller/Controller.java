@@ -101,11 +101,11 @@ public class Controller {
 	}
 	
 	public Model model(String tableName) throws DatabaseException {
-		return model("main", tableName);
+		return getPageLoadEvent().getHost().getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel(tableName);
 	}
 	
 	public Model model(String databaseName, String tableName) throws DatabaseException {
-		return getPageLoadEvent().getHost().getServer().getInstance().getModelLoader().loadModel(databaseName, tableName);
+		return getPageLoadEvent().getHost().getServer().getInstance().getDatabaseLoader().getDatabase(databaseName).getModel(tableName);
 	}
 	
 	public Object getPassedVariable(String variableName) {

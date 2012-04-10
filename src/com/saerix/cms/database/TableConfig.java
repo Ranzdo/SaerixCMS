@@ -10,5 +10,4 @@ import java.lang.annotation.ElementType;
 public @interface TableConfig {
 	String name();
 	Class<? extends Row> rowclass() default Row.class;
-	String database() default "main";
 }

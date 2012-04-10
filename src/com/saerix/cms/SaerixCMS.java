@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.saerix.cms.database.DatabaseException;
-import com.saerix.cms.database.ModelLoader;
+import com.saerix.cms.database.DatabaseLoader;
 import com.saerix.cms.libapi.LibraryException;
 
 public class SaerixCMS {
@@ -18,10 +18,10 @@ public class SaerixCMS {
 		//properties.load(new FileInputStream("config"));
 		cms.getProperties().put("developer_mode", "true");
 		cms.getProperties().put("base_url", "http://127.0.0.1");
-		cms.getProperties().put("mysql_hostname", "127.0.0.1");
+		cms.getProperties().put("mysql_hostname", "62.20.221.96");
 		cms.getProperties().put("mysql_port", "3306");
-		cms.getProperties().put("mysql_username", "root");
-		cms.getProperties().put("mysql_password", "");
+		cms.getProperties().put("mysql_username", "saerixcms");
+		cms.getProperties().put("mysql_password", "258012");
 		cms.getProperties().put("mysql_database", "saerixcms");
 		cms.getProperties().put("mysql_prefix", "cms_");
 		cms.getProperties().put("cms_hostname", "127.0.0.1");
@@ -48,10 +48,10 @@ public class SaerixCMS {
 	private GroovyClassLoader gClassLoader = new GroovyClassLoader(SaerixCMS.class.getClassLoader());
 	private ExecutorService executor = Executors.newCachedThreadPool();
 	private Properties properties = new Properties();
-	private ModelLoader modelLoader;
+	private DatabaseLoader databaseLoader;
 	
 	public void enable() throws NumberFormatException, IOException, LibraryException, DatabaseException {
-		modelLoader = new ModelLoader(this, properties);
+		databaseLoader = new DatabaseLoader(gClassLoader, properties);
 		
 		
 		server = new SaerixHttpServer(this, Integer.parseInt(getProperties().get("port").toString()), Integer.parseInt(getProperties().get("secure_port").toString()), getProperties().get("cms_hostname").toString());
@@ -73,8 +73,8 @@ public class SaerixCMS {
 		return properties;
 	}
 	
-	public ModelLoader getModelLoader() {
-		return modelLoader;
+	public DatabaseLoader getDatabaseLoader() {
+		return databaseLoader;
 	}
 	
 }

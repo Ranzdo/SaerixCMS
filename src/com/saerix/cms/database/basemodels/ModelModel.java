@@ -38,4 +38,10 @@ public class ModelModel extends Model {
 		where("model_tablename", tableName);
 		return (ModelRow) get().getRow();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ModelRow> getModels(int databaseId) throws SQLException {
+		where("database_id", databaseId);
+		return (List<ModelRow>) get().getRows();
+	}
 }

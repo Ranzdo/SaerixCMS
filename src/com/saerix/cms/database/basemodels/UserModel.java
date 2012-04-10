@@ -24,7 +24,7 @@ public class UserModel extends Model {
 	
 	public UserRow verify(String username, String password) throws SQLException {
 		where("username", username);
-		where("password", hashPassword(password));
+		where("password", password);
 		
 		return (UserRow) get().getRow();
 	}

@@ -6,10 +6,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class Database {
+public abstract class Database {
 	
 	private Properties properties;
 	private HashMap<Thread, Connection> connections = new HashMap<Thread, Connection>();
+	private HashMap<String, LoadedModel> models = new HashMap<String, LoadedModel>();
 	
 	public Database(Properties properties) {
 		this.properties = properties;
@@ -26,6 +27,7 @@ public class Database {
         connProperties.put("password", properties.getProperty("mysql_password"));
         
         connection = DriverManager.getConnection(connectionURL, connProperties);
+        connections.put(Thread.currentThread(), connection);
 		
 		return connection;
 	}
@@ -36,5 +38,13 @@ public class Database {
 	
 	public String getTablePrefix() {
 		return properties.getProperty("mysql_prefix");
+	}
+	
+	public void registerModel(LoadedModel model) {
+		models.put(model.getTableName(), model);
+	}
+	
+	public Model getModel(String tableName) throws DatabaseException {
+		return models.get(tableName).generateModel(this);
 	}
 }

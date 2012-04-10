@@ -40,7 +40,7 @@ public class DatabaseHost extends Host {
 
 	public Class<? extends Controller> reloadController(String controllerName) throws ControllerException, ControllerNotFoundException {
 		try {
-			ControllerRow row = ((ControllerModel)getServer().getInstance().getModelLoader().loadModel("main", "controllers")).getController(hostId, controllerName);
+			ControllerRow row = ((ControllerModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("controllers")).getController(hostId, controllerName);
 			
 			if(row == null)
 				throw new ControllerNotFoundException(controllerName);
@@ -69,7 +69,7 @@ public class DatabaseHost extends Host {
 
 	public EvaluatedView reloadView(String viewName) throws ViewException, ViewNotFoundException {
 		try {
-			ViewRow row = ((ViewModel)getServer().getInstance().getModelLoader().loadModel("main", "views")).getView(hostId, viewName);
+			ViewRow row = ((ViewModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("views")).getView(hostId, viewName);
 			
 			if(row == null)
 				throw new ViewNotFoundException(viewName);
@@ -114,7 +114,7 @@ public class DatabaseHost extends Host {
 	@Override
 	public Route getHostRoute(String segments) throws RouteException {
 		try {
-			RouteModel routes = (RouteModel) getServer().getInstance().getModelLoader().loadModel("main","routes");
+			RouteModel routes = (RouteModel) getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("routes");
 			RouteRow row = routes.getRoute(hostId, segments);
 			if(row != null) {
 				if(row.getType() == RouteType.REDIRECT)
