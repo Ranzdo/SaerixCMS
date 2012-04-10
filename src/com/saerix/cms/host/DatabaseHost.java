@@ -88,7 +88,7 @@ public class DatabaseHost extends Host {
 	}
 
 	@Override
-	public Class<? extends Controller> getNativeController(String controllerName) throws ControllerException {
+	public Class<? extends Controller> getHostController(String controllerName) throws ControllerException {
 		Class<? extends Controller> controller = loadedControllers.get(controllerName);
 		if(controller == null)
 			return reloadController(controllerName);
@@ -97,7 +97,7 @@ public class DatabaseHost extends Host {
 	}
 
 	@Override
-	public EvaluatedView getNativeView(String viewName) throws ViewException {
+	public EvaluatedView getHostView(String viewName) throws ViewException {
 		EvaluatedView eval = loadedViews.get(viewName);
 		if(eval == null)
 			return reloadView(viewName);
@@ -112,7 +112,7 @@ public class DatabaseHost extends Host {
 	}
 
 	@Override
-	public Route getNativeRoute(String segments) throws RouteException {
+	public Route getHostRoute(String segments) throws RouteException {
 		try {
 			RouteModel routes = (RouteModel) getServer().getInstance().getModelLoader().loadModel("main","routes");
 			RouteRow row = routes.getRoute(hostId, segments);

@@ -50,9 +50,8 @@ public class SaerixCMS {
 	private Properties properties = new Properties();
 	private ModelLoader modelLoader;
 	
-	@SuppressWarnings("unchecked")
 	public void enable() throws NumberFormatException, IOException, LibraryException, DatabaseException {
-		modelLoader = new ModelLoader(properties);
+		modelLoader = new ModelLoader(this, properties);
 		
 		
 		server = new SaerixHttpServer(this, Integer.parseInt(getProperties().get("port").toString()), Integer.parseInt(getProperties().get("secure_port").toString()), getProperties().get("cms_hostname").toString());

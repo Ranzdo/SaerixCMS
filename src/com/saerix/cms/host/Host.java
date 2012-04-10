@@ -53,12 +53,12 @@ public abstract class Host {
 	}
 
 	public Class<? extends Controller> getController(String controllerName) throws ControllerException {
-		Class<? extends Controller> controllerClass = getNativeController(controllerName);
+		Class<? extends Controller> controllerClass = getHostController(controllerName);
 		return controllerClass;
 	}
 	
 	public Route getRoute(String segments) throws RouteException {
-		Route route = getNativeRoute(segments);
+		Route route = getHostRoute(segments);
 		if(route != null)
 			return route;
 		
@@ -76,15 +76,15 @@ public abstract class Host {
 	}
 	
 	public View getView(String viewName) throws ViewException, ViewNotFoundException {
-		return new View(getNativeView(viewName));
+		return new View(getHostView(viewName));
 	}
 	
 	public LibraryLoader getLibraryLoader() {
 		return libraryLoader;
 	}
 	
-	protected abstract Class<? extends Controller> getNativeController(String controllerName) throws ControllerException;
-	protected abstract EvaluatedView getNativeView(String viewName) throws ViewException;
+	protected abstract Class<? extends Controller> getHostController(String controllerName) throws ControllerException;
+	protected abstract EvaluatedView getHostView(String viewName) throws ViewException;
 	protected abstract Collection<String> loadLibraries();
-	protected abstract Route getNativeRoute(String segements) throws RouteException;
+	protected abstract Route getHostRoute(String segements) throws RouteException;
 }

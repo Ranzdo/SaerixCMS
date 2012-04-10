@@ -32,4 +32,10 @@ public class ModelModel extends Model {
 	public List<ModelRow> getAllModels() throws SQLException {
 		return (List<ModelRow>) get().getRows();
 	}
+	
+	public ModelRow getModel(int databaseId, String tableName) throws SQLException {
+		where("database_id", databaseId);
+		where("model_tablename", tableName);
+		return (ModelRow) get().getRow();
+	}
 }

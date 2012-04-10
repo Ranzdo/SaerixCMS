@@ -32,7 +32,7 @@ public class CMSHost extends Host {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Class<? extends Controller> getNativeController(String controllerName) throws ControllerException {
+	public Class<? extends Controller> getHostController(String controllerName) throws ControllerException {
 		try {
 			return (Class<? extends Controller>) Class.forName("com.saerix.cms.cms.controllers."+controllerName);
 		} catch (ClassNotFoundException e) {
@@ -43,7 +43,7 @@ public class CMSHost extends Host {
 	}
 
 	@Override
-	public EvaluatedView getNativeView(String viewName) throws ViewException {
+	public EvaluatedView getHostView(String viewName) throws ViewException {
 		try {
 			String res = "/com/saerix/cms/cms/views/"+viewName+".html";
 			if(!Util.resourceExists(res))
@@ -63,7 +63,7 @@ public class CMSHost extends Host {
 	}
 
 	@Override
-	public Route getNativeRoute(String segments) throws RouteException {
+	public Route getHostRoute(String segments) throws RouteException {
 		try {
 			String[] segmentArray = URLUtil.splitSegments(segments);
 			InputStream is = Route.class.getResourceAsStream("/com/saerix/cms/cms/routes");
