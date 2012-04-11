@@ -5,10 +5,16 @@ import com.saerix.cms.database.basemodels.*;
 import com.saerix.cms.view.*;
 
 class main extends Controller {
-	def index() {
+	boolean onload() {
 		if(!session().userdata().getBoolean("loggedin")) {
 			redirect("login")
-			return;
+			return false
 		}
+		else
+			return true
+	}
+	
+	def index() {
+		view('main')
 	}
 }

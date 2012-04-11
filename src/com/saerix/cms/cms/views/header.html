@@ -29,12 +29,16 @@ var url = "{base_url()}";
 
 <body>
 <div id="wrapper">
-<div id="header"></div>
+<div id="header"><img src="{resource_url('img/logo.png')}" /></div>
 <div id="menu">
 
 <ul>
-<li>Home</li>
-<li>Editor</li>
+<li>{anchor('', "Home")}</li>
+<li>{anchor('editor', "Editor")}</li>
+<li>{anchor('filemanager', "File manager")}</li>
+<li>{anchor('user/profile', "User Profile")}</li>
+<li>{anchor('settings/host', "Host Settings")}</li>
+<li>{anchor('settings/global', "Global Settings")}</li>
 </ul>
 
 <br style="clear:left;"/>

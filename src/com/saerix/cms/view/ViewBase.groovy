@@ -35,12 +35,12 @@ abstract class ViewBase extends Script {
 		return url(segments, null)
 	}
 	
-	def anchor(String text, String segments, Map<String, String> parameters) {
+	def anchor(String segments, Map<String, String> parameters, String text) {
 		return "<a href=\""+url(segments, parameters)+"\">"+text+"</a>"
 	}
 	
-	def anchor(String text, String segments) {
-		return anchor(text, segments, null);
+	def anchor(String segments, String text) {
+		return anchor(segments, null, text);
 	}
 	
 	def resource_url(String resourcename) {
