@@ -24,7 +24,7 @@ class editor extends Controller {
 		]);
 	}
 	
-	void item() {
+	void get() {
 		String type = get("type");
 		Model m = null;
 		if(type == "controller") {

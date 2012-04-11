@@ -38,7 +38,7 @@ function switch_item(type, id, mode) {
 		 editor.setValue(editor_items[key]);
 	}
 	else {
-		$.get(url+'editor/item?type='+type+'&id='+id, function(data) {
+		$.get(url+'editor/get?type='+type+'&id='+id, function(data) {
 			 editor.setOption("mode", mode);
 			 editor.setValue(data);
 			 editor_items[type+id] = data;
