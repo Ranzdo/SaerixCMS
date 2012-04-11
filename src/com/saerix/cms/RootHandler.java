@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.saerix.cms.controller.Controller;
 import com.saerix.cms.host.Host;
-import com.saerix.cms.libapi.Listener;
 import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.route.Route;
 import com.saerix.cms.util.HttpError;
