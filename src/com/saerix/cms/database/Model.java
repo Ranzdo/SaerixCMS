@@ -72,6 +72,9 @@ public abstract class Model {
 		return loaded.getRowClass();
 	}
 	
+	public Model model(String tableName) throws DatabaseException {
+		return database.getModel(tableName);
+	}
 	
 	//These setup the methods below, 
 	
