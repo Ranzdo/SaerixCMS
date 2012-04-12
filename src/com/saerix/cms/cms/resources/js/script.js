@@ -17,31 +17,6 @@ CodeMirror.defineMode("view", function(config, parserConfig) {
   return CodeMirror.overlayParser(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), viewOverlay);
 });
 
-var editor = null;
-var editor_items = new Object();
-
-function switch_item(type, id, mode) {
-	if(editor == null) {
-		$('#msgdiv').hide();
-		$('#codediv').show();
-		
-		editor = CodeMirror.fromTextArea(document.getElementById("code"),{
-		        lineNumbers: true,
-		        matchBrackets: true,
-		});
-	}
-	
-	key = type+id;
-	
-	if('key' in editor_items) {
-		 editor.setOption("mode", mode);
-		 editor.setValue(editor_items[key]);
-	}
-	else {
-		$.get(url+'editor/get?type='+type+'&id='+id, function(data) {
-			 editor.setOption("mode", mode);
-			 editor.setValue(data);
-			 editor_items[type+id] = data;
-		}).error(function() { alert("Could not load the file."); });
-	}
-}
+$(function() {
+	$('#editor').editor({codeid:'code'});
+});
