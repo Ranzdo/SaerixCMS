@@ -11,12 +11,9 @@ public class WhereAgrument {
 			this.column = column;
 			this.comparer = "=";
 		}
-		else if(split.length > 2) {
+		else if(split.length == 2) {
 			this.column = split[0];
-			StringBuilder sb = new StringBuilder();
-			for(int i = 1; i < split.length; i++)
-				sb.append(split[i]);
-			this.comparer = sb.toString();
+			this.comparer = split[1];
 		}
 		else
 			throw new IllegalArgumentException("The column name \""+column+"\" is not valid");

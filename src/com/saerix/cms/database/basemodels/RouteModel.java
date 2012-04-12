@@ -4,9 +4,9 @@ import java.sql.SQLException;
 
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
-import com.saerix.cms.database.TableConfig;
+import com.saerix.cms.database.Table;
 
-@TableConfig(name = "routes", rowclass = RouteModel.RouteRow.class)
+@Table(name = "routes", rowclass = RouteModel.RouteRow.class)
 public class RouteModel extends Model {
 	public static enum RouteType {
 		CONTROLLER(0),

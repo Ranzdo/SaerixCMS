@@ -33,10 +33,10 @@ public class MainDatabase extends Database {
 		this.classLoader = classLoader;
 		
 		for(Class<?> model : baseModels) {
-			if(!model.isAnnotationPresent(TableConfig.class))
+			if(!model.isAnnotationPresent(Table.class))
 				throw new DatabaseException("TableConfig annonation missing for "+model.getName());
 		
-			TableConfig config = model.getAnnotation(TableConfig.class);
+			Table config = model.getAnnotation(Table.class);
 			
 			registerModel(new LoadedModel(config.name(), (Class<? extends Model>) model, config.rowclass()));
 		}

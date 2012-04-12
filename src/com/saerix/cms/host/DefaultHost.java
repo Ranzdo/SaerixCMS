@@ -1,7 +1,6 @@
-package com.saerix.cms.database;
+package com.saerix.cms.host;
 
 import com.saerix.cms.SaerixHttpServer;
-import com.saerix.cms.host.DatabaseHost;
 import com.saerix.cms.libapi.LibraryException;
 
 public class DefaultHost extends DatabaseHost {

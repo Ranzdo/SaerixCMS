@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
-import com.saerix.cms.database.DefaultHost;
 import com.saerix.cms.database.basemodels.HostModel;
 import com.saerix.cms.database.basemodels.HostModel.HostRow;
 import com.saerix.cms.host.DatabaseHost;
+import com.saerix.cms.host.DefaultHost;
 import com.saerix.cms.host.Host;
 import com.saerix.cms.host.HostException;
 import com.saerix.cms.libapi.LibraryException;

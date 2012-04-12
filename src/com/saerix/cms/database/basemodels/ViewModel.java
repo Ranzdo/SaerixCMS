@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
-import com.saerix.cms.database.TableConfig;
+import com.saerix.cms.database.Table;
 
-@TableConfig(name = "views", rowclass = ViewModel.ViewRow.class)
+@Table(name = "views", rowclass = ViewModel.ViewRow.class)
 public class ViewModel extends Model {
 	public static class ViewRow extends Row {
 		public int getId() {

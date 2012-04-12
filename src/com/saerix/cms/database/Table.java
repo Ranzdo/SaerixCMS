@@ -7,7 +7,7 @@ import java.lang.annotation.ElementType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface TableConfig {
+public @interface Table {
 	String name();
 	Class<? extends Row> rowclass() default Row.class;
 }

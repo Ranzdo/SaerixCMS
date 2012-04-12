@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
-import com.saerix.cms.database.TableConfig;
+import com.saerix.cms.database.Table;
 
-@TableConfig(name = "models", rowclass = ModelModel.ModelRow.class)
+@Table(name = "models", rowclass = ModelModel.ModelRow.class)
 public class ModelModel extends Model {
 	
 	public static class ModelRow extends Row {

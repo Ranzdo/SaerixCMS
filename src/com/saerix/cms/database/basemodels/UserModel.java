@@ -8,9 +8,9 @@ import java.util.Map;
 
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
-import com.saerix.cms.database.TableConfig;
+import com.saerix.cms.database.Table;
 
-@TableConfig(name = "users", rowclass = UserModel.UserRow.class)
+@Table(name = "users", rowclass = UserModel.UserRow.class)
 public class UserModel extends Model {
 	public static class UserRow extends Row {
 		public int id() {

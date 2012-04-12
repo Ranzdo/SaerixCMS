@@ -4,9 +4,9 @@ import java.sql.SQLException;
 
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
-import com.saerix.cms.database.TableConfig;
+import com.saerix.cms.database.Table;
 
-@TableConfig(name = "hosts", rowclass = HostModel.HostRow.class)
+@Table(name = "hosts", rowclass = HostModel.HostRow.class)
 public class HostModel extends Model {
 	public static class HostRow extends Row {
 		public int getKey() {
