@@ -9,7 +9,7 @@
 {
 String b = "";
 for(controller in controllers)
-	b += "<li><a href=\"javascript:switch_item('controller', '"+controller.getId()+"', 'text/x-groovy')\">"+controller.getName()+"</a></li>"
+	b += "<li><a href=\"javascript:\$('#editor').editor('open', '"+controller.getId()+"', 'controller', '"+controller.getName()+"');\">"+controller.getName()+"</a></li>"
 return b
 }
 </ul>
@@ -29,7 +29,7 @@ return b
 {
 String b = "";
 for(view in views)
-	b += "<li><a href=\"javascript:switch_item('view', '"+view.getId()+"', 'view')\">"+view.getName()+"</a></li>"
+	b += "<li><a href=\"javascript:\$('#editor').editor('open', {id : '"+view.getId()+"', type : 'view', name : '"+view.getName()+"'});\">"+view.getName()+"</a></li>"
 return b
 }
 </ul>
