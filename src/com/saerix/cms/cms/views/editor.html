@@ -1,4 +1,5 @@
 {view('header', [title:'Editor'])}
+
 <table cellpadding="0" cellspacing="0" width="100%">
 <tr>
 <td valign="top" width="100">
@@ -29,7 +30,7 @@ return b
 {
 String b = "";
 for(view in views)
-	b += "<li><a href=\"javascript:\$('#editor').editor('open', {id : '"+view.getId()+"', type : 'view', name : '"+view.getName()+"'});\">"+view.getName()+"</a></li>"
+	b += "<li><a href=\"javascript:\$('#editor').editor('open', '"+view.getId()+"', 'view', '"+view.getName()+"');\">"+view.getName()+"</a></li>"
 return b
 }
 </ul>

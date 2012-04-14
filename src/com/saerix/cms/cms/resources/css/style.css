@@ -24,9 +24,12 @@ h2 {
 #header {
 	background-color:#4D4DEF;
 	width:100%;
-	height:70px;
-	padding-top:25px;
-	padding-left:30px;
+}
+
+#header img {
+	margin-top:25px;
+	margin-left:30px;
+	margin-bottom:15px;
 }
 
 /* Inputs */
@@ -54,6 +57,58 @@ input.input-text {
 /* Editor */
 #editor {
 	
+}
+
+.editor-tabs {
+	
+}
+
+.editor-tabs .editor-tab {
+	float:left;
+	margin-right:1px;
+	border-left:1px solid black;
+	border-right:1px solid black;
+	border-top:1px solid black;
+	background-color:#CCCCCC;
+	height:18px;
+}
+
+.editor-tabs .editor-tab.selected {
+	background-color:#FFFFFF;
+}
+
+.editor-tabs .editor-tab .body {
+	margin-left:2px;
+	padding:2px 23px 2px 19px;
+	cursor:default;
+	font-size:11px;
+	font-family:verdana;
+	float:left;
+}
+
+.editor-tabs .editor-tab.selected .body {
+	padding-right:5px;
+}
+
+.editor-tabs .editor-tab.selected .close {
+	background:url(../img/cross.png);
+	width:16px;
+	height:16px;
+	margin:1px;
+	cursor:pointer;
+	float:right;
+}
+
+.editor-tabs .editor-tab.controller .body {
+	background:url(../img/controller.png) no-repeat left center;
+}
+
+.editor-tabs .editor-tab.model .body {
+	background:url(../img/model.png) no-repeat left center;
+}
+
+.editor-tabs .editor-tab.view .body {
+	background:url(../img/view.png) no-repeat left center;
 }
 
 /* Button css */
