@@ -86,7 +86,7 @@ public class DatabaseHost extends Host {
 			
 			int controllerId = row.getId();
 			
-			Class<?> clazz = getServer().getInstance().getGroovyClassLoader().parseClass("package controllers"+controllerId+";"+row.getContent());
+			Class<?> clazz = getServer().getInstance().getGroovyClassLoader().parseClass("package controllers;"+row.getContent());
 			
 			if(!Controller.class.isAssignableFrom(clazz))
 				throw new ControllerException("The controller "+controllerName+" loaded from database does not extend the Controller class.");
@@ -175,4 +175,9 @@ public class DatabaseHost extends Host {
 		
 		return null;
 	}
+
+	public int getHostId() {
+		return hostId;
+	}
+	
 }

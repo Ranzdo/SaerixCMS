@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.saerix.cms.database.Database;
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.host.Host;
@@ -63,8 +64,11 @@ public class Controller {
 		view(viewName, null);
 	}
 	
-	public void echo(String echo) {
-		views.add(new View(echo));
+	public void echo(Object echo) {
+		if(echo == null)
+			views.add(new View("null"));
+		else
+			views.add(new View(echo.toString()));
 	}
 	
 	public List<View> getViews() {
@@ -108,6 +112,10 @@ public class Controller {
 	
 	public String get(String parameter) {
 		return get(parameter, false);
+	}
+	
+	public Database database() {
+		return getPageLoadEvent().getHost().getServer().getInstance().getDatabaseLoader().getMainDatabase();
 	}
 	
 	public Model model(String tableName) throws DatabaseException {

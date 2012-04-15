@@ -8,11 +8,11 @@ import java.util.List;
 public class Result {
 	private ArrayList<Row> result = new ArrayList<Row>();
 	
-	public int num_rows = 0;
+	public int length = 0;
 	
 	Result(ResultSet rs, Class<? extends Row> rowclass) throws SQLException {
 		while(rs.next()) {
-			num_rows++;
+			length++;
 			try {
 				result.add(rowclass.newInstance().set(rs));
 			} catch (Exception e) {

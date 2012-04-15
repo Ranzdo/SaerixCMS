@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 
 public class Util {
 	public static String readResource(String file) throws IOException {
@@ -45,4 +48,11 @@ public class Util {
 	public static String glue(String[] array, String glue) {
 		return glue(array, glue, 0);
 	}
+	
+	  public static String getStackTrace(Throwable aThrowable) {
+		    final Writer result = new StringWriter();
+		    final PrintWriter printWriter = new PrintWriter(result);
+		    aThrowable.printStackTrace(printWriter);
+		    return result.toString();
+	  }
 }

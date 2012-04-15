@@ -36,7 +36,7 @@ public class Route {
 		} catch(NoSuchMethodException e) {
 			throw new RouteException("The method "+methodName+" does not exists in the controller "+controllerName+".");
 		} catch(SecurityException e) {
-			throw new RouteException("The method "+methodName+" is not accessible in the controller "+controllerName+".");
+			this.controllerObject = new HTTP_404();
 		} catch (ControllerException e) {
 			throw new RouteException("The controller "+controllerName+" does not exist.");
 		}

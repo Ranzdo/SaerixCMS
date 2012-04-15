@@ -5,6 +5,7 @@ padding:0;
 
 body {
 background-color:#FFFFFF;
+font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
 h2 {
@@ -59,11 +60,11 @@ input.input-text {
 	
 }
 
-.editor-tabs {
+#editor .editor-tabs {
 	
 }
 
-.editor-tabs .editor-tab {
+#editor .editor-tabs .editor-tab {
 	float:left;
 	margin-right:1px;
 	border-left:1px solid black;
@@ -73,24 +74,23 @@ input.input-text {
 	height:18px;
 }
 
-.editor-tabs .editor-tab.selected {
+#editor .editor-tabs .editor-tab.selected {
 	background-color:#FFFFFF;
 }
 
-.editor-tabs .editor-tab .body {
+#editor .editor-tabs .editor-tab .body {
 	margin-left:2px;
 	padding:2px 23px 2px 19px;
 	cursor:default;
 	font-size:11px;
-	font-family:verdana;
 	float:left;
 }
 
-.editor-tabs .editor-tab.selected .body {
+#editor .editor-tabs .editor-tab.selected .body {
 	padding-right:5px;
 }
 
-.editor-tabs .editor-tab.selected .close {
+#editor .editor-tabs .editor-tab.selected .close {
 	background:url(../img/cross.png);
 	width:16px;
 	height:16px;
@@ -99,16 +99,67 @@ input.input-text {
 	float:right;
 }
 
-.editor-tabs .editor-tab.controller .body {
+#editor .editor-tabs .editor-tab.controller .body {
 	background:url(../img/controller.png) no-repeat left center;
 }
 
-.editor-tabs .editor-tab.model .body {
+#editor .editor-tabs .editor-tab.model .body {
 	background:url(../img/model.png) no-repeat left center;
 }
 
-.editor-tabs .editor-tab.view .body {
+#editor .editor-tabs .editor-tab.view .body {
 	background:url(../img/view.png) no-repeat left center;
+}
+
+#editor-browser ul {
+	margin-bottom:10px;
+	font-family:Verdana;
+}
+
+#editor-browser li {
+	font-size:14px;
+}
+
+#editor-browser ul li.controller {
+	list-style-image:url(../img/controller.png);
+}
+
+#editor-browser ul li.model {
+	list-style-image:url(../img/model.png);
+}
+
+#editor-browser ul li.view {
+	list-style-image:url(../img/view.png);
+}
+
+#editor-browser ul li ul {
+	padding-left:1px;
+	font-size:12px;
+}
+
+#editor-browser ul li ul li {
+	list-style-type:none;
+	list-style-image:none;
+	padding:2px 5px 2px 5px;
+}
+
+#editor-browser ul li img.add {
+	background:url(../img/add.png) no-repeat left center;
+	width:16px;
+	height:16px;
+	cursor:pointer;
+	vertical-align:text-top;
+}
+
+#editor-browser ul li ul li.name-input input {
+	font-size:12px;
+	width:70px;
+}
+
+#editor-browser ul li ul li.name-input img {
+	margin-left:6px;
+	vertical-align:middle;
+	cursor:pointer;
 }
 
 /* Button css */

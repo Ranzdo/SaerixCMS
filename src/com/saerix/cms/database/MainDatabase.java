@@ -53,7 +53,7 @@ public class MainDatabase extends Database {
 	}
 	
 	public void reloadDatabaseModel(ModelRow row) throws DatabaseException {
-		Class<?> clazz = classLoader.parseClass(row.getContent());
+		Class<?> clazz = classLoader.parseClass("package models;"+row.getContent());
 		if(!Model.class.isAssignableFrom(clazz))
 			throw new DatabaseException("The model class \""+clazz.getName()+"\" does not extend the model class.");
 		

@@ -6,6 +6,8 @@
 		        matchBrackets: true,
 			}));
 			
+			$(this).hide();
+			
 			$(this).data('tabs', new Array());
 			
 			$(this).prepend('<div style="clear:left;"></div>');
@@ -13,21 +15,11 @@
 		},
 		open : function(id, type, name) {
 			var g = this;
-			$(this).show();
 			var tabs = $(this).children('.editor-tabs').first();
+			$(this).show();
 			if($(tabs).children('.'+type+id+'.editor-tab.'+type).length == 0) {
-				$.get(url+'editor/get?type='+type+'&id='+id, function(data) {
-					$('<div class="editor-tab '+type+' '+type+id+'"><div class="body">'+name+'</div><div class="close"></div></div>')
-					.data('tab', {'id' : id, 'type' : type, content : data})
-					.appendTo($(tabs))
-					.children('div').click(function() {
-						if($(this).hasClass('body'))
-							methods.select.apply(g, new Array(id, type));
-						else if($(this).hasClass('close'))
-							methods.close.apply(g, new Array(id, type));
-					});
-					
-					
+				$.get(url+'editor/get?type='+type+'&id='+id, function(data) {					
+					methods.create.apply(g, new Array(type, name, data, id));
 					methods.select.apply(g, new Array(id, type));
 				}).error(function() { alert('Could not load the file.'); });
 			}
@@ -95,6 +87,63 @@
 			}
 			
 			$(local).remove();
+		}, 
+		save: function(id, type) {
+			var local;
+			if(typeof type === 'object' || ! type) {
+				if(id == 'selected')
+					local = $(this).children('.editor-tabs').first().children('.editor-tab.selected');
+			}
+			else
+				local = $(this).children('.editor-tabs').first().children('.'+type+id+'.editor-tab');
+			
+			var data = $(local).data('tab');
+			
+			$.post(url+'editor/save', data, function(data) {
+				if(data != '') {
+					var error = window.open( "", "", "status = 1, height = 300, width = 300, resizable = 0" );
+					error.document.write(data);
+					error.document.close();
+				}
+				else {
+					$(local).children('.body').html($(local).children('.body').html().replace("*", ""));
+					$(local).removeClass('changed');
+				}
+			});
+		},
+		create: function(type, name, contentPara, id) {
+			var tabs = $(this).children('.editor-tabs').first();
+			var content = "";
+			var g = this;
+			if((typeof contentPara === 'object' || ! contentPara) && (typeof id === 'object' || ! id)) {
+				if(type in defaults) {
+					content = defaults[type];
+				}
+			}
+			else {
+				content = contentPara;
+			}
+			
+			$('<div class="editor-tab '+type+' '+type+id+'"><div class="body">'+name+'</div><div class="close"></div></div>')
+			.data('tab', {'id' : id, 'type' : type, content : content, 'name' : name})
+			.appendTo($(tabs))
+			.children('div').click(function() {
+				if($(this).hasClass('body'))
+					methods.select.apply(g, new Array(id, type));
+				else if($(this).hasClass('close'))
+					methods.close.apply(g, new Array(id, type));
+			});
+		},
+		newitem : function(type, name, callback) {
+			var g = this;
+			$.get(url+'editor/newitem?type='+type+'&name='+name, function(data) {
+				if(data.indexOf("error:") != -1) {
+					alert(data.replace("error:", ""));
+					return;
+				}
+				
+				callback.apply(g, new Array(data));
+			});
 		}
 	 };
 	
@@ -110,4 +159,21 @@
 		else
 			$.error('Method ' +  method + ' does not exist');
 	};
+	
+	$.ctrl = function(key, callback, args) {
+	    var isCtrl = false;
+	    $(document).keydown(function(e) {
+	        if(!args) args=[]; // IE barks when args is null
+
+	        if(e.ctrlKey) isCtrl = true;
+	        if(e.keyCode == key.charCodeAt(0) && isCtrl) {
+	            callback.apply(this, args);
+	            return false;
+	        }
+	    }).keyup(function(e) {
+	        if(e.ctrlKey) isCtrl = false;
+	    });
+	};
+	
+	
 })( jQuery );
