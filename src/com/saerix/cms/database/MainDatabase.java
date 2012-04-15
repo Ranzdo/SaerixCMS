@@ -2,7 +2,6 @@ package com.saerix.cms.database;
 
 import groovy.lang.GroovyClassLoader;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
@@ -41,14 +40,10 @@ public class MainDatabase extends Database {
 			registerModel(new LoadedModel(config.name(), (Class<? extends Model>) model, config.rowclass()));
 		}
 		
-		try {
-			List<ModelRow> rows = ((ModelModel)getModel("models")).getModels(-1);
-			
-			for(ModelRow row : rows) {
-				reloadDatabaseModel(row);
-			}
-		} catch (SQLException e) {
-			throw (DatabaseException) new DatabaseException().initCause(e);
+		List<ModelRow> rows = ((ModelModel)getModel("models")).getModels(-1);
+		
+		for(ModelRow row : rows) {
+			reloadDatabaseModel(row);
 		}
 	}
 	

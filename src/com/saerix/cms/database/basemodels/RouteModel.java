@@ -1,7 +1,6 @@
 package com.saerix.cms.database.basemodels;
 
-import java.sql.SQLException;
-
+import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
@@ -40,7 +39,7 @@ public class RouteModel extends Model {
 		}
 	}
 	
-	public RouteRow getRoute(int hostId, String suffix) throws SQLException {
+	public RouteRow getRoute(int hostId, String suffix) throws DatabaseException {
 		where("route_suffix", suffix);
 		where("host_id", hostId);
 		return (RouteRow) get().getRow();

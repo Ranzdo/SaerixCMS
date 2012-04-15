@@ -1,8 +1,8 @@
 package com.saerix.cms.database.basemodels;
 
-import java.sql.SQLException;
 import java.util.List;
 
+import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
@@ -29,18 +29,18 @@ public class ModelModel extends Model {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ModelRow> getAllModels() throws SQLException {
+	public List<ModelRow> getAllModels() throws DatabaseException {
 		return (List<ModelRow>) get().getRows();
 	}
 	
-	public ModelRow getModel(int databaseId, String tableName) throws SQLException {
+	public ModelRow getModel(int databaseId, String tableName) throws DatabaseException  {
 		where("database_id", databaseId);
 		where("model_tablename", tableName);
 		return (ModelRow) get().getRow();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<ModelRow> getModels(int databaseId) throws SQLException {
+	public List<ModelRow> getModels(int databaseId) throws DatabaseException {
 		where("database_id", databaseId);
 		return (List<ModelRow>) get().getRows();
 	}

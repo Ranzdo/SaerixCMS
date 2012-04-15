@@ -1,7 +1,6 @@
 package com.saerix.cms.database.basemodels;
 
-import java.sql.SQLException;
-
+import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
@@ -22,7 +21,7 @@ public class HostModel extends Model {
 		}
 	}
 	
-	public Row getHost(String hostValue) throws SQLException {
+	public Row getHost(String hostValue) throws DatabaseException {
 		where("host_value", hostValue);
 		return get().getRow();
 	}

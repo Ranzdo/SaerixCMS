@@ -1,11 +1,12 @@
 package com.saerix.cms.host;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.codehaus.groovy.control.CompilationFailedException;
 
 import com.saerix.cms.SaerixHttpServer;
 import com.saerix.cms.controller.Controller;
@@ -35,10 +36,15 @@ public class DatabaseHost extends Host {
 	private Map<String, Class<? extends Controller>> loadedControllers = Collections.synchronizedMap(new HashMap<String, Class<? extends Controller>>());
 	private Map<String, EvaluatedView> loadedViews = Collections.synchronizedMap(new HashMap<String, EvaluatedView>());
 	
-	public DatabaseHost(SaerixHttpServer server, int hostId, String hostName) {
+	public DatabaseHost(SaerixHttpServer server, int hostId, String hostName) throws HostException {
 		super(server, hostName);
 		this.hostId = hostId;
 		this.adminHost = new CMSHost(server, this);
+		syncWithDatabase();
+	}
+	
+	public int getHostId() {
+		return hostId;
 	}
 	
 	@Override
@@ -76,74 +82,7 @@ public class DatabaseHost extends Host {
 		}
 		super.onPageLoad(pageLoadEvent);
 	}
-
-	public Class<? extends Controller> reloadController(String controllerName) throws ControllerException, ControllerNotFoundException {
-		try {
-			ControllerRow row = ((ControllerModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("controllers")).getController(hostId, controllerName);
-			
-			if(row == null)
-				throw new ControllerNotFoundException(controllerName);
-			
-			int controllerId = row.getId();
-			
-			Class<?> clazz = getServer().getInstance().getGroovyClassLoader().parseClass("package controllers;"+row.getContent());
-			
-			if(!Controller.class.isAssignableFrom(clazz))
-				throw new ControllerException("The controller "+controllerName+" loaded from database does not extend the Controller class.");
-			
-			@SuppressWarnings("unchecked")
-			Class<? extends Controller> controller = (Class<? extends Controller>) clazz;
-			
-			loadedControllers.put(row.getName(), controller);
-			
-			return controller;
-		}
-		catch(DatabaseException e) {
-			throw (ControllerException) new ControllerException().initCause(e);
-		}
-		catch(SQLException e) {
-			throw (ControllerException) new ControllerException().initCause(e);
-		}
-	}
-
-	public EvaluatedView reloadView(String viewName) throws ViewException, ViewNotFoundException {
-		try {
-			ViewRow row = ((ViewModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("views")).getView(hostId, viewName);
-			
-			if(row == null)
-				throw new ViewNotFoundException(viewName);
-			
-			EvaluatedView eval = new EvaluatedView(getServer().getInstance().getGroovyClassLoader(), viewName, row.getContent());
-			
-			loadedViews.put(viewName, eval);
-			
-			return eval;
-		}
-		catch(SQLException e) {
-			throw (ViewException) new ViewException().initCause(e);
-		} catch (DatabaseException e) {
-			throw (ViewException) new ViewException().initCause(e);
-		}
-	}
-
-	@Override
-	public Class<? extends Controller> getHostController(String controllerName) throws ControllerException {
-		Class<? extends Controller> controller = loadedControllers.get(controllerName);
-		if(controller == null)
-			return reloadController(controllerName);
-		
-		return controller;
-	}
-
-	@Override
-	public EvaluatedView getHostView(String viewName) throws ViewException {
-		EvaluatedView eval = loadedViews.get(viewName);
-		if(eval == null)
-			return reloadView(viewName);
-		
-		return eval;
-	}
-
+	
 	@Override
 	public Collection<String> loadLibraries() {
 		//TODO when lib is done
@@ -167,17 +106,187 @@ public class DatabaseHost extends Host {
 				return new Route(this, route[0], route[1], pageLoadEvent);
 			}
 		}
-		catch(SQLException e) {
-			throw (RouteException) new RouteException().initCause(e);
-		} catch (DatabaseException e) {
+		catch (DatabaseException e) {
 			throw (RouteException) new RouteException().initCause(e);
 		}
 		
 		return null;
 	}
-
-	public int getHostId() {
-		return hostId;
+	
+	public void syncWithDatabase() throws HostException {
+		try {
+			/* Controllers */
+			loadedControllers.clear();
+			for(ControllerRow row : getControllerModel().getAllControllers()) {
+				loadedControllers.put(row.getName().toLowerCase(), evalController(row.getContent()));
+			}
+			
+			/* Views */
+			loadedViews.clear();
+			for(ViewRow row : getViewModel().getAllViews()) {
+				loadedViews.put(row.getName().toLowerCase(), evalView(row.getName(), row.getContent()));
+			}
+		}
+		catch(Exception e) {
+			throw (HostException) new HostException().initCause(e);
+		}
 	}
 	
+	/* Controller methods*/
+	
+	private ControllerModel getControllerModel() throws DatabaseException {
+		return (ControllerModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("controllers");
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Class<? extends Controller> evalController(String script) throws ControllerException, CompilationFailedException {
+		Class<?> clazz = getServer().getInstance().getGroovyClassLoader().parseClass("package controllers;"+script);
+		if(!Controller.class.isAssignableFrom(clazz))
+			throw new ControllerException("The class does not extend the controller class.");
+		
+		return (Class<? extends Controller>) clazz;
+	}
+	
+	public ControllerRow addController(String script) throws ControllerException, CompilationFailedException {
+		try {
+			Class<? extends Controller> controller = evalController(script);
+			
+			String name = controller.getSimpleName();
+			
+			ControllerModel model = getControllerModel();
+			
+			if(model.getController(hostId, name) != null)
+				throw new ControllerException("It does already exist a controller named "+name+" on the host "+getHostName()); 
+			
+			Object key = model.addController(hostId, name, script);
+			
+			loadedControllers.put(name, controller);
+			
+			return (ControllerRow) model.getRow(key);
+		}
+		catch(DatabaseException e) {
+			throw (ControllerException) new ControllerException().initCause(e);
+		}
+	}
+	
+	public ControllerRow saveController(int controllerId, String script) throws ControllerException, CompilationFailedException {
+		try {
+			Class<? extends Controller> controller = evalController(script);
+			String newName = controller.getSimpleName();
+			ControllerModel model = getControllerModel();
+			
+			ControllerRow old = (ControllerRow) model.getRow(controllerId);
+			
+			if(old == null)
+				throw new ControllerException("The controller does not exist"); 
+			
+			if(!newName.equals(old.getName())) {
+				if(model.getController(hostId, newName) != null)
+					throw new ControllerException("It does already exist a controller named "+newName+" on the host "+getHostName());
+				
+				loadedControllers.remove(old.getName());
+			}
+			
+			HashMap<String, Object> values = new HashMap<String, Object>();
+			values.put("controller_name", newName);
+			values.put("controller_content", script);
+			model.update(controllerId, values);
+			
+			loadedControllers.put(newName, controller);
+			
+			return (ControllerRow) model.getRow(controllerId);
+		}
+		catch(DatabaseException e) {
+			throw (ControllerException) new ControllerException().initCause(e);
+		}
+	}
+	
+	public void deleteController(int controllerId) throws ControllerException {
+		try {
+			ControllerModel model = getControllerModel();
+			ControllerRow row = (ControllerRow) model.getRow(controllerId);
+			if(row == null)
+				return;
+			
+			model.remove(controllerId);
+			loadedControllers.remove(row.getName());
+		}
+		catch(DatabaseException e) {
+			throw (ControllerException) new ControllerException().initCause(e);
+		}
+	}
+	
+	public ControllerRow getDatabaseController(String controllerName) throws DatabaseException {
+		return getControllerModel().getController(hostId, controllerName);
+	}
+	
+	@Override
+	public Class<? extends Controller> getHostController(String controllerName) throws ControllerException {
+		Class<? extends Controller> controller = loadedControllers.get(controllerName);
+		if(controller == null)
+			throw new ControllerNotFoundException(controllerName);
+		
+		return controller;
+	}
+	
+	/* View metods */
+	
+	private ViewModel getViewModel() throws DatabaseException {
+		return (ViewModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("views");
+	}
+	
+	private EvaluatedView evalView(String viewName, String content) throws ViewException {
+		return new EvaluatedView(getServer().getInstance().getGroovyClassLoader(), viewName, content);
+	}
+	
+	public ViewRow addView(String viewName, String content) throws ViewException {
+		try {
+			ViewModel model = getViewModel();
+			
+			if(model.getView(hostId, viewName) != null)
+				throw new ViewException("A view with the name "+viewName+" already exist.");
+			
+			loadedViews.put(viewName, evalView(viewName, content));
+			
+			return (ViewRow) model.getRow(model.addView(hostId, viewName, content));
+		}
+		catch(DatabaseException e) {
+			throw (ViewException) new ViewException().initCause(e);
+		}
+	}
+	
+	public void saveView(String viewName, String content) throws ViewException {
+		try {
+			ViewModel model = getViewModel();
+			HashMap<String, Object> values = new HashMap<String, Object>();
+			values.put("view_content", content);
+			model.where("host_id", hostId);
+			model.where("view_name", viewName);
+			model.update(values);
+			
+			loadedViews.put(viewName, evalView(viewName, content));
+		}
+		catch(DatabaseException e) {
+			throw (ViewException) new ViewException().initCause(e);
+		}
+	}
+	
+	public void deleteView(String viewName) throws ViewException {
+		try {
+			getViewModel().removeView(hostId, viewName);
+			loadedViews.remove(viewName);
+		}
+		catch(DatabaseException e) {
+			throw (ViewException) new ViewException().initCause(e);
+		}
+	}
+
+	@Override
+	public EvaluatedView getHostView(String viewName) throws ViewException {
+		EvaluatedView eval = loadedViews.get(viewName);
+		if(eval == null)
+			throw new ViewNotFoundException(viewName);
+		
+		return eval;
+	}
 }

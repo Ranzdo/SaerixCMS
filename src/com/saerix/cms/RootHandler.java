@@ -74,7 +74,7 @@ public class RootHandler implements HttpHandler {
 			}
 			else if(returnCode == 302) {
 				handle.getResponseHeaders().add("Location", controller.redirectTo());
-				handle.sendResponseHeaders(301, 0);
+				handle.sendResponseHeaders(302, 0);
 				handle.getResponseBody().close();
 			}
 			else {

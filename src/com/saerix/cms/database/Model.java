@@ -144,42 +144,49 @@ public abstract class Model {
 	
 	
 	//These executes and depends on the calls above
-	public int update(Map<String, Object> values) throws SQLException {
-		ArrayList<Object> ovalues = new ArrayList<Object>();
-		StringBuilder sql = new StringBuilder("UPDATE "+getTableName()+" SET ");
-		int counter = 1;
-		for(Entry<String, Object> value : values.entrySet()) {
-			sql.append(value.getKey()+" = ?");
-			if(values.size() != counter)
-				sql.append(",");
-			ovalues.add(value.getValue());
-			counter++;
+	
+	public int update(Map<String, Object> values) throws DatabaseException {
+		try {
+			ArrayList<Object> ovalues = new ArrayList<Object>();
+			StringBuilder sql = new StringBuilder("UPDATE "+getTableName()+" SET ");
+			int counter = 1;
+			for(Entry<String, Object> value : values.entrySet()) {
+				sql.append(value.getKey()+" = ?");
+				if(values.size() != counter)
+					sql.append(",");
+				ovalues.add(value.getValue());
+				counter++;
+			}
+			
+			sql.append(whereClause());
+			sql.append(limitClause());
+			
+			PreparedStatement ps = prepareStatement(sql.toString());
+			
+			counter = 1;
+			while(counter <= ovalues.size()) {
+				ps.setObject(counter, ovalues.get(counter-1));
+				counter++;
+			}
+			
+			while(counter <= ovalues.size()+where.size()) {
+				ps.setObject(counter, where.get(counter-ovalues.size()-1).getValue());
+				counter++;
+			}
+			
+			int result = ps.executeUpdate();
+			ps.close();
+			
+			clearClauses();
+			return result;
 		}
-		
-		sql.append(whereClause());
-		sql.append(limitClause());
-		
-		PreparedStatement ps = prepareStatement(sql.toString());
-		
-		counter = 1;
-		while(counter <= ovalues.size()) {
-			ps.setObject(counter, ovalues.get(counter-1));
-			counter++;
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
 		}
-		
-		while(counter <= ovalues.size()+where.size()) {
-			ps.setObject(counter, where.get(counter-ovalues.size()-1).getValue());
-			counter++;
-		}
-		
-		int result = ps.executeUpdate();
-		ps.close();
-		
-		clearClauses();
-		return result;
 	}
 
-	public int remove() throws SQLException {
+	public int remove() throws DatabaseException {
+		try {
 		if(where.size() == 0)
 			throw new SQLException("No where arguement when remove() was called, please use trunacte() instead");
 		
@@ -193,103 +200,132 @@ public abstract class Model {
 		
 		clearClauses();
 		return result;
+		}
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
+		}
 	}
 	
-	public Result get() throws SQLException {
-		PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+whereClause()+limitClause()+orderClause());
-		
-		for(int i = 1; i <= where.size();i++)
-			ps.setObject(i, where.get(i-1).getValue());
-		
-		ResultSet rs = ps.executeQuery();
-		
-		Result result = new Result(rs, getRowClass());
-		
-		rs.close();
-		ps.close();
-		
-		clearClauses();
-		return result;
+	public Result get() throws DatabaseException {
+		try {
+			PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+whereClause()+limitClause()+orderClause());
+			
+			for(int i = 1; i <= where.size();i++)
+				ps.setObject(i, where.get(i-1).getValue());
+			
+			ResultSet rs = ps.executeQuery();
+			
+			Result result = new Result(rs, getRowClass());
+			
+			rs.close();
+			ps.close();
+			
+			clearClauses();
+			return result;
+		}
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
+		}
 	}
 	
 	
 	//Below does not listen to the method above 
 	
-	public int update(Object primaryKey, Map<String, Object> values) throws SQLException {
+	public int update(Object primaryKey, Map<String, Object> values) throws DatabaseException {
 		clearClauses();
 		where(getPrimaryKeyColumn(), primaryKey);
 		return update(values);
 	}
 	
-	public int remove(Object primaryKey) throws SQLException {
-		PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
-		ps.setObject(1, primaryKey);
-		int result = ps.executeUpdate();
-		ps.close();
-		return result;
+	public int remove(Object primaryKey) throws DatabaseException {
+		try {
+			PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
+			ps.setObject(1, primaryKey);
+			int result = ps.executeUpdate();
+			ps.close();
+			return result;
+		}
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
+		}
 	}
 	
-	public int trunacte() throws SQLException {
-		PreparedStatement ps = prepareStatement("TRUNCATE TABLE "+getTableName());
-		int result = ps.executeUpdate();
-		ps.close();
-		return result;
+	public int trunacte() throws DatabaseException {
+		try {
+			PreparedStatement ps = prepareStatement("TRUNCATE TABLE "+getTableName());
+			int result = ps.executeUpdate();
+			ps.close();
+			return result;
+		}
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
+		}
 	}
 	
-	public Object insert(Map<String, Object> values) throws SQLException {
-		StringBuilder query = new StringBuilder("INSERT INTO "+getTableName()+" (");
-		int counter = 0;
-		for(Entry<String, Object> entry : values.entrySet()) {
-			query.append(entry.getKey());
-			counter++;
-			if(counter != values.size()) {
-				query.append(",");
+	public Object insert(Map<String, Object> values) throws DatabaseException {
+		try {
+			StringBuilder query = new StringBuilder("INSERT INTO "+getTableName()+" (");
+			int counter = 0;
+			for(Entry<String, Object> entry : values.entrySet()) {
+				query.append(entry.getKey());
+				counter++;
+				if(counter != values.size()) {
+					query.append(",");
+				}
 			}
-		}
-		query.append(") VALUES (");
-		for(int i = 0; i < values.size();i++) {
-			query.append("?");
-			if(i != values.size()-1) {
-				query.append(",");
+			query.append(") VALUES (");
+			for(int i = 0; i < values.size();i++) {
+				query.append("?");
+				if(i != values.size()-1) {
+					query.append(",");
+				}
 			}
+			query.append(")");
+			PreparedStatement ps = database.getConnection().prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
+			counter = 1;
+			for(Entry<String, Object> entry : values.entrySet()) {
+				ps.setObject(counter, entry.getValue());
+				counter++;
+			}
+			ps.executeUpdate();
+	
+			ResultSet rs = ps.getGeneratedKeys();
+			
+			Object treturn = null;
+			
+			if(rs.first())
+				treturn = rs.getObject(1);
+			
+			rs.close();
+			ps.close();
+			
+			return treturn;
 		}
-		query.append(")");
-		PreparedStatement ps = database.getConnection().prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
-		counter = 1;
-		for(Entry<String, Object> entry : values.entrySet()) {
-			ps.setObject(counter, entry.getValue());
-			counter++;
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
 		}
-		ps.executeUpdate();
-
-		ResultSet rs = ps.getGeneratedKeys();
-		
-		Object treturn = null;
-		
-		if(rs.first())
-			treturn = rs.getObject(1);
-		
-		rs.close();
-		ps.close();
-		
-		return treturn;
 	}
 	
-	public Row getRow(Object primaryKey) throws SQLException {
-		PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
-		ps.setObject(1, primaryKey);
-		ResultSet rs = ps.executeQuery();
-		if(rs.first()) {
-			try {
-				return getRowClass().newInstance().set(rs);
-			} catch (Exception e) {
-				e.printStackTrace();
+	public Row getRow(Object primaryKey) throws DatabaseException {
+		try {
+			PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
+			ps.setObject(1, primaryKey);
+			ResultSet rs = ps.executeQuery();
+			if(rs.first()) {
+				try {
+					return getRowClass().newInstance().set(rs);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				finally {
+					rs.close();
+				}
 			}
-			finally {
-				rs.close();
-			}
+			
+			return null;
 		}
-		
-		return null;
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
+		}
 	}
 }

@@ -24,9 +24,9 @@ class editor extends Controller {
 	
 	void index() {
 		view("editor", [
-			controllers : model("controllers").getAllControllers(),
+			controllers : model("controllers").getAllControllers(getHost().getParentHost().getHostId()),
 			models : model("models").getAllModels(),
-			views : model("views").getAllViews(),
+			views : model("views").getAllViews(getHost().getParentHost().getHostId()),
 			post : post("test")
 		])
 	}
@@ -54,17 +54,12 @@ class editor extends Controller {
 			show_404()
 			return
 		}
-		
 		String content = post("content")
 		if(type == "controller") {
 			try {
-				Class clazz = getHost().getServer().getInstance().getGroovyClassLoader().parseClass("package controllers;"+content)
-				
-				m.update(post("id", true), [controller_name : clazz.getSimpleName(), controller_content : content])
-					
-				getHost().getParentHost().reloadController(post("name"))
+				getHost().getParentHost().saveController(Integer.parseInt(post("id")), content).getName()
 			}
-			catch(CompilationFailedException e) {
+			catch(Exception e) {
 				echo(Util.getStackTrace(e))
 			}
 		}
@@ -83,14 +78,10 @@ class editor extends Controller {
 			}
 		}
 		else if(type == "view") {
-			try {
-				new EvaluatedView(getHost().getServer().getInstance().getGroovyClassLoader(), post("name"), content)
-				
-				m.update(post("id", true), [view_content : content])
-					
-				getHost().getParentHost().reloadView(post("name"));
+			try {		
+				getHost().getParentHost().saveView(post("name"), content);
 			}
-			catch(ViewException e) {
+			catch(Exception e) {
 				echo(Util.getStackTrace(e))
 			}
 		}
@@ -110,19 +101,14 @@ class editor extends Controller {
 			return;
 		}
 		
-		m.where("host_id", getHost().getParentHost().getHostId())
-		m.where(get("type")+"_name", name)
-		
-		if(m.get().length > 0) {
-			echo("error:There is already a "+type+" with that name.")
-			return;
+		if(type == 'controller') {
+			echo(getHost().getParentHost().addController(deafults.get(type).replace("%name", name)).getId());
+		}
+		else if(type == 'view') {
+			echo(getHost().getParentHost().addView(name, '').getId());
 		}
 		
-		echo(m.insert([
-			host_id : getHost().getParentHost().getHostId(),
-			(get("type")+"_name") : get("name"),
-			(get("type")+"_content") : editor.deafults.get(type).replace("%name", name)
-		]));
+		
 	}
 	
 	private getModelFromType(String type) {

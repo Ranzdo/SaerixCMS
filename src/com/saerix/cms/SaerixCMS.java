@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.DatabaseLoader;
+import com.saerix.cms.host.HostException;
 import com.saerix.cms.libapi.LibraryException;
 
 public class SaerixCMS {
@@ -33,11 +34,11 @@ public class SaerixCMS {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-		} catch (LibraryException e) {
-			e.printStackTrace();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (HostException e) {
 			e.printStackTrace();
 		}
 	}
@@ -49,7 +50,7 @@ public class SaerixCMS {
 	private Properties properties = new Properties();
 	private DatabaseLoader databaseLoader;
 	
-	public void enable() throws NumberFormatException, IOException, LibraryException, DatabaseException {
+	public void enable() throws NumberFormatException, IOException, DatabaseException, HostException {
 		databaseLoader = new DatabaseLoader(gClassLoader, properties);
 		
 		
