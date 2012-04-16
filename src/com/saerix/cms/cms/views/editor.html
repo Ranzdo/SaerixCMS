@@ -7,32 +7,14 @@
 <ul>
 <li class="controller">Controllers <img src="{resource_url('img/add.png')}" class="add" />
 <ul>
-{
-String b = "";
-for(controller in controllers)
-	b += "<li><a href=\"javascript:\$('#editor').editor('open', '"+controller.getId()+"', 'controller', '"+controller.getName()+"');\">"+controller.getName()+"</a></li>"
-return b
-}
 </ul>
 </li>
 <li class="model">Models <img src="{resource_url('img/add.png')}" class="add" />
 <ul>
-{
-String b = "";
-for(model in models)
-	b += "<li><a href=\"javascript:switch_item('model', '"+model.getId()+"', 'text/x-groovy')\">"+model.getName()+"</a></li>"
-return b
-}
 </ul>
 </li>
 <li class="view">Views <img src="{resource_url('img/add.png')}" class="add" />
 <ul>
-{
-String b = "";
-for(view in views)
-	b += "<li><a href=\"javascript:\$('#editor').editor('open', '"+view.getId()+"', 'view', '"+view.getName()+"');\">"+view.getName()+"</a></li>"
-return b
-}
 </ul>
 </li>
 </ul>

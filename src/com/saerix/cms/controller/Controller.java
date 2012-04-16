@@ -177,6 +177,11 @@ public class Controller {
 	public void setReturnCode(int returnCode) {
 		this.returnCode = returnCode;
 	}
+	
+	public void setMime(String mime) {
+		getPageLoadEvent().getHandle().getResponseHeaders().remove("Content-Type");
+		getPageLoadEvent().getHandle().getResponseHeaders().add("Content-Type", mime+"; charset=utf-8");
+	}
 
 	public Host getHost() {
 		return event.getHost();

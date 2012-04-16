@@ -48,19 +48,24 @@ class editor extends Controller {
 	}
 	
 	void getall() {
-		echo(model("controllers").get().xml(["controller_content"] as Set))
 		
-		/*String type = get("type", null)
-		if(type == null) {
+		String type = get("type", null)
+		Model m = getModelFromType(type)
+		if(m == null) {
 			show_404()
-		}
-		else if(type == "controllers") {
-			model("controllers").get
+			return;
 		}
 		
+		setMime("text/xml");
+		m.where("host_id", getHost().getParentHost().getHostId())
+		def result = m.get();
 		
-		model("views").getAllViews(getHost().getParentHost().getHostId())*/
-		//TODO
+		if(type == "controller") {
+			echo(result.xml(["controller_id", "controller_name"] as Set))
+		}
+		else if(type == "view") {
+			echo(result.xml(["view_id", "view_name"] as Set))
+		}
 	}
 	
 	void save() {

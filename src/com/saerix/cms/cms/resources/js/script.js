@@ -27,7 +27,7 @@ $(function() {
 	var clicked = false;
 	
 	var tick = $('<img />');
-	
+
 	$('#editor-browser .add').click(function() {
 		var parent = $(this).parent();
 		var li = $('<li />').addClass('name-input');
@@ -60,5 +60,22 @@ $(function() {
 	});
 	
 	
+	$.get(url+'editor/getall?type=controller', function(data) {
+		$(data).find('row').each(function() {
+			var g = this;
+			$('<li><a href="javascript:void(0)">'+$(this).find('controller_name').text()+'</a></li>').click(function() {
+				$('#editor').editor('open', $(g).find('controller_id').text(), "controller", $(g).find('controller_name').text());
+			}).appendTo($('#editor-browser li.controller ul'));
+		});
+	});
+	
+	$.get(url+'editor/getall?type=view', function(data) {
+		$(data).find('row').each(function() {
+			var g = this;
+			$('<li><a href="javascript:void(0)">'+$(this).find('view_name').text()+'</a></li>').click(function() {
+				$('#editor').editor('open', $(g).find('view_id').text(), "view", $(g).find('view_name').text());
+			}).appendTo($('#editor-browser li.view ul'));
+		});
+	});
 	
 });
