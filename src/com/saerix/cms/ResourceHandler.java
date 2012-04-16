@@ -29,17 +29,17 @@ public class ResourceHandler implements HttpHandler {
 	@Override
 	public void handle(HttpExchange handle) throws IOException {
 		if(!handle.getRequestMethod().equals("POST") && !handle.getRequestMethod().equals("GET")) {
-			HttpError.send404(handle);
+			send_404(handle);
 			return;
 		}
 		
 		List<String> ahost = handle.getRequestHeaders().get("Host");
 		if(ahost == null) {
-			HttpError.send404(handle);
+			send_404(handle);
 			return;
 		}
 		if(ahost.size() == 0) {
-			HttpError.send404(handle);
+			send_404(handle);
 			return;
 		}
 		
@@ -60,7 +60,7 @@ public class ResourceHandler implements HttpHandler {
 			
 			InputStream is = getClass().getResourceAsStream("/com/saerix/cms/cms/resources"+path2);
 			if(is == null) {
-				HttpError.send404(handle);
+				send_404(handle);
 				return;
 			}
 			
@@ -88,7 +88,7 @@ public class ResourceHandler implements HttpHandler {
 	
 		
 		if(!dir.exists()) {
-			HttpError.send404(handle);
+			send_404(handle);
 			return;
 		}
 		
@@ -100,7 +100,7 @@ public class ResourceHandler implements HttpHandler {
 		File file = new File(dir.getAbsolutePath()+path.toString());
 		
 		if(!file.exists() || file.isDirectory()){
-			HttpError.send404(handle);
+			send_404(handle);
 			return;
 		}
 		
@@ -141,6 +141,14 @@ public class ResourceHandler implements HttpHandler {
 			os.flush();
 			os.close();
 		}
+	}
+	
+	private void send_404(HttpExchange handle) throws IOException {
+		handle.sendResponseHeaders(404, 0);
+		OutputStream responseBody = handle.getResponseBody();
+		responseBody.write((HttpError.RETURN_404).getBytes());
+		responseBody.flush();
+		responseBody.close();
 	}
 	
 	

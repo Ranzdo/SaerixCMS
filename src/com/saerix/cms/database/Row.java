@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class Row {
 	private HashMap<String, Object> values = new HashMap<String, Object>();
@@ -25,6 +26,10 @@ public class Row {
 	
 	public Object getValue(String column) {
 		return values.get(column);
+	}
+	
+	public Set<Entry<String, Object>> getAllValues() {
+		return values.entrySet();
 	}
 	
 	public String toString() {

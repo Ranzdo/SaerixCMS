@@ -229,7 +229,7 @@ public class DatabaseHost extends Host {
 		return controller;
 	}
 	
-	/* View metods */
+	/* View methods */
 	
 	private ViewModel getViewModel() throws DatabaseException {
 		return (ViewModel)getServer().getInstance().getDatabaseLoader().getMainDatabase().getModel("views");

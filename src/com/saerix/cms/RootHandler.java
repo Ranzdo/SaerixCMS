@@ -2,6 +2,7 @@ package com.saerix.cms;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
@@ -26,18 +27,14 @@ public class RootHandler implements HttpHandler {
 	@Override
 	public void handle(HttpExchange handle) throws IOException {
 		try {
-			if(!handle.getRequestMethod().equals("POST") && !handle.getRequestMethod().equals("GET")) {
-				HttpError.send404(handle);
-				return;
-			}
-			
+			//The host field must be set
 			List<String> ahost = handle.getRequestHeaders().get("Host");
 			if(ahost == null) {
-				HttpError.send404(handle);
+				send_404(handle);
 				return;
 			}
 			if(ahost.size() == 0) {
-				HttpError.send404(handle);
+				send_404(handle);
 				return;
 			}
 			
@@ -58,6 +55,10 @@ public class RootHandler implements HttpHandler {
 			
 			String[] segmentsArray = URLUtil.splitSegments(segments);
 			
+			//Setting up deafult headers
+			handle.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
+			
+			
 			//Run the library listeners
 			PageLoadEvent pageLoadEvent = new PageLoadEvent(host, false, segmentsArray, getParameters, postParameters, cookies, handle);
 			
@@ -69,26 +70,36 @@ public class RootHandler implements HttpHandler {
 			
 			int returnCode = controller.getReturnCode();
 			
-			if(returnCode == 404) {
-				HttpError.send404(handle);
-			}
-			else if(returnCode == 302) {
-				handle.getResponseHeaders().add("Location", controller.redirectTo());
-				handle.sendResponseHeaders(302, 0);
-				handle.getResponseBody().close();
-			}
-			else {
-				handle.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
-				handle.sendResponseHeaders(200, 0);
-				OutputStream os = handle.getResponseBody();
-				os.write(View.mergeViews(controller.getViews()).getBytes());
-				os.flush();
-				os.close();
-			}
+			handle.sendResponseHeaders(returnCode, 0);
+			OutputStream os = handle.getResponseBody();
+			os.write(View.mergeViews(controller.getViews()).getBytes());
+			os.flush();
+			os.close();
+		}
+		catch(IOException e) {
+			throw e;
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			HttpError.send500(handle, e);
+			handle.sendResponseHeaders(500, 0);
+			OutputStream responseBody = handle.getResponseBody();
+			PrintStream ps = new PrintStream(responseBody);
+			ps.write((HttpError.RETURN_500+"\n\n").getBytes());
+			ps.write("<code>".getBytes());
+			e.printStackTrace(ps);
+			ps.write("</code>".getBytes());
+			ps.flush();
+			ps.close();
+			responseBody.flush();
+			responseBody.close();
 		}
+	}
+	
+	private void send_404(HttpExchange handle) throws IOException {
+		handle.sendResponseHeaders(404, 0);
+		OutputStream responseBody = handle.getResponseBody();
+		responseBody.write((HttpError.RETURN_404).getBytes());
+		responseBody.flush();
+		responseBody.close();
 	}
 }

@@ -14,6 +14,7 @@ import com.saerix.cms.libapi.Library;
 import com.saerix.cms.libapi.events.PageLoadEvent;
 import com.saerix.cms.sessionlib.Session;
 import com.saerix.cms.sessionlib.SessionLibrary;
+import com.saerix.cms.util.HttpError;
 import com.saerix.cms.view.View;
 import com.saerix.cms.view.ViewException;
 import com.saerix.cms.view.ViewNotFoundException;
@@ -38,7 +39,6 @@ public class Controller {
 		return controller;
 	}
 	
-	private String redirect = null;
 	private PageLoadEvent event;
 	private Map<String, Object> passedVars = null;
 	private ArrayList<View> views = new ArrayList<View>();
@@ -92,26 +92,24 @@ public class Controller {
 		}
 	}
 	
-	public String post(String parameter, boolean returnNull) {
+	public String post(String parameter, String deafult) {
 		List<String> list = event.getPostParameters().get(parameter);
-		String defaultString = returnNull ? null : "";
 		
-		return list == null ? defaultString : list.size() < 1 ? defaultString : list.get(0);
+		return list == null ? deafult : list.size() < 1 ? deafult : list.get(0);
 	}
 	
 	public String post(String parameter) {
-		return post(parameter, false);
+		return post(parameter, "");
 	}
 	
-	public String get(String parameter, boolean returnNull) {
+	public String get(String parameter, String deafult) {
 		List<String> list = event.getGetParameters().get(parameter);
-		String defaultString = returnNull ? null : "";
 		
-		return list == null ? defaultString : list.size() < 1 ? defaultString : list.get(0);
+		return list == null ? deafult : list.size() < 1 ? deafult : list.get(0);
 	}
 	
 	public String get(String parameter) {
-		return get(parameter, false);
+		return get(parameter, "");
 	}
 	
 	public Database database() {
@@ -136,23 +134,19 @@ public class Controller {
 	
 	public void redirect(String segments, Map<String, String> para) {
 		returnCode = 302;
-		redirect = event.getHost().getURL(segments, para, event.isSecure());
+		getPageLoadEvent().getHandle().getResponseHeaders().add("Location", event.getHost().getURL(segments, para, event.isSecure()));
 	}
 	
 	public void redirect(String url, boolean local) {
 		returnCode = 302;
 		if(local)
-			redirect = event.getHost().getURL(url, null, event.isSecure());
+			redirect(url, null);
 		else
-			redirect = url;
+			getPageLoadEvent().getHandle().getResponseHeaders().add("Location", url);
 	}
 	
 	public void redirect(String segements) {
 		redirect(segements, true);
-	}
-	
-	public String redirectTo() {
-		return redirect;
 	}
 	
 	public String base_url() {
@@ -169,6 +163,7 @@ public class Controller {
 	
 	public void show_404() {
 		returnCode = 404;
+		echo(HttpError.RETURN_404);
 	}
 	
 	public boolean onload() {

@@ -3,7 +3,6 @@ package com.saerix.cms.view;
 import groovy.lang.Binding;
 import groovy.lang.Script;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,12 +60,7 @@ public class View {
 			}
 		}
 		
-		try {
-			return new String(content.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return content;
 	}
 	
 	public Controller getController() {

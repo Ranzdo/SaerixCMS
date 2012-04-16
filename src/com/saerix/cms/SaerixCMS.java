@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.DatabaseLoader;
 import com.saerix.cms.host.HostException;
-import com.saerix.cms.libapi.LibraryException;
 
 public class SaerixCMS {
 	

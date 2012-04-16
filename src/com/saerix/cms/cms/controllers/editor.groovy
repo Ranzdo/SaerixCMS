@@ -47,10 +47,26 @@ class editor extends Controller {
 			show_404()
 	}
 	
+	void getall() {
+		echo(model("controllers").get().xml(["controller_content"] as Set))
+		
+		/*String type = get("type", null)
+		if(type == null) {
+			show_404()
+		}
+		else if(type == "controllers") {
+			model("controllers").get
+		}
+		
+		
+		model("views").getAllViews(getHost().getParentHost().getHostId())*/
+		//TODO
+	}
+	
 	void save() {
 		String type = post("type")
 		Model m = getModelFromType(type)
-		if(m == null || post("id", true) == null) {
+		if(m == null || post("id", null) == null) {
 			show_404()
 			return
 		}
@@ -92,7 +108,7 @@ class editor extends Controller {
 		def type = get("type");
 		def name = get("name");
 		Model m = getModelFromType(get("type"))
-		if(m == null || get("name", true) == null) {
+		if(m == null || get("name", null) == null) {
 			show_404()
 			return
 		}
@@ -102,10 +118,20 @@ class editor extends Controller {
 		}
 		
 		if(type == 'controller') {
-			echo(getHost().getParentHost().addController(deafults.get(type).replace("%name", name)).getId());
+			try {
+				echo(getHost().getParentHost().addController(deafults.get(type).replace("%name", name)).getId());
+			}
+			catch(Exception e) {
+				echo("error:"+e.getMessage())
+			}
 		}
 		else if(type == 'view') {
-			echo(getHost().getParentHost().addView(name, '').getId());
+			try {
+				echo(getHost().getParentHost().addView(name, '').getId());
+			}
+			catch(Exception e) {
+				echo("error:"+e.getMessage())
+			}
 		}
 		
 		
