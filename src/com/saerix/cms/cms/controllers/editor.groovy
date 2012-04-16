@@ -23,12 +23,7 @@ class editor extends Controller {
 	}
 	
 	void index() {
-		view("editor", [
-			controllers : model("controllers").getAllControllers(getHost().getParentHost().getHostId()),
-			models : model("models").getAllModels(),
-			views : model("views").getAllViews(getHost().getParentHost().getHostId()),
-			post : post("test")
-		])
+		view("editor")
 	}
 	
 	void get() {
@@ -138,8 +133,6 @@ class editor extends Controller {
 				echo("error:"+e.getMessage())
 			}
 		}
-		
-		
 	}
 	
 	private getModelFromType(String type) {

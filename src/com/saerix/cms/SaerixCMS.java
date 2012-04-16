@@ -50,7 +50,7 @@ public class SaerixCMS {
 	private DatabaseLoader databaseLoader;
 	
 	public void enable() throws NumberFormatException, IOException, DatabaseException, HostException {
-		databaseLoader = new DatabaseLoader(gClassLoader, properties);
+		databaseLoader = new DatabaseLoader(this, properties);
 		
 		
 		server = new SaerixHttpServer(this, Integer.parseInt(getProperties().get("port").toString()), Integer.parseInt(getProperties().get("secure_port").toString()), getProperties().get("default_hostname").toString());

@@ -10,7 +10,7 @@ public class Database {
 	
 	private Properties properties;
 	private HashMap<Thread, Connection> connections = new HashMap<Thread, Connection>();
-	private HashMap<String, LoadedModel> models = new HashMap<String, LoadedModel>();
+	HashMap<String, LoadedModel> models = new HashMap<String, LoadedModel>();
 	
 	public Database(Properties properties) {
 		this.properties = properties;
@@ -44,7 +44,15 @@ public class Database {
 		models.put(model.getTableName(), model);
 	}
 	
+	public void unRegisterModel(String tableName) {
+		models.remove(tableName);
+	}
+	
 	public Model getModel(String tableName) throws DatabaseException {
-		return models.get(tableName).generateModel(this);
+		LoadedModel model = models.get(tableName);
+		if(model == null)
+			return null;
+		else
+			return model.generateModel(this);
 	}
 }

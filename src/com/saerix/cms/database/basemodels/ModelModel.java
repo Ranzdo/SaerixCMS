@@ -1,5 +1,6 @@
 package com.saerix.cms.database.basemodels;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.saerix.cms.database.DatabaseException;
@@ -43,5 +44,13 @@ public class ModelModel extends Model {
 	public List<ModelRow> getModels(int databaseId) throws DatabaseException {
 		where("database_id", databaseId);
 		return (List<ModelRow>) get().getRows();
+	}
+	
+	public Object addModel(int databaseId, String tableName, String content) throws DatabaseException {
+		HashMap<String, Object> values = new HashMap<String, Object>();
+		values.put("database_id", databaseId);
+		values.put("model_tablename", tableName);
+		values.put("model_content", content);
+		return insert(values);
 	}
 }
