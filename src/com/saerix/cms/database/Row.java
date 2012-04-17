@@ -9,14 +9,16 @@ import java.util.Set;
 
 public class Row {
 	private HashMap<String, Object> values = new HashMap<String, Object>();
+	Model model;
 	
 	public Row() {}
 	
-	protected Row(ResultSet set) throws SQLException {
-		set(set);
+	protected Row(Model model, ResultSet set) throws SQLException {
+		set(model, set);
 	}
 	
-	protected Row set(ResultSet set) throws SQLException {
+	protected Row set(Model model, ResultSet set) throws SQLException {
+		this.model = model;
 		ResultSetMetaData meta =  set.getMetaData();
 		for(int i = 1; i <= meta.getColumnCount();i++){
 			values.put(meta.getColumnName(i), set.getObject(i));
@@ -30,6 +32,10 @@ public class Row {
 	
 	public Set<Entry<String, Object>> getAllValues() {
 		return values.entrySet();
+	}
+	
+	public Model model(String tableName) throws DatabaseException {
+		return model.database.getModel(tableName);
 	}
 	
 	public String toString() {

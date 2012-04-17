@@ -1,9 +1,9 @@
 package com.saerix.cms.database.basemodels;
 import java.util.HashMap;
-import java.util.List;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
+import com.saerix.cms.database.Result;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
 
@@ -29,15 +29,13 @@ public class ViewModel extends Model {
 		return (ViewRow) get().getRow();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<ViewRow> getAllViews() throws DatabaseException {
-		return (List<ViewRow>) get().getRows();
+	public Result getViews() throws DatabaseException {
+		return get();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<ViewRow> getAllViews(int hostId) throws DatabaseException {
+	public Result getViews(int hostId) throws DatabaseException {
 		where("host_id", hostId);
-		return (List<ViewRow>) get().getRows();
+		return get();
 	}
 	
 	public Object addView(int hostId, String viewName, String content) throws DatabaseException {

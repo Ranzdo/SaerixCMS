@@ -120,15 +120,25 @@ input.input-text {
 	font-size:14px;
 }
 
-#editor-browser ul li.controller {
+#editor-browser li.controller {
 	list-style-image:url(../img/controller.png);
 }
 
-#editor-browser ul li.model {
-	list-style-image:url(../img/model.png);
+#editor-browser li.database {
+	list-style-image:url(../img/database.png);
 }
 
-#editor-browser ul li.view {
+#editor-browser li.model {
+	list-style-image:url(../img/model.png);
+	list-style-position:inside;
+	padding-left:0;
+}
+
+#editor-browser li.model li {
+	padding-left:10px;	
+}
+
+#editor-browser li.view {
 	list-style-image:url(../img/view.png);
 }
 

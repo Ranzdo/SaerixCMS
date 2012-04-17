@@ -2,6 +2,7 @@ package com.saerix.cms.database;
 
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.List;
 
 import com.saerix.cms.database.basemodels.ModelModel;
 import com.saerix.cms.database.basemodels.ModelModel.ModelRow;
@@ -16,10 +17,11 @@ public class DatabaseDefinedDatabase extends Database {
 		this.databaseLoader = databaseLoader;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void reSyncWithDatabase() throws DatabaseException {
 		models.clear();
 		ModelModel model = getModelModel();
-		for(ModelRow row : model.getModels(databaseId)) {
+		for(ModelRow row : (List<ModelRow>) model.getModels(databaseId).getRows()) {
 			registerModel(parseClass(row.getTableName(), row.getContent()));
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 
@@ -113,17 +114,18 @@ public class DatabaseHost extends Host {
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void syncWithDatabase() throws HostException {
 		try {
 			/* Controllers */
 			loadedControllers.clear();
-			for(ControllerRow row : getControllerModel().getAllControllers()) {
+			for(ControllerRow row : (List<ControllerRow>)getControllerModel().getControllers().getRows()) {
 				loadedControllers.put(row.getName().toLowerCase(), evalController(row.getContent()));
 			}
 			
 			/* Views */
 			loadedViews.clear();
-			for(ViewRow row : getViewModel().getAllViews()) {
+			for(ViewRow row : (List<ViewRow>)getViewModel().getViews().getRows()) {
 				loadedViews.put(row.getName().toLowerCase(), evalView(row.getName(), row.getContent()));
 			}
 		}

@@ -215,7 +215,7 @@ public abstract class Model {
 			
 			ResultSet rs = ps.executeQuery();
 			
-			Result result = new Result(rs, getRowClass());
+			Result result = new Result(this, rs, getRowClass());
 			
 			rs.close();
 			ps.close();
@@ -313,7 +313,7 @@ public abstract class Model {
 			ResultSet rs = ps.executeQuery();
 			if(rs.first()) {
 				try {
-					return getRowClass().newInstance().set(rs);
+					return getRowClass().newInstance().set(this, rs);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

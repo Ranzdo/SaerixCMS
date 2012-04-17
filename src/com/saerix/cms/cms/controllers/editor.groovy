@@ -43,7 +43,6 @@ class editor extends Controller {
 	}
 	
 	void getall() {
-		
 		String type = get("type", null)
 		Model m = getModelFromType(type)
 		if(m == null) {
@@ -51,16 +50,20 @@ class editor extends Controller {
 			return;
 		}
 		
-		setMime("text/xml");
-		m.where("host_id", getHost().getParentHost().getHostId())
-		def result = m.get();
+		def hostid = getHost().getParentHost().getHostId();
 		
+		setMime("text/xml");
 		if(type == "controller") {
-			echo(result.xml(["controller_id", "controller_name"] as Set))
+			echo(m.getControllers(hostid).xml(["controller_id", "controller_name"] as Set))
 		}
 		else if(type == "view") {
-			echo(result.xml(["view_id", "view_name"] as Set))
+			echo(m.getViews(hostid).xml(["view_id", "view_name"] as Set))
 		}
+		else if(type == "database") {
+			echo(m.getDatabases().xml(["database_id", "database_name", "database_models", "model_tablename", "model_id"] as Set))
+		}
+		else
+			show_404()
 	}
 	
 	void save() {
@@ -136,7 +139,10 @@ class editor extends Controller {
 	}
 	
 	private getModelFromType(String type) {
-		if(type == "controller") {
+		if(type == "database") {
+			return model("databases");
+		}
+		else if(type == "controller") {
 			return model("controllers")
 		}
 		else if(type == "model") {

@@ -32,7 +32,7 @@ public class Route {
 		this.event = event;
 		try {
 			this.controller = host.getController(controllerName);
-			this.method = controller.getMethod(methodName);
+			this.method = controller.getDeclaredMethod(methodName);
 		} catch(NoSuchMethodException e) {
 			throw new RouteException("The method "+methodName+" does not exists in the controller "+controllerName+".");
 		} catch(SecurityException e) {

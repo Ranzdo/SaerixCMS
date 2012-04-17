@@ -1,11 +1,14 @@
 package com.saerix.cms.database.basemodels;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
+import com.saerix.cms.database.Result;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
+import com.saerix.cms.database.XML;
 
 @Table(name = "databases", rowclass = DatabaseModel.DatabaseRow.class)
 public class DatabaseModel extends Model {
@@ -25,10 +28,28 @@ public class DatabaseModel extends Model {
 			prop.put("database_password", getValue("database_password"));
 			return prop;
 		}
+		
+		@XML(rowname = "database_models")
+		public Result getModels() throws DatabaseException {
+			return ((ModelModel)model("models")).getModels(getId());
+		}
+	}
+	
+	public Result getDatabases() throws DatabaseException {
+		return get();
 	}
 	
 	public DatabaseRow getDatabase(String name) throws DatabaseException {
 		where("database_name", name);
 		return (DatabaseRow) get().getRow();
+	}
+	
+	public Object addDatabase(String name, Properties properties) throws DatabaseException {
+		HashMap<String, Object> insert = new HashMap<String, Object>();
+		insert.put("database_name", name);
+		insert.put("database_url", properties.get("database_url"));
+		insert.put("database_username", properties.get("database_username"));
+		insert.put("database_password", properties.get("database_password"));
+		return insert(insert);
 	}
 }

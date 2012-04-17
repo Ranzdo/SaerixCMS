@@ -1,10 +1,10 @@
 package com.saerix.cms.database.basemodels;
 
 import java.util.HashMap;
-import java.util.List;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
+import com.saerix.cms.database.Result;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
 
@@ -29,9 +29,8 @@ public class ModelModel extends Model {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<ModelRow> getAllModels() throws DatabaseException {
-		return (List<ModelRow>) get().getRows();
+	public Result getAllModels() throws DatabaseException {
+		return get();
 	}
 	
 	public ModelRow getModel(int databaseId, String tableName) throws DatabaseException  {
@@ -40,10 +39,9 @@ public class ModelModel extends Model {
 		return (ModelRow) get().getRow();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<ModelRow> getModels(int databaseId) throws DatabaseException {
+	public Result getModels(int databaseId) throws DatabaseException {
 		where("database_id", databaseId);
-		return (List<ModelRow>) get().getRows();
+		return get();
 	}
 	
 	public Object addModel(int databaseId, String tableName, String content) throws DatabaseException {
