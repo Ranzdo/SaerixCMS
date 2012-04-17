@@ -10,7 +10,7 @@ public class DatabaseDefinedDatabase extends Database {
 	private int databaseId;
 	private DatabaseLoader databaseLoader;
 	
-	public DatabaseDefinedDatabase(DatabaseLoader databaseLoader, int databaseId, Properties properties) {
+	DatabaseDefinedDatabase(DatabaseLoader databaseLoader, int databaseId, Properties properties) {
 		super(properties);
 		this.databaseId = databaseId;
 		this.databaseLoader = databaseLoader;

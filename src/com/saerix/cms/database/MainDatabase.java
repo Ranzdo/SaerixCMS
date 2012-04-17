@@ -23,7 +23,7 @@ public class MainDatabase extends DatabaseDefinedDatabase {
 	};
 	
 	@SuppressWarnings("unchecked")
-	public MainDatabase(DatabaseLoader databaseLoader, Properties properties) throws DatabaseException {
+	MainDatabase(DatabaseLoader databaseLoader, Properties properties) throws DatabaseException {
 		super(databaseLoader, -1, properties);
 		for(Class<?> model : baseModels) {
 			if(!model.isAnnotationPresent(Table.class))
