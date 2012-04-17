@@ -6,7 +6,7 @@ import java.util.Properties;
 import com.saerix.cms.database.basemodels.ModelModel;
 import com.saerix.cms.database.basemodels.ModelModel.ModelRow;
 
-public abstract class DatabaseDefinedDatabase extends Database {
+public class DatabaseDefinedDatabase extends Database {
 	private int databaseId;
 	private DatabaseLoader databaseLoader;
 	
@@ -59,7 +59,7 @@ public abstract class DatabaseDefinedDatabase extends Database {
 		ModelModel model = getModelModel();
 		ModelRow current = model.getModel(databaseId, tableName);
 		if(current == null)
-			throw new DatabaseException("There is no model that is associated with the table"+tableName);
+			throw new DatabaseException("There is no model that is associated with the table "+tableName);
 		
 		LoadedModel lmodel = parseClass(current.getTableName(), content);
 		
