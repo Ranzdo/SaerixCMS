@@ -1,6 +1,7 @@
-package com.saerix.cms.database.basemodels;
+package com.saerix.cms.database.mainmodels;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import com.saerix.cms.database.DatabaseException;
@@ -10,9 +11,14 @@ import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
 import com.saerix.cms.database.XML;
 
+
 @Table(name = "databases", rowclass = DatabaseModel.DatabaseRow.class)
 public class DatabaseModel extends Model {
 	public static class DatabaseRow extends Row {
+		public DatabaseRow(DatabaseModel model, Map<String, Object> values) {
+			super(model, values);
+		}
+		
 		public int getId() {
 			return (Integer) getValue("database_id");
 		}
@@ -36,7 +42,13 @@ public class DatabaseModel extends Model {
 	}
 	
 	public Result getDatabases() throws DatabaseException {
-		return get();
+		HashMap<String, Object> values = new HashMap<String, Object>();
+		values.put("database_id", -1);
+		values.put("database_name", "main");
+		DatabaseRow row = new DatabaseRow(this, values);
+		Result result = get();
+		result.addRow(row);
+		return result;
 	}
 	
 	public DatabaseRow getDatabase(String name) throws DatabaseException {

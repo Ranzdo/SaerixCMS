@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.List;
 
-import com.saerix.cms.database.basemodels.ModelModel;
-import com.saerix.cms.database.basemodels.ModelModel.ModelRow;
+import com.saerix.cms.database.mainmodels.ModelModel;
+import com.saerix.cms.database.mainmodels.ModelModel.ModelRow;
 
 public class DatabaseDefinedDatabase extends Database {
 	private int databaseId;

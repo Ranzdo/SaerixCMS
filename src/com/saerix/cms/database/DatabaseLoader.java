@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import com.saerix.cms.SaerixCMS;
-import com.saerix.cms.database.basemodels.DatabaseModel;
-import com.saerix.cms.database.basemodels.DatabaseModel.DatabaseRow;
+import com.saerix.cms.database.mainmodels.DatabaseModel;
+import com.saerix.cms.database.mainmodels.DatabaseModel.DatabaseRow;
 
 public class DatabaseLoader {
 	private MainDatabase main;

@@ -24,7 +24,7 @@ import org.xml.sax.helpers.AttributesImpl;
 public class Result {
 	Model model;
 	
-	private ArrayList<Row> result = new ArrayList<Row>();
+	ArrayList<Row> result = new ArrayList<Row>();
 	
 	public int length = 0;
 	
@@ -38,6 +38,10 @@ public class Result {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void addRow(Row row) {
+		result.add(row);
 	}
 	
 	public Row getRow() {

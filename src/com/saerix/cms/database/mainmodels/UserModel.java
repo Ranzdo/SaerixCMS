@@ -1,4 +1,4 @@
-package com.saerix.cms.database.basemodels;
+package com.saerix.cms.database.mainmodels;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -9,6 +9,7 @@ import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
+
 
 @Table(name = "users", rowclass = UserModel.UserRow.class)
 public class UserModel extends Model {

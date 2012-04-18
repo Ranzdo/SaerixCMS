@@ -1,9 +1,10 @@
-package com.saerix.cms.database.basemodels;
+package com.saerix.cms.database.mainmodels;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
+
 
 @Table(name = "routes", rowclass = RouteModel.RouteRow.class)
 public class RouteModel extends Model {

@@ -1,4 +1,4 @@
-package com.saerix.cms.database.basemodels;
+package com.saerix.cms.database.mainmodels;
 
 import java.util.HashMap;
 
@@ -7,6 +7,7 @@ import com.saerix.cms.database.Model;
 import com.saerix.cms.database.Result;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
+
 
 @Table(name = "controllers", rowclass = ControllerModel.ControllerRow.class)
 public class ControllerModel extends Model {

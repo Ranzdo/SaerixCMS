@@ -4,26 +4,42 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class Row {
-	private HashMap<String, Object> values = new HashMap<String, Object>();
+	Map<String, Object> values = new HashMap<String, Object>();
 	Model model;
 	
 	public Row() {}
 	
-	protected Row(Model model, ResultSet set) throws SQLException {
+	public Row(Model model, ResultSet set) throws DatabaseException {
 		set(model, set);
 	}
 	
-	protected Row set(Model model, ResultSet set) throws SQLException {
+	public Row(Model model, Map<String, Object> values) {
+		set(model, values);
+	}
+	
+	public Row set(Model model, Map<String, Object> values) {
 		this.model = model;
-		ResultSetMetaData meta =  set.getMetaData();
-		for(int i = 1; i <= meta.getColumnCount();i++){
-			values.put(meta.getColumnName(i), set.getObject(i));
-		}
+		this.values = values;
 		return this;
+	}
+
+	public Row set(Model model, ResultSet set) throws DatabaseException {
+		try {
+			this.model = model;
+			ResultSetMetaData meta =  set.getMetaData();
+			for(int i = 1; i <= meta.getColumnCount();i++){
+				values.put(meta.getColumnName(i), set.getObject(i));
+			}
+			return this;
+		}
+		catch(SQLException e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
+		}
 	}
 	
 	public Object getValue(String column) {

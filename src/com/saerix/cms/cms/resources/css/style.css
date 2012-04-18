@@ -111,13 +111,21 @@ input.input-text {
 	background:url(../img/view.png) no-repeat left center;
 }
 
-#editor-browser ul {
+#editor-browser > ul {
 	margin-bottom:10px;
 	font-family:Verdana;
+	padding-left:20px;;
+}
+
+#editor-browser > ul ul {
+	margin-bottom:10px;
+	font-family:Verdana;
+	padding-left:5px;
 }
 
 #editor-browser li {
 	font-size:14px;
+	list-style-position:inside;
 }
 
 #editor-browser li.controller {
@@ -128,14 +136,16 @@ input.input-text {
 	list-style-image:url(../img/database.png);
 }
 
-#editor-browser li.model {
-	list-style-image:url(../img/model.png);
-	list-style-position:inside;
-	padding-left:0;
+#editor-browser li.database > ul {
+	margin:5px;
 }
 
-#editor-browser li.model li {
-	padding-left:10px;	
+#editor-browser li.model {
+	list-style-image:url(../img/model.png);
+	
+}
+
+#editor-browser li.model li {	
 }
 
 #editor-browser li.view {
@@ -143,14 +153,12 @@ input.input-text {
 }
 
 #editor-browser ul li ul {
-	padding-left:1px;
 	font-size:12px;
 }
 
-#editor-browser ul li ul li {
+#editor-browser li {
 	list-style-type:none;
 	list-style-image:none;
-	padding:2px 5px 2px 5px;
 }
 
 #editor-browser ul li img.add {
@@ -161,12 +169,12 @@ input.input-text {
 	vertical-align:text-top;
 }
 
-#editor-browser ul li ul li.name-input input {
+#editor-browser li.name-input input {
 	font-size:12px;
 	width:70px;
 }
 
-#editor-browser ul li ul li.name-input img {
+#editor-browser li.name-input img {
 	margin-left:6px;
 	vertical-align:middle;
 	cursor:pointer;
