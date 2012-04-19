@@ -84,15 +84,24 @@ class editor extends Controller {
 		}
 		else if(type == "model") {
 			try {
-				getHost().getServer().getInstance().getGroovyClassLoader().parseClass("package models;"+content)
+				def databaseName = post("extra", null)
+				def tableName = post("name", null)
+				if(databaseName == null || tableName == null) {
+					show_404()
+					return
+				}
 				
+				def database = getHost().getServer().getInstance().getDatabaseLoader().getDatabase(databaseName)
 				
-				//TODO
+				if(database == null ? true : !(database instanceof DatabaseDefinedDatabase)) {
+					show_404()
+					return;
+				}
 				
+				((DatabaseDefinedDatabase) database).saveDatabaseModel(tableName, post("content"))
 				
-				getHost().getServer().getInstance().getDatabaseLoader().getMainDatabase().reloadDatabaseModel(null)
 			}
-			catch(CompilationFailedException e) {
+			catch(Exception e) {
 				echo(Util.getStackTrace(e))
 			}
 		}
@@ -135,6 +144,12 @@ class editor extends Controller {
 			catch(Exception e) {
 				echo("error:"+e.getMessage())
 			}
+		}
+		else if(type == 'database') {
+			
+		}
+		else if(type == 'model') {
+			
 		}
 	}
 	

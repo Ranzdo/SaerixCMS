@@ -14,19 +14,19 @@ public class ModelModel extends Model {
 	
 	public static class ModelRow extends Row {
 		public int getId() {
-			return (Integer) getValue("model_id");
+			return (Integer) get("model_id");
 		}
 
 		public int getDatabaseId() {
-			return (Integer) getValue("database_id");
+			return (Integer) get("database_id");
 		}
 		
 		public String getTableName() {
-			return (String) getValue("model_tablename");
+			return (String) get("model_tablename");
 		}
 		
 		public String getContent() {
-			return (String) getValue("model_content");
+			return (String) get("model_content");
 		}
 	}
 

@@ -85,18 +85,18 @@ $(function() {
 	$.get(url+'editor/getall?type=database', function(data) {
 		var xml = $(data);
 		$(xml).each(function() {
-			var li = $('<li class="model">'+$('database_name', this).text()+'</li>').appendTo('#editor-browser li.database ul').append(' ');
+			var databaseName = $('database_name', this).text();
+			var li = $('<li class="model">'+databaseName+'</li>').appendTo('#editor-browser li.database ul').append(' ');
 			$('<img src="'+url+'res/img/add.png" class="add" />').click(function() {
 				add.apply(this, new Array());
 			}).appendTo(li);
 			var ul = $('<ul />');
 			$(li).append(ul);
 			
-			
 			$('database_models > result', this).each(function() {
 				var g = this;
 				$('<li><a href="javascript:void(0)">'+$('model_tablename', this).text()+'</a></li>').click(function() {
-					$('#editor').editor('open', $('model_id', g).text(), "model", $('model_tablename', g).text());
+					$('#editor').editor('open', $('model_id', g).text(), "model", $('model_tablename', g).text(), databaseName);
 				}).appendTo(ul);
 			});
 		});

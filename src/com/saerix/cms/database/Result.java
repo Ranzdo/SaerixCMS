@@ -3,7 +3,6 @@ package com.saerix.cms.database;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,15 +27,15 @@ public class Result {
 	
 	public int length = 0;
 	
-	Result(Model model, ResultSet rs, Class<? extends Row> rowclass) throws SQLException {
+	Result(Model model, ResultSet rs, Class<? extends Row> rowclass) throws DatabaseException {
 		this.model = model;
-		while(rs.next()) {
-			length++;
-			try {
+		try {
+			while(rs.next()) {
+				length++;
 				result.add(rowclass.newInstance().set(model, rs));
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+		} catch (Exception e) {
+			throw (DatabaseException) new DatabaseException().initCause(e);
 		}
 	}
 	
@@ -129,7 +128,7 @@ public class Result {
 						}
 					}
 					else {
-						Object object = row.getValue(entry.getKey());
+						Object object = row.get(entry.getKey());
 						if(object != null)
 							value = object.toString();
 						else

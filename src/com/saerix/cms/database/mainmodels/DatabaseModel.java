@@ -20,18 +20,18 @@ public class DatabaseModel extends Model {
 		}
 		
 		public int getId() {
-			return (Integer) getValue("database_id");
+			return (Integer) get("database_id");
 		}
 		
 		public String getName() {
-			return (String) getValue("database_name");
+			return (String) get("database_name");
 		}
 		
 		public Properties getProperties() {
 			Properties prop = new Properties();
-			prop.put("database_url", getValue("database_url"));
-			prop.put("database_username", getValue("database_username"));
-			prop.put("database_password", getValue("database_password"));
+			prop.put("database_url", get("database_url"));
+			prop.put("database_username", get("database_username"));
+			prop.put("database_password", get("database_password"));
 			return prop;
 		}
 		

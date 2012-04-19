@@ -10,15 +10,15 @@ import com.saerix.cms.database.Table;
 public class HostModel extends Model {
 	public static class HostRow extends Row {
 		public int getKey() {
-			return (Integer) getValue("host_key");
+			return (Integer) get("host_key");
 		}
 		
 		public int getId() {
-			return (Integer) getValue("host_id");
+			return (Integer) get("host_id");
 		}
 		
 		public String getValue() {
-			return (String) getValue("host_value");
+			return (String) get("host_value");
 		}
 	}
 	

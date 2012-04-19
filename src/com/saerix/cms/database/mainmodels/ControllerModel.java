@@ -13,19 +13,19 @@ import com.saerix.cms.database.Table;
 public class ControllerModel extends Model {
 	public static class ControllerRow extends Row {	
 		public int getId() {
-			return (Integer) getValue("controller_id");
+			return (Integer) get("controller_id");
 		}
 		
 		public int getHostId() {
-			return (Integer) getValue("host_id");
+			return (Integer) get("host_id");
 		}
 		
 		public String getName() {
-			return (String) getValue("controller_name");
+			return (String) get("controller_name");
 		}
 		
 		public String getContent() {
-			return (String) getValue("controller_content");
+			return (String) get("controller_content");
 		}
 	}
 	

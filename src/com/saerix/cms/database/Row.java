@@ -42,7 +42,7 @@ public class Row {
 		}
 	}
 	
-	public Object getValue(String column) {
+	public Object get(String column) {
 		return values.get(column);
 	}
 	

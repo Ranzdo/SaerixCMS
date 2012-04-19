@@ -15,6 +15,7 @@ public class DatabaseLoader {
 	public DatabaseLoader(SaerixCMS instance, Properties properties) throws DatabaseException {
 		this.instance = instance;
 		this.main = new MainDatabase(this, properties);
+		databases.put("main", this.main);
 	}
 	
 	public MainDatabase getMainDatabase() {

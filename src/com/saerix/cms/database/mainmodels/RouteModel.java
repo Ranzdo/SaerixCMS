@@ -32,11 +32,11 @@ public class RouteModel extends Model {
 	
 	public static class RouteRow extends Row {
 		public RouteType getType() {
-			return RouteType.valueOfId((Integer) getValue("route_type"));
+			return RouteType.valueOfId((Integer) get("route_type"));
 		}
 		
 		public String getRouteValue() {
-			return (String) getValue("route_value");
+			return (String) get("route_value");
 		}
 	}
 	

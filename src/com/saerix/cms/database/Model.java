@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class Model {
+public class Model {
 	Database database;
 	LoadedModel loaded;
 	private String primaryKeyColumn;

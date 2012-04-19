@@ -13,13 +13,13 @@
 			$(this).prepend('<div style="clear:left;"></div>');
 			$(this).prepend('<div class="editor-tabs"></div>');
 		},
-		open : function(id, type, name) {
+		open : function(id, type, name, extra) {
 			var g = this;
 			var tabs = $(this).children('.editor-tabs').first();
 			$(this).show();
 			if($(tabs).children('.'+type+id+'.editor-tab.'+type).length == 0) {
 				$.get(url+'editor/get?type='+type+'&id='+id, function(data) {					
-					methods.create.apply(g, new Array(type, name, data, id));
+					methods.create.apply(g, new Array(type, name, data, id, extra));
 					methods.select.apply(g, new Array(id, type));
 				}).error(function() { alert('Could not load the file.'); });
 			}
@@ -111,21 +111,12 @@
 				}
 			});
 		},
-		create: function(type, name, contentPara, id) {
+		create: function(type, name, content, id, extra) {
 			var tabs = $(this).children('.editor-tabs').first();
-			var content = "";
 			var g = this;
-			if((typeof contentPara === 'object' || ! contentPara) && (typeof id === 'object' || ! id)) {
-				if(type in defaults) {
-					content = defaults[type];
-				}
-			}
-			else {
-				content = contentPara;
-			}
 			
 			$('<div class="editor-tab '+type+' '+type+id+'"><div class="body">'+name+'</div><div class="close"></div></div>')
-			.data('tab', {'id' : id, 'type' : type, content : content, 'name' : name})
+			.data('tab', {'id' : id, 'name' : name, 'type' : type, content : content, 'extra' : extra})
 			.appendTo($(tabs))
 			.children('div').click(function() {
 				if($(this).hasClass('body'))

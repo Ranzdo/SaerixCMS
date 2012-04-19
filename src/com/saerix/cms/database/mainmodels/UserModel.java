@@ -15,11 +15,11 @@ import com.saerix.cms.database.Table;
 public class UserModel extends Model {
 	public static class UserRow extends Row {
 		public int id() {
-			return (Integer) getValue("user_id");
+			return (Integer) get("user_id");
 		}
 		
 		public String username() {
-			return (String) getValue("username");
+			return (String) get("username");
 		}
 	}
 	
