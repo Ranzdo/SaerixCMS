@@ -1,6 +1,7 @@
 package com.saerix.cms.database.mainmodels;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
@@ -45,7 +46,7 @@ public class ControllerModel extends Model {
 	}
 	
 	public Object addController(int hostId, String name, String content) throws DatabaseException {
-		HashMap<String, Object> values = new HashMap<String, Object>();
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
 		values.put("host_id", hostId);
 		values.put("controller_name", name);
 		values.put("controller_content", content);

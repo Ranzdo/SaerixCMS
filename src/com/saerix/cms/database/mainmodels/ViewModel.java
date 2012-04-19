@@ -1,5 +1,7 @@
 package com.saerix.cms.database.mainmodels;
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
@@ -40,7 +42,7 @@ public class ViewModel extends Model {
 	}
 	
 	public Object addView(int hostId, String viewName, String content) throws DatabaseException {
-		HashMap<String, Object> values = new HashMap<String, Object>();
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
 		values.put("host_id", hostId);
 		values.put("view_name", viewName);
 		values.put("view_content", content);

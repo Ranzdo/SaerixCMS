@@ -187,19 +187,19 @@ public class Model {
 
 	public int remove() throws DatabaseException {
 		try {
-		if(where.size() == 0)
-			throw new SQLException("No where arguement when remove() was called, please use trunacte() instead");
-		
-		PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+whereClause()+limitClause());
-		
-		for(int i = 1; i <= where.size();i++)
-			ps.setObject(i, where.get(i));
-		
-		int result = ps.executeUpdate();
-		ps.close();
-		
-		clearClauses();
-		return result;
+			if(where.size() == 0)
+				throw new SQLException("No where arguement when remove() was called, please use trunacte() instead");
+			
+			PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+whereClause()+limitClause());
+			
+			for(int i = 1; i <= where.size();i++)
+				ps.setObject(i, where.get(i));
+			
+			int result = ps.executeUpdate();
+			ps.close();
+			
+			clearClauses();
+			return result;
 		}
 		catch(SQLException e) {
 			throw (DatabaseException) new DatabaseException().initCause(e);
@@ -296,9 +296,6 @@ public class Model {
 			if(rs.first())
 				treturn = rs.getObject(1);
 			
-			rs.close();
-			ps.close();
-			
 			return treturn;
 		}
 		catch(SQLException e) {
@@ -314,11 +311,8 @@ public class Model {
 			if(rs.first()) {
 				try {
 					return getRowClass().newInstance().set(this, rs);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				finally {
-					rs.close();
+				} catch (ReflectiveOperationException  e) {
+					throw (DatabaseException) new DatabaseException().initCause(e);
 				}
 			}
 			

@@ -44,10 +44,6 @@ public class Controller {
 	private ArrayList<View> views = new ArrayList<View>();
 	private int returnCode = 200;
 	
-	public Controller() {
-		
-	}
-	
 	public void set(PageLoadEvent event) {
 		if(event == null)
 			this.event = event;

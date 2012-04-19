@@ -51,7 +51,7 @@ public class Database {
 	public Model getModel(String tableName) throws DatabaseException {
 		LoadedModel model = models.get(tableName);
 		if(model == null)
-			return null;
+			throw new ModelNotFound(tableName);
 		else
 			return model.generateModel(this);
 	}

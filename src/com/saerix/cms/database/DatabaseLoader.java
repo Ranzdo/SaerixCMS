@@ -22,22 +22,19 @@ public class DatabaseLoader {
 		return main;
 	}
 	
-	public Database getDatabase(String name) {
+	public Database getDatabase(String name) throws DatabaseException {
 		Database database = databases.get(name);
 		if(database != null)
 			return database;
 		
-		try {
-			DatabaseRow row = (DatabaseRow)((DatabaseModel)main.getModel("databases")).getDatabase(name);
-			if(row != null) {
-				database = new DatabaseDefinedDatabase(this, row.getId(), row.getProperties());
-				databases.put(row.getName(), database);
-			}
-		} catch (DatabaseException e) {
-			e.printStackTrace();
+		DatabaseRow row = (DatabaseRow)((DatabaseModel)main.getModel("databases")).getDatabase(name);
+		if(row != null) {
+			database = new DatabaseDefinedDatabase(this, row.getId(), row.getProperties());
+			databases.put(row.getName(), database);
+			return database;
 		}
 		
-		return database;
+		throw new DatabaseException("The database \""+name+"\" was not found.");
 	}
 	
 	public void registerDatabase(String name, Database database) {

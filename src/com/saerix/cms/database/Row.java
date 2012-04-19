@@ -3,13 +3,13 @@ package com.saerix.cms.database;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class Row {
-	Map<String, Object> values = new HashMap<String, Object>();
+	Map<String, Object> values = new LinkedHashMap<String, Object>();
 	Model model;
 	
 	public Row() {}

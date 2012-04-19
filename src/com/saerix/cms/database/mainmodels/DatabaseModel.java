@@ -1,6 +1,6 @@
 package com.saerix.cms.database.mainmodels;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,7 +42,7 @@ public class DatabaseModel extends Model {
 	}
 	
 	public Result getDatabases() throws DatabaseException {
-		HashMap<String, Object> values = new HashMap<String, Object>();
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
 		values.put("database_id", -1);
 		values.put("database_name", "main");
 		DatabaseRow row = new DatabaseRow(this, values);
@@ -57,7 +57,7 @@ public class DatabaseModel extends Model {
 	}
 	
 	public Object addDatabase(String name, Properties properties) throws DatabaseException {
-		HashMap<String, Object> insert = new HashMap<String, Object>();
+		Map<String, Object> insert = new LinkedHashMap<String, Object>();
 		insert.put("database_name", name);
 		insert.put("database_url", properties.get("database_url"));
 		insert.put("database_username", properties.get("database_username"));

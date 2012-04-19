@@ -2,7 +2,7 @@ package com.saerix.cms.database.mainmodels;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
@@ -36,7 +36,7 @@ public class UserModel extends Model {
 	}
 	
 	public long register(String username, String password) throws DatabaseException {
-		Map<String, Object> insert = new HashMap<String, Object>();
+		Map<String, Object> insert = new LinkedHashMap<String, Object>();
 		insert.put("username", username);
 		insert.put("password", hashPassword(password));
 		
