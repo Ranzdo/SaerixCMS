@@ -34,13 +34,6 @@ public class LoadedModel {
 			Model model = modelClass.newInstance();
 			model.database = database;
 			model.loaded = this;
-			try {
-				model.setup();
-			}
-			catch(DatabaseException e) {
-				throw e;
-			}
-			
 			return model;
 		} catch (Exception e) {
 			throw (DatabaseException) new DatabaseException().initCause(e); 

@@ -27,7 +27,7 @@ public class DatabaseLoader {
 		if(database != null)
 			return database;
 		
-		DatabaseRow row = (DatabaseRow)((DatabaseModel)main.getModel("databases")).getDatabase(name);
+		DatabaseRow row = (DatabaseRow)((DatabaseModel)main.getModel("databases")).getDatabase(name).getRow();
 		if(row != null) {
 			database = new DatabaseDefinedDatabase(this, row.getId(), row.getProperties());
 			databases.put(row.getName(), database);

@@ -46,7 +46,7 @@ public class UserModel extends Model {
 	private String hashPassword(String password) {
 		MessageDigest hasher = null;
 		try {
-			hasher = MessageDigest.getInstance("SHA-512");
+			hasher = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}

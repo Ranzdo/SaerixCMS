@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.List;
 
@@ -149,77 +150,56 @@ public class DatabaseHost extends Host {
 		return (Class<? extends Controller>) clazz;
 	}
 	
-	public ControllerRow addController(String script) throws ControllerException, CompilationFailedException {
-		try {
-			Class<? extends Controller> controller = evalController(script);
-			
-			String name = controller.getSimpleName();
-			
-			ControllerModel model = getControllerModel();
-			
-			if(model.getController(hostId, name) != null)
-				throw new ControllerException("It does already exist a controller named "+name+" on the host "+getHostName()); 
-			
-			Object key = model.addController(hostId, name, script);
-			
-			loadedControllers.put(name, controller);
-			
-			return (ControllerRow) model.getRow(key);
-		}
-		catch(DatabaseException e) {
-			throw (ControllerException) new ControllerException().initCause(e);
-		}
+	public void addController(String script) throws ControllerException, CompilationFailedException, DatabaseException {
+		Class<? extends Controller> controller = evalController(script);
+		
+		String name = controller.getSimpleName();
+		
+		ControllerModel model = getControllerModel();
+		
+		if(model.getController(hostId, name) != null)
+			throw new ControllerException("It does already exist a controller named "+name+" on the host "+getHostName()); 
+		
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
+		values.put("controller_content", script);
+		
+		model.addController(hostId, name, values);
+		
+		loadedControllers.put(name, controller);
 	}
 	
-	public ControllerRow saveController(int controllerId, String script) throws ControllerException, CompilationFailedException {
-		try {
-			Class<? extends Controller> controller = evalController(script);
-			String newName = controller.getSimpleName();
-			ControllerModel model = getControllerModel();
+	public String saveController(String oldName, String script) throws ControllerException, CompilationFailedException, DatabaseException {
+		Class<? extends Controller> controller = evalController(script);
+		String newName = controller.getSimpleName();
+		ControllerModel model = getControllerModel();
+		
+		ControllerRow old = (ControllerRow) model.getController(hostId, oldName).getRow();
+		
+		if(old == null)
+			throw new ControllerException("The controller does not exist"); 
+		
+		if(!newName.equals(old.getName())) {
+			if(model.getController(hostId, newName) != null)
+				throw new ControllerException("It does already exist a controller named "+newName+" on the host "+getHostName());
 			
-			ControllerRow old = (ControllerRow) model.getRow(controllerId);
-			
-			if(old == null)
-				throw new ControllerException("The controller does not exist"); 
-			
-			if(!newName.equals(old.getName())) {
-				if(model.getController(hostId, newName) != null)
-					throw new ControllerException("It does already exist a controller named "+newName+" on the host "+getHostName());
-				
-				loadedControllers.remove(old.getName());
-			}
-			
-			HashMap<String, Object> values = new HashMap<String, Object>();
-			values.put("controller_name", newName);
-			values.put("controller_content", script);
-			model.update(controllerId, values);
-			
-			loadedControllers.put(newName, controller);
-			
-			return (ControllerRow) model.getRow(controllerId);
+			loadedControllers.remove(old.getName());
 		}
-		catch(DatabaseException e) {
-			throw (ControllerException) new ControllerException().initCause(e);
-		}
+		
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
+		values.put("controller_name", newName);
+		values.put("controller_content", script);
+		model.updateController(hostId, oldName, values);
+		
+		loadedControllers.put(newName, controller);
+		
+		return newName;
 	}
 	
-	public void deleteController(int controllerId) throws ControllerException {
-		try {
-			ControllerModel model = getControllerModel();
-			ControllerRow row = (ControllerRow) model.getRow(controllerId);
-			if(row == null)
-				return;
-			
-			model.remove(controllerId);
-			loadedControllers.remove(row.getName());
-		}
-		catch(DatabaseException e) {
-			throw (ControllerException) new ControllerException().initCause(e);
-		}
-	}
-	
-	public ControllerRow getDatabaseController(String controllerName) throws DatabaseException {
-		return getControllerModel().getController(hostId, controllerName);
+	public void deleteController(String controllerName) throws ControllerException, DatabaseException {
+		ControllerModel model = getControllerModel();
+		
+		model.removeController(hostId, controllerName);
+		loadedControllers.remove(controllerName);
 	}
 	
 	@Override
@@ -241,46 +221,35 @@ public class DatabaseHost extends Host {
 		return new EvaluatedView(getServer().getInstance().getGroovyClassLoader(), viewName, content);
 	}
 	
-	public ViewRow addView(String viewName, String content) throws ViewException {
-		try {
-			ViewModel model = getViewModel();
-			
-			if(model.getView(hostId, viewName) != null)
-				throw new ViewException("A view with the name "+viewName+" already exist.");
-			
-			loadedViews.put(viewName, evalView(viewName, content));
-			
-			return (ViewRow) model.getRow(model.addView(hostId, viewName, content));
-		}
-		catch(DatabaseException e) {
-			throw (ViewException) new ViewException().initCause(e);
-		}
+	public void addView(String viewName, String content) throws ViewException, DatabaseException {
+		ViewModel model = getViewModel();
+		EvaluatedView view = evalView(viewName, content);
+		
+		if(model.getView(hostId, viewName) != null)
+			throw new ViewException("A view with the name "+viewName+" already exist.");
+		
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
+		values.put("view_content", content);
+		model.addView(hostId, viewName, values);
+		
+		loadedViews.put(viewName, view);
 	}
 	
-	public void saveView(String viewName, String content) throws ViewException {
-		try {
-			ViewModel model = getViewModel();
-			HashMap<String, Object> values = new HashMap<String, Object>();
-			values.put("view_content", content);
-			model.where("host_id", hostId);
-			model.where("view_name", viewName);
-			model.update(values);
-			
-			loadedViews.put(viewName, evalView(viewName, content));
-		}
-		catch(DatabaseException e) {
-			throw (ViewException) new ViewException().initCause(e);
-		}
+	public void saveView(String viewName, String content) throws ViewException, DatabaseException {
+		ViewModel model = getViewModel();
+		EvaluatedView view = evalView(viewName, content);
+		
+		HashMap<String, Object> values = new HashMap<String, Object>();
+		values.put("view_content", content);
+		model.updateView(hostId, viewName, values);
+		
+		
+		loadedViews.put(viewName, view);
 	}
 	
-	public void deleteView(String viewName) throws ViewException {
-		try {
-			getViewModel().removeView(hostId, viewName);
-			loadedViews.remove(viewName);
-		}
-		catch(DatabaseException e) {
-			throw (ViewException) new ViewException().initCause(e);
-		}
+	public void deleteView(String viewName) throws DatabaseException {
+		getViewModel().removeView(hostId, viewName);
+		loadedViews.remove(viewName);
 	}
 
 	@Override

@@ -12,23 +12,9 @@ import java.util.Map.Entry;
 public class Model {
 	Database database;
 	LoadedModel loaded;
-	private String primaryKeyColumn;
 	
 	public Model() {
 		
-	}
-	
-	void setup() throws DatabaseException {
-		try {
-			ResultSet keys = getConnection().getMetaData().getPrimaryKeys(null, null, getTableName());
-			if(keys.first())
-				primaryKeyColumn = keys.getString("COLUMN_NAME");
-			else
-				throw new DatabaseException("The table "+getTableName()+" has no primary keys. Have atleast one.");
-		}
-		catch(SQLException e) {
-			throw (DatabaseException) new DatabaseException().initCause(e);
-		}
 	}
 	
 	/**
@@ -36,13 +22,6 @@ public class Model {
 	 */
 	public String getTableName() {
 		return database.getTablePrefix()+loaded.getTableName();
-	}
-	
-	/**
-	 * @return Gets the name of the first primary key column
-	 */
-	public String getPrimaryKeyColumn() {
-		return primaryKeyColumn;
 	}
 	
 	/**
@@ -231,25 +210,6 @@ public class Model {
 	
 	//Below does not listen to the method above 
 	
-	public int update(Object primaryKey, Map<String, Object> values) throws DatabaseException {
-		clearClauses();
-		where(getPrimaryKeyColumn(), primaryKey);
-		return update(values);
-	}
-	
-	public int remove(Object primaryKey) throws DatabaseException {
-		try {
-			PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
-			ps.setObject(1, primaryKey);
-			int result = ps.executeUpdate();
-			ps.close();
-			return result;
-		}
-		catch(SQLException e) {
-			throw (DatabaseException) new DatabaseException().initCause(e);
-		}
-	}
-	
 	public int trunacte() throws DatabaseException {
 		try {
 			PreparedStatement ps = prepareStatement("TRUNCATE TABLE "+getTableName());
@@ -297,26 +257,6 @@ public class Model {
 				treturn = rs.getObject(1);
 			
 			return treturn;
-		}
-		catch(SQLException e) {
-			throw (DatabaseException) new DatabaseException().initCause(e);
-		}
-	}
-	
-	public Row getRow(Object primaryKey) throws DatabaseException {
-		try {
-			PreparedStatement ps = prepareStatement("SELECT * FROM "+getTableName()+" WHERE "+primaryKeyColumn+" = ?");
-			ps.setObject(1, primaryKey);
-			ResultSet rs = ps.executeQuery();
-			if(rs.first()) {
-				try {
-					return getRowClass().newInstance().set(this, rs);
-				} catch (ReflectiveOperationException  e) {
-					throw (DatabaseException) new DatabaseException().initCause(e);
-				}
-			}
-			
-			return null;
 		}
 		catch(SQLException e) {
 			throw (DatabaseException) new DatabaseException().initCause(e);

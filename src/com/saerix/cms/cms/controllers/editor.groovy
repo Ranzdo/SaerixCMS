@@ -27,19 +27,28 @@ class editor extends Controller {
 	}
 	
 	void get() {
+		def hostid = getHost().getParentHost().getHostId();
+		
 		String type = get("type");
+		String id = get("id", null);
 		Model m = getModelFromType(type)
-		if(m == null) {
+		if(m == null || id == null) {
 			show_404()
 			return;
 		}
 		
-		def row = m.getRow(get("id"))
+		def res;
+		if(type == "controller") {
+			res = m.getController(hostid, id).getRow().getContent();
+		}
+		else if(type == "model") {
+			res = m.getModel(get("extra"), id).getRow().getContent();
+		}
+		else if(type == "view") {
+			res = m.getView(hostid, id).getRow().getContent();
+		}
 		
-		if(row != null)
-			echo(row.getContent())
-		else
-			show_404()
+		echo(res)
 	}
 	
 	void getall() {
@@ -60,7 +69,7 @@ class editor extends Controller {
 			echo(m.getViews(hostid).xml(["view_id", "view_name"] as Set))
 		}
 		else if(type == "database") {
-			echo(m.getDatabases().xml(["database_id", "database_name", "database_models", "model_tablename", "model_id"] as Set))
+			echo(m.getDatabases().xml(["database_id", "database_name", "database_models", "model_tablename"] as Set))
 		}
 		else
 			show_404()
@@ -69,14 +78,14 @@ class editor extends Controller {
 	void save() {
 		String type = post("type")
 		Model m = getModelFromType(type)
-		if(m == null || post("id", null) == null) {
+		if(m == null || post("name", null) == null) {
 			show_404()
 			return
 		}
 		String content = post("content")
 		if(type == "controller") {
 			try {
-				getHost().getParentHost().saveController(Integer.parseInt(post("id")), content).getName()
+				echo(getHost().getParentHost().saveController(post("name"), content))
 			}
 			catch(Exception e) {
 				echo(Util.getStackTrace(e))
@@ -165,9 +174,6 @@ class editor extends Controller {
 		}
 		else if(type == "view") {
 			return model("views")
-		}
-		else if(type == "library") {
-			return model("libraries")
 		}
 		else
 			return null

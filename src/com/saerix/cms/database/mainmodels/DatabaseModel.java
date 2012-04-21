@@ -42,18 +42,12 @@ public class DatabaseModel extends Model {
 	}
 	
 	public Result getDatabases() throws DatabaseException {
-		Map<String, Object> values = new LinkedHashMap<String, Object>();
-		values.put("database_id", -1);
-		values.put("database_name", "main");
-		DatabaseRow row = new DatabaseRow(this, values);
-		Result result = get();
-		result.addRow(row);
-		return result;
+		return get();
 	}
 	
-	public DatabaseRow getDatabase(String name) throws DatabaseException {
+	public Result getDatabase(String name) throws DatabaseException {
 		where("database_name", name);
-		return (DatabaseRow) get().getRow();
+		return get();
 	}
 	
 	public Object addDatabase(String name, Properties properties) throws DatabaseException {

@@ -13,25 +13,25 @@
 			$(this).prepend('<div style="clear:left;"></div>');
 			$(this).prepend('<div class="editor-tabs"></div>');
 		},
-		open : function(id, type, name, extra) {
+		open : function(type, name, extra) {
 			var g = this;
 			var tabs = $(this).children('.editor-tabs').first();
 			$(this).show();
-			if($(tabs).children('.'+type+id+'.editor-tab.'+type).length == 0) {
-				$.get(url+'editor/get?type='+type+'&id='+id, function(data) {					
-					methods.create.apply(g, new Array(type, name, data, id, extra));
-					methods.select.apply(g, new Array(id, type));
+			if($(tabs).children('.name_'+name+'.editor-tab.'+type).length == 0) {
+				$.get(url+'editor/get?type='+type+'&id='+name, function(data) {
+					methods.create.apply(g, new Array(type, name, data, extra));
+					methods.select.apply(g, new Array(type, name));
 				}).error(function() { alert('Could not load the file.'); });
 			}
 			else
-				methods.select.apply(this, new Array(id, type));
+				methods.select.apply(this, new Array(type, name));
 		},
-		select: function(id, type) {
+		select: function(type, name) {
 			var local;
-			if(typeof type === 'object' || ! type)
-				local = $(id);
+			if(typeof name === 'object' || ! name)
+				local = $(type);
 			else
-				local = $(this).children('.editor-tabs').first().children('.'+type+id+'.editor-tab');
+				local = $(this).children('.editor-tabs').first().children('.name_'+name+'.editor-tab');
 			
 			var selected = $(this).children('.editor-tabs').first().children('.editor-tab.selected');
 			
@@ -62,11 +62,11 @@
 				}
 			});
 		},
-		close : function(id, type) {
+		close : function(type, name) {
 			var editor = $(this).data('editor');
 			var tabc = $(this).children('.editor-tabs');
 			var tabs = $(tabc).children('.editor-tab');
-			var local = $(tabc).children('.'+type+id+'.editor-tab');
+			var local = $(tabc).children('.name_'+name+'.editor-tab');
 			
 			if($(local).hasClass('changed')) {
 				if(!confirm('Discard changes?'))
@@ -88,14 +88,14 @@
 			
 			$(local).remove();
 		}, 
-		save: function(id, type) {
+		save: function(name, type) {
 			var local;
 			if(typeof type === 'object' || ! type) {
-				if(id == 'selected')
+				if(name == 'selected')
 					local = $(this).children('.editor-tabs').first().children('.editor-tab.selected');
 			}
 			else
-				local = $(this).children('.editor-tabs').first().children('.'+type+id+'.editor-tab');
+				local = $(this).children('.editor-tabs').first().children('.name_'+name+'.editor-tab');
 			
 			var data = $(local).data('tab');
 			
@@ -111,18 +111,18 @@
 				}
 			});
 		},
-		create: function(type, name, content, id, extra) {
+		create: function(type, name, content, extra) {
 			var tabs = $(this).children('.editor-tabs').first();
 			var g = this;
 			
-			$('<div class="editor-tab '+type+' '+type+id+'"><div class="body">'+name+'</div><div class="close"></div></div>')
-			.data('tab', {'id' : id, 'name' : name, 'type' : type, content : content, 'extra' : extra})
+			$('<div class="editor-tab '+type+' name_'+name+'"><div class="body">'+name+'</div><div class="close"></div></div>')
+			.data('tab', {'name' : name, 'type' : type, content : content, 'extra' : extra})
 			.appendTo($(tabs))
 			.children('div').click(function() {
 				if($(this).hasClass('body'))
-					methods.select.apply(g, new Array(id, type));
+					methods.select.apply(g, new Array(type, name));
 				else if($(this).hasClass('close'))
-					methods.close.apply(g, new Array(id, type));
+					methods.close.apply(g, new Array(type, name));
 			});
 		},
 		newitem : function(type, name, callback) {

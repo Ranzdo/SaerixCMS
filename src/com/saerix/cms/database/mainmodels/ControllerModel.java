@@ -1,6 +1,5 @@
 package com.saerix.cms.database.mainmodels;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
@@ -12,11 +11,7 @@ import com.saerix.cms.database.Table;
 
 @Table(name = "controllers", rowclass = ControllerModel.ControllerRow.class)
 public class ControllerModel extends Model {
-	public static class ControllerRow extends Row {	
-		public int getId() {
-			return (Integer) get("controller_id");
-		}
-		
+	public static class ControllerRow extends Row {		
 		public int getHostId() {
 			return (Integer) get("host_id");
 		}
@@ -39,17 +34,27 @@ public class ControllerModel extends Model {
 		return get();
 	}
 	
-	public ControllerRow getController(int hostId, String controllerName) throws DatabaseException  {
+	public Result getController(int hostId, String controllerName) throws DatabaseException  {
 		where("host_id", hostId);
 		where("controller_name", controllerName);
-		return (ControllerRow) get().getRow();
+		return get();
 	}
 	
-	public Object addController(int hostId, String name, String content) throws DatabaseException {
-		Map<String, Object> values = new LinkedHashMap<String, Object>();
+	public Object addController(int hostId, String name, Map<String, Object> values) throws DatabaseException {
 		values.put("host_id", hostId);
 		values.put("controller_name", name);
-		values.put("controller_content", content);
 		return insert(values);
+	}
+	
+	public void removeController(int hostId, String controllerName) throws DatabaseException {
+		where("host_id", hostId);
+		where("controller_name", controllerName);
+		remove();
+	}
+	
+	public Object updateController(int hostId, String controllerName, Map<String, Object> values) throws DatabaseException {
+		where("host_id", hostId);
+		where("controller_name", controllerName);
+		return update(values);
 	}
 }

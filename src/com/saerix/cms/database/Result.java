@@ -25,10 +25,11 @@ public class Result {
 	
 	ArrayList<Row> result = new ArrayList<Row>();
 	
-	public int length = 0;
+	public final int length;
 	
 	Result(Model model, ResultSet rs, Class<? extends Row> rowclass) throws DatabaseException {
 		this.model = model;
+		int length = 0;
 		try {
 			while(rs.next()) {
 				length++;
@@ -37,10 +38,7 @@ public class Result {
 		} catch (Exception e) {
 			throw (DatabaseException) new DatabaseException().initCause(e);
 		}
-	}
-	
-	public void addRow(Row row) {
-		result.add(row);
+		this.length = length;
 	}
 	
 	public Row getRow() {

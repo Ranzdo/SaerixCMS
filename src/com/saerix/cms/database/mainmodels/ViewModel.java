@@ -1,6 +1,5 @@
 package com.saerix.cms.database.mainmodels;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
@@ -13,8 +12,8 @@ import com.saerix.cms.database.Table;
 @Table(name = "views", rowclass = ViewModel.ViewRow.class)
 public class ViewModel extends Model {
 	public static class ViewRow extends Row {
-		public int getId() {
-			return (Integer) get("view_id");
+		public int getHostId() {
+			return (Integer) get("host_id");
 		}
 		
 		public String getName() {
@@ -26,10 +25,10 @@ public class ViewModel extends Model {
 		}
 	}
 	
-	public ViewRow getView(int hostId, String viewName) throws DatabaseException {
+	public Result getView(int hostId, String viewName) throws DatabaseException {
 		where("host_id", hostId);
 		where("view_name", viewName);
-		return (ViewRow) get().getRow();
+		return get();
 	}
 	
 	public Result getViews() throws DatabaseException {
@@ -41,17 +40,21 @@ public class ViewModel extends Model {
 		return get();
 	}
 	
-	public Object addView(int hostId, String viewName, String content) throws DatabaseException {
-		Map<String, Object> values = new LinkedHashMap<String, Object>();
+	public void addView(int hostId, String viewName, Map<String, Object> values) throws DatabaseException {
 		values.put("host_id", hostId);
 		values.put("view_name", viewName);
-		values.put("view_content", content);
-		return insert(values);
+		insert(values);
 	}
 	
-	public int removeView(int hostId, String viewName) throws DatabaseException {
+	public void removeView(int hostId, String viewName) throws DatabaseException {
 		where("host_id", hostId);
 		where("view_name", viewName);
-		return remove();
+		remove();
+	}
+	
+	public void updateView(int hostId, String viewName, Map<String, Object> values) throws DatabaseException {
+		where("host_id", hostId);
+		where("view_name", viewName);
+		update(values);
 	}
 }

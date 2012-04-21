@@ -14,10 +14,6 @@ import com.saerix.cms.database.Table;
 public class ModelModel extends Model {
 	
 	public static class ModelRow extends Row {
-		public int getId() {
-			return (Integer) get("model_id");
-		}
-
 		public int getDatabaseId() {
 			return (Integer) get("database_id");
 		}
@@ -35,10 +31,10 @@ public class ModelModel extends Model {
 		return get();
 	}
 	
-	public ModelRow getModel(int databaseId, String tableName) throws DatabaseException  {
+	public Result getModel(int databaseId, String tableName) throws DatabaseException  {
 		where("database_id", databaseId);
 		where("model_tablename", tableName);
-		return (ModelRow) get().getRow();
+		return get();
 	}
 	
 	public Result getModels(int databaseId) throws DatabaseException {
@@ -52,5 +48,19 @@ public class ModelModel extends Model {
 		values.put("model_tablename", tableName);
 		values.put("model_content", content);
 		return insert(values);
+	}
+	
+	public void updateModel(int databaseId, String tableName, String content) throws DatabaseException {
+		where("database_id", databaseId);
+		where("model_tablename", tableName);
+		Map<String, Object> values = new LinkedHashMap<String, Object>();
+		values.put("model_content", content);
+		update(values);
+	}
+	
+	public void removeModel(int databaseId, String tableName) throws DatabaseException {
+		where("database_id", databaseId);
+		where("model_tablename", tableName);
+		remove();
 	}
 }

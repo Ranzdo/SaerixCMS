@@ -1,6 +1,5 @@
 package com.saerix.cms.database;
 
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.List;
 
@@ -44,22 +43,20 @@ public class DatabaseDefinedDatabase extends Database {
 		return (ModelModel) databaseLoader.getMainDatabase().getModel("models");
 	}
 	
-	public ModelRow addDatabaseModel(String tableName, String content) throws DatabaseException {
+	public void addDatabaseModel(String tableName, String content) throws DatabaseException {
 		ModelModel model = getModelModel();
-		if(getModelModel().getModel(databaseId, tableName) != null)
+		LoadedModel lmodel = parseClass(tableName, content);
+		if(model.getModel(databaseId, tableName) != null)
 			throw new DatabaseException("Model attatched to the table "+tableName+" to the database "+databaseId+" already exist.");
 		
 		model.addModel(databaseId, tableName, content);
 		
-		LoadedModel lmodel = parseClass(tableName, content);
 		registerModel(lmodel);
-		
-		return (ModelRow) model.getRow(model.addModel(databaseId, tableName, content));
 	}
 	
-	public ModelRow saveDatabaseModel(String tableName, String content) throws DatabaseException {
+	public void saveDatabaseModel(String tableName, String content) throws DatabaseException {
 		ModelModel model = getModelModel();
-		ModelRow current = model.getModel(databaseId, tableName);
+		ModelRow current = (ModelRow) model.getModel(databaseId, tableName).getRow();
 		if(current == null)
 			throw new DatabaseException("There is no model that is associated with the table "+tableName);
 		
@@ -67,22 +64,15 @@ public class DatabaseDefinedDatabase extends Database {
 		
 		registerModel(lmodel);
 		
-		HashMap<String, Object> values = new HashMap<String, Object>();
-		values.put("model_content", content);
-		model.update(current.getId(), values);
-		
-		return (ModelRow) model.getRow(current.getId());
+		model.updateModel(databaseId, tableName, content);
 	}
 	
 	public void removeDatabaseModel(String tableName) throws DatabaseException {
 		ModelModel model = getModelModel();
-		ModelRow current = (ModelRow) model.getModel(databaseId, tableName);
-		if(current == null)
-			return;
 		
-		unRegisterModel(current.getTableName());
+		unRegisterModel(tableName);
 		
-		model.remove(current.getId());
+		model.removeModel(databaseId, tableName);
 	}
 	
 	public int getDatabaseId() {

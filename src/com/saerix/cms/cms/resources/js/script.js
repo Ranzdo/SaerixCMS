@@ -40,10 +40,10 @@ $(function() {
 		$(tick).attr('src', url+'res/img/tick.png').click(function() {
 			var name = $(input).attr('value');
 			$('#editor').editor('newitem', type, name, function(id) {
-				$('#editor').editor('open', id, type, name);
+				$('#editor').editor('open', type, name);
 				$(li).remove();
 				$('<li><a href="javascript:void(0)">'+name+'</a></li>').click(function() {
-					$('#editor').editor('open', id, type, name);
+					$('#editor').editor('open', type, name);
 				}).appendTo(ul);
 			});
 		}).appendTo($(li));
@@ -68,7 +68,7 @@ $(function() {
 		$(data).find('row').each(function() {
 			var g = this;
 			$('<li><a href="javascript:void(0)">'+$(this).find('controller_name').text()+'</a></li>').click(function() {
-				$('#editor').editor('open', $(g).find('controller_id').text(), "controller", $(g).find('controller_name').text());
+				$('#editor').editor('open', "controller", $(g).find('controller_name').text());
 			}).appendTo($('#editor-browser li.controller ul'));
 		});
 	});
@@ -77,14 +77,14 @@ $(function() {
 		$(data).find('row').each(function() {
 			var g = this;
 			$('<li><a href="javascript:void(0)">'+$(this).find('view_name').text()+'</a></li>').click(function() {
-				$('#editor').editor('open', $(g).find('view_id').text(), "view", $(g).find('view_name').text());
+				$('#editor').editor('open', "view", $(g).find('view_name').text());
 			}).appendTo($('#editor-browser li.view ul'));
 		});
 	});
 	
 	$.get(url+'editor/getall?type=database', function(data) {
 		var xml = $(data);
-		$(xml).each(function() {
+		$('row', xml).each(function() {
 			var databaseName = $('database_name', this).text();
 			var li = $('<li class="model">'+databaseName+'</li>').appendTo('#editor-browser li.database ul').append(' ');
 			$('<img src="'+url+'res/img/add.png" class="add" />').click(function() {
@@ -96,7 +96,7 @@ $(function() {
 			$('database_models > result', this).each(function() {
 				var g = this;
 				$('<li><a href="javascript:void(0)">'+$('model_tablename', this).text()+'</a></li>').click(function() {
-					$('#editor').editor('open', $('model_id', g).text(), "model", $('model_tablename', g).text(), databaseName);
+					$('#editor').editor('open', "model", $('model_tablename', g).text(), databaseName);
 				}).appendTo(ul);
 			});
 		});
