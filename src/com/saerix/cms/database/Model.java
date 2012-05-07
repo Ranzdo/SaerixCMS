@@ -9,13 +9,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * The model
+ * 
+ * @author Ranzdo
+ *
+ */
 public class Model {
 	Database database;
 	LoadedModel loaded;
-	
-	public Model() {
-		
-	}
 	
 	/**
 	 * @return The table name with prefix
@@ -32,8 +34,12 @@ public class Model {
 	 * @throws SQLException
 	 */
 	public PreparedStatement prepareStatement(String query) throws SQLException {
-		PreparedStatement ps = database.getConnection().prepareStatement(query);
-		return ps;
+		PreparedStatement psmt = database.preparedStatementCache.get(query);
+		if(psmt == null) {
+			psmt = database.getConnection().prepareStatement(query);
+			database.preparedStatementCache.put(query, psmt);
+		}
+		return psmt;
 	}
 	
 	/**
@@ -51,7 +57,15 @@ public class Model {
 		return loaded.getRowClass();
 	}
 	
-	public Model model(String tableName) throws DatabaseException {
+	/**
+	 * Gets a model of a table in the database
+	 * 
+	 * @param tableName The name of the table
+	 * @return An model of the table.
+	 * @throws DatabaseException If an database exception occurs.
+	 * @throws ModelNotFound If the model was not found.
+	 */
+	public Model model(String tableName) throws DatabaseException, ModelNotFound {
 		return database.getModel(tableName);
 	}
 	
@@ -124,6 +138,13 @@ public class Model {
 	
 	//These executes and depends on the calls above
 	
+	/**
+	 * Update a table with 
+	 * 
+	 * @param values
+	 * @return
+	 * @throws DatabaseException
+	 */
 	public int update(Map<String, Object> values) throws DatabaseException {
 		try {
 			ArrayList<Object> ovalues = new ArrayList<Object>();
@@ -154,7 +175,6 @@ public class Model {
 			}
 			
 			int result = ps.executeUpdate();
-			ps.close();
 			
 			clearClauses();
 			return result;
@@ -173,9 +193,8 @@ public class Model {
 			
 			for(int i = 1; i <= where.size();i++)
 				ps.setObject(i, where.get(i));
-			
+
 			int result = ps.executeUpdate();
-			ps.close();
 			
 			clearClauses();
 			return result;
@@ -197,7 +216,6 @@ public class Model {
 			Result result = new Result(this, rs, getRowClass());
 			
 			rs.close();
-			ps.close();
 			
 			clearClauses();
 			return result;

@@ -19,8 +19,26 @@ import com.saerix.cms.view.View;
 import com.saerix.cms.view.ViewException;
 import com.saerix.cms.view.ViewNotFoundException;
 
+/**
+ * The Controller class is the API to how a pageload will be handle, what HTML will be sent etc.
+ * 
+ * @author Ranzdo
+ *
+ */
 public class Controller {
 	
+	/**
+	 * Invokes a method on the controller class and returns the controller object. The controller object defines what action the page load will take.
+	 * 
+	 * @param controllerClass The controller class to invoke the method on
+	 * @param method The method to invoke
+	 * @param pageLoadEvent The pageloadevent that this controller will have information from.
+	 * @return An Controller object that can define what action the page load will do.
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
 	public static Controller invokeController(Class<? extends Controller> controllerClass, Method method, PageLoadEvent pageLoadEvent) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if(controllerClass == null)
 			throw new NullPointerException("The field controllerClass can not be null.");

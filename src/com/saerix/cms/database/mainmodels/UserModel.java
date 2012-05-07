@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.saerix.cms.database.DatabaseException;
 import com.saerix.cms.database.Model;
+import com.saerix.cms.database.Result;
 import com.saerix.cms.database.Row;
 import com.saerix.cms.database.Table;
 
@@ -25,7 +26,7 @@ public class UserModel extends Model {
 	
 	public UserRow verify(String username, String password) throws DatabaseException {
 		where("username", username);
-		where("password", password);
+		where("password", hashPassword(password));
 		
 		return (UserRow) get().getRow();
 	}
@@ -33,6 +34,10 @@ public class UserModel extends Model {
 	public UserRow getUser(int userId) throws DatabaseException {
 		where("user_id", userId);
 		return (UserRow) get().getRow();
+	}
+	
+	public Result getUsers() throws DatabaseException {
+		return get();
 	}
 	
 	public long register(String username, String password) throws DatabaseException {

@@ -26,7 +26,7 @@ public class SaerixHttpServer  {
 	private RootHandler handler = new RootHandler(this);
 	private ResourceHandler resoruceHandler = new ResourceHandler(this);
 
-	public SaerixHttpServer(SaerixCMS instance, int port, int secure_port, String cmsHostName) throws HostException, IOException {
+	public SaerixHttpServer(SaerixCMS instance, int port, String cmsHostName) throws HostException, IOException {
 		this.instance = instance;
 		this.defHost = new DefaultHost(this, cmsHostName);
 		server = HttpServer.create(new InetSocketAddress(port), 0);

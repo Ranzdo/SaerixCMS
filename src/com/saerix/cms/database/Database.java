@@ -2,6 +2,7 @@ package com.saerix.cms.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
@@ -10,6 +11,7 @@ public class Database {
 	
 	private Properties properties;
 	private HashMap<Thread, Connection> connections = new HashMap<Thread, Connection>();
+	HashMap<String, PreparedStatement> preparedStatementCache = new HashMap<String, PreparedStatement>();
 	HashMap<String, LoadedModel> models = new HashMap<String, LoadedModel>();
 	
 	public Database(Properties properties) {
@@ -48,7 +50,7 @@ public class Database {
 		models.remove(tableName);
 	}
 	
-	public Model getModel(String tableName) throws DatabaseException {
+	public Model getModel(String tableName) throws DatabaseException, ModelNotFound {
 		LoadedModel model = models.get(tableName);
 		if(model == null)
 			throw new ModelNotFound(tableName);
