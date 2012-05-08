@@ -47,13 +47,15 @@ public class View {
 		
 		for(int i = 1; i <= evalView.getTags().size();i++) {
 			Script script = evalView.getTags().get(i-1);
-			script.setBinding(binding);
 			Object object;
-			try{
-				object = script.run();
-			}
-			catch(Exception e) {
-				object = e.getMessage();
+			synchronized(script) {
+				script.setBinding(binding);
+				try{
+					object = script.run();
+				}
+				catch(Exception e) {
+					object = e.getMessage();
+				}
 			}
 			if(object != null) {
 				content = content.replace("{Script:"+i+"}", object.toString());
