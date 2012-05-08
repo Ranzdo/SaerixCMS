@@ -35,7 +35,7 @@ public class View {
 		if(content != null)
 			return content;
 		
-		String content = evalView.getContent();
+		StringBuffer content = new StringBuffer(evalView.getContent());
 		
 		Binding binding = new Binding();
 		binding.setVariable("controller", controller);
@@ -45,8 +45,8 @@ public class View {
 				binding.setVariable(var.getKey(), var.getValue());
 		}
 		
-		for(int i = 1; i <= evalView.getTags().size();i++) {
-			Script script = evalView.getTags().get(i-1);
+		for(Entry<Integer, Script> entry : evalView.getTags().entrySet()) {
+			Script script = entry.getValue();
 			Object object;
 			synchronized(script) {
 				script.setBinding(binding);
@@ -58,11 +58,11 @@ public class View {
 				}
 			}
 			if(object != null) {
-				content = content.replace("{Script:"+i+"}", object.toString());
+				content.insert(entry.getKey(), object.toString());
 			}
 		}
 		
-		return content;
+		return content.toString();
 	}
 	
 	public Controller getController() {

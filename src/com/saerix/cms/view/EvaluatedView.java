@@ -8,6 +8,8 @@ import groovy.lang.Script;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -15,7 +17,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 public class EvaluatedView {
 	private static GroovyShell groovyShell;
 	
-	private ArrayList<Script> tags = new ArrayList<Script>();
+	private LinkedHashMap<Integer, Script> tags = new LinkedHashMap<Integer, Script>();
 	private String content;
 	
 	public EvaluatedView(GroovyClassLoader parent, String viewName, String content) throws ViewException {
@@ -29,6 +31,7 @@ public class EvaluatedView {
 			StringBuilder evaluated = new StringBuilder();
 			StringReader reader = new StringReader(content);
 			int bytee;
+			int place = 0;
 			boolean ignore = false;
 			while((bytee = reader.read()) != -1) {
 				if(bytee == 123) {
@@ -51,19 +54,26 @@ public class EvaluatedView {
 	        		}
 	        		else if(!ignore) {
 	        			try{
-		        			tags.add(groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
-		        			evaluated.append("{Script:"+tags.size()+"}");
+		        			tags.put(place, groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
+		    				place++;
 	        			}
 	        			catch(Exception e) {
-	        				evaluated.append("<span style=\"color:red;\">"+e.getMessage()+"</span>");
+	        				String error = "<span style=\"color:red;\">"+e.getMessage()+"</span>";
+	        				place += error.length();
+	        				evaluated.append(error);
 	        			}
 	        		}
 	        		else {
-	        			evaluated.append("{"+script.toString()+"}");
+	        			String noscript = "{"+script.toString()+"}";
+	        			place += noscript.length();
+	        			evaluated.append(noscript);
 	        		}
 				}
-				else
+				else {
 					evaluated.append((char) bytee);
+					place++;
+				}
+				
 			}
 			this.content = evaluated.toString();
 		}
@@ -76,7 +86,7 @@ public class EvaluatedView {
 		}
 	}
 
-	public ArrayList<Script> getTags() {
+	public Map<Integer, Script> getTags() {
 		return tags;
 	}
 
