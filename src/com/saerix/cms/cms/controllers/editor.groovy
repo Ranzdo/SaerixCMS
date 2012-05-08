@@ -85,7 +85,7 @@ class editor extends Controller {
 		String content = post("content")
 		if(type == "controller") {
 			try {
-				echo(getHost().getParentHost().saveController(post("name"), content))
+				getHost().getParentHost().saveController(post("name"), content)
 			}
 			catch(Exception e) {
 				echo(Util.getStackTrace(e))
@@ -140,7 +140,7 @@ class editor extends Controller {
 		
 		if(type == 'controller') {
 			try {
-				echo(getHost().getParentHost().addController(deafults.get(type).replace("%name", name)).getId());
+				echo(getHost().getParentHost().addController(deafults.get(type).replace("%name", name)));
 			}
 			catch(Exception e) {
 				echo("error:"+e.getMessage())
@@ -148,7 +148,7 @@ class editor extends Controller {
 		}
 		else if(type == 'view') {
 			try {
-				echo(getHost().getParentHost().addView(name, '').getId());
+				getHost().getParentHost().addView(name, '');
 			}
 			catch(Exception e) {
 				echo("error:"+e.getMessage())

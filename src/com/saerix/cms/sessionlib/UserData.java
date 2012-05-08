@@ -20,7 +20,7 @@ public class UserData {
 		return o == null ? "" : o instanceof String ? (String) o : o.toString();
 	}
 	
-	public Object getObject(String key) {
+	public Object get(String key) {
 		return data.get(key);
 	}
 }

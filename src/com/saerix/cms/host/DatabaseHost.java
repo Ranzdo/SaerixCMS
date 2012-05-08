@@ -157,7 +157,7 @@ public class DatabaseHost extends Host {
 		
 		ControllerModel model = getControllerModel();
 		
-		if(model.getController(hostId, name) != null)
+		if(model.getController(hostId, name).length > 0)
 			throw new ControllerException("It does already exist a controller named "+name+" on the host "+getHostName()); 
 		
 		Map<String, Object> values = new LinkedHashMap<String, Object>();
@@ -225,7 +225,7 @@ public class DatabaseHost extends Host {
 		ViewModel model = getViewModel();
 		EvaluatedView view = evalView(viewName, content);
 		
-		if(model.getView(hostId, viewName) != null)
+		if(model.getView(hostId, viewName).length > 0)
 			throw new ViewException("A view with the name "+viewName+" already exist.");
 		
 		Map<String, Object> values = new LinkedHashMap<String, Object>();
