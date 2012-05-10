@@ -7,7 +7,6 @@ import groovy.lang.Script;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,48 +34,45 @@ public class EvaluatedView {
 			while((bytee = reader.read()) != -1) {
 				if(bytee == 123) {
 					if((bytee = reader.read()) == 123) {
-					
-		    		StringBuilder script = new StringBuilder();
-		    		int step = 0;
-	        		while(true) {
-	        			bytee = reader.read();
-	        			if(step == 0 && bytee == 125) {
-	        				bytee = reader.read();
-	        				if(bytee == 125)
-	        					break;
-	        				else {
-	        					script.append("}"+(char)bytee);
-	        				}
+			    		StringBuilder script = new StringBuilder();
+			    		int step = 0;
+		        		while(true) {
+		        			bytee = reader.read();
+		        			if(step == 0 && bytee == 125) {
+		        				bytee = reader.read();
+		        				if(bytee == 125)
+		        					break;
+		        				else {
+		        					script.append("}"+(char)bytee);
+		        				}
+		        			}
+		        			if(bytee == 123)
+		        				step++;
+		        			if(bytee == 125)
+		        				step--;
+		        			if(bytee == -1)
+		        				throw new ViewException("Unexpected end of view "+viewName+", missing end tag? ( }} )");
+		        			
+		        			script.append((char)bytee);
+		        		}
+	        			try{
+		        			tags.put(place, groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
 	        			}
-	        			if(bytee == 123)
-	        				step++;
-	        			if(bytee == 125)
-	        				step--;
-	        			if(bytee == -1)
-	        				throw new ViewException("Unexpected end of view "+viewName+", missing end tag? ( }} )");
-	        			
-	        			script.append((char)bytee);
-	        		}
-        			try{
-	        			tags.put(place, groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
-        			}
-        			catch(Exception e) {
-        				String error = "<span style=\"color:red;\">"+e.getMessage()+"</span>";
-        				place += error.length();
-        				evaluated.append(error);
-        			}
+	        			catch(Exception e) {
+	        				String error = "<span style=\"color:red;\">"+e.getMessage()+"</span>";
+	        				place += error.length();
+	        				evaluated.append(error);
+	        			}
+					}
+					else {
+						evaluated.append("{"+(char) bytee);
+						place += 2;
+					}
 				}
 				else {
-					evaluated.append("{"+(char) bytee);
-					place += 2;
+					evaluated.append((char) bytee);
+					place++;
 				}
-			}
-			else {
-				evaluated.append((char) bytee);
-				place++;
-			}
-				
-				
 			}
 			this.content = evaluated.toString();
 		}
