@@ -32,47 +32,50 @@ public class EvaluatedView {
 			StringReader reader = new StringReader(content);
 			int bytee;
 			int place = 0;
-			boolean ignore = false;
 			while((bytee = reader.read()) != -1) {
 				if(bytee == 123) {
+					if((bytee = reader.read()) == 123) {
+					
 		    		StringBuilder script = new StringBuilder();
 		    		int step = 0;
-	        		while((bytee = reader.read()) != 125 || step != 0) {
+	        		while(true) {
+	        			bytee = reader.read();
+	        			if(step == 0 && bytee == 125) {
+	        				bytee = reader.read();
+	        				if(bytee == 125)
+	        					break;
+	        				else {
+	        					script.append("}"+(char)bytee);
+	        				}
+	        			}
 	        			if(bytee == 123)
 	        				step++;
 	        			if(bytee == 125)
 	        				step--;
-	        			if(bytee == -1 && !ignore)
-	        				throw new ViewException("Unexpected end of view "+viewName+", missing end tag? ( } )");
+	        			if(bytee == -1)
+	        				throw new ViewException("Unexpected end of view "+viewName+", missing end tag? ( }} )");
+	        			
 	        			script.append((char)bytee);
 	        		}
-	        		if(script.toString().equals("literal")) {
-	        			ignore = true;
-	        		}
-	        		else if(script.toString().equals("/literal")) {
-	        			ignore = false;
-	        		}
-	        		else if(!ignore) {
-	        			try{
-		        			tags.put(place, groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
-		    				place++;
-	        			}
-	        			catch(Exception e) {
-	        				String error = "<span style=\"color:red;\">"+e.getMessage()+"</span>";
-	        				place += error.length();
-	        				evaluated.append(error);
-	        			}
-	        		}
-	        		else {
-	        			String noscript = "{"+script.toString()+"}";
-	        			place += noscript.length();
-	        			evaluated.append(noscript);
-	        		}
+        			try{
+	        			tags.put(place, groovyShell.parse("import com.saerix.cms.view.ViewBase;"+script.toString()));
+        			}
+        			catch(Exception e) {
+        				String error = "<span style=\"color:red;\">"+e.getMessage()+"</span>";
+        				place += error.length();
+        				evaluated.append(error);
+        			}
 				}
 				else {
-					evaluated.append((char) bytee);
-					place++;
+					evaluated.append("{"+(char) bytee);
+					place += 2;
 				}
+			}
+			else {
+				evaluated.append((char) bytee);
+				place++;
+			}
+				
 				
 			}
 			this.content = evaluated.toString();

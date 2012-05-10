@@ -44,10 +44,11 @@ public class View {
 			for(Entry<String, Object> var : variables.entrySet())
 				binding.setVariable(var.getKey(), var.getValue());
 		}
-		
+		int offset = 0;
 		for(Entry<Integer, Script> entry : evalView.getTags().entrySet()) {
 			Script script = entry.getValue();
 			Object object;
+			//FLASKHALS, NOOOOOOOOOOOOOOOO
 			synchronized(script) {
 				script.setBinding(binding);
 				try{
@@ -58,7 +59,9 @@ public class View {
 				}
 			}
 			if(object != null) {
-				content.insert(entry.getKey(), object.toString());
+				String result = object.toString();
+				content.insert(entry.getKey()+offset, result);
+				offset += result.length();
 			}
 		}
 		

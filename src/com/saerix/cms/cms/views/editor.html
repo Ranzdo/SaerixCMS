@@ -1,19 +1,19 @@
-{view('header', [title:'Editor'])}
+{{view('header', [title:'Editor'])}}
 
 <table border="0" style="width:100%;">
 <tr>
 <td valign="top" width="200">
 <div id="editor-browser">
 <ul>
-<li class="controller">Controllers <img src="{resource_url('img/add.png')}" class="add" />
+<li class="controller">Controllers <img src="{{resource_url('img/add.png')}}" class="add" />
 <ul>
 </ul>
 </li>
-<li class="database">Databases <img src="{resource_url('img/add.png')}" class="add" />
+<li class="database">Databases <img src="{{resource_url('img/add.png')}}" class="add" />
 <ul>
 </ul>
 </li>
-<li class="view">Views <img src="{resource_url('img/add.png')}" class="add" />
+<li class="view">Views <img src="{{resource_url('img/add.png')}}" class="add" />
 <ul>
 </ul>
 </li>
@@ -30,4 +30,4 @@
 </td>
 </tr>
 </table>
-{view('footer')}
+{{view('footer')}}
