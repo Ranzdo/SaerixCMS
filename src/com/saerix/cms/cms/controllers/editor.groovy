@@ -162,6 +162,29 @@ class editor extends Controller {
 		}
 	}
 	
+	void delete() {
+		def type = get("type", null);
+		def name = get("name", null);
+		
+		if(type == null || name == null) {
+			show_404()
+			return
+		}
+		
+		if(type == 'controller') {
+			getHost().getParentHost().deleteController(name);
+		}
+		else if(type == 'view') {
+			getHost().getParentHost().deleteView(name);
+		}
+		else if(type == 'database') {
+			
+		}
+		else if(type == 'model') {
+			
+		}
+	}
+	
 	private getModelFromType(String type) {
 		if(type == "database") {
 			return model("databases");

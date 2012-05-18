@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,11 +35,20 @@ public class Model {
 	 * @throws SQLException
 	 */
 	public PreparedStatement prepareStatement(String query) throws SQLException {
-		PreparedStatement psmt = database.preparedStatementCache.get(query);
+		Map<String, PreparedStatement> psmts = database.preparedStatementCache.get(Thread.currentThread());
+		
+		if(psmts == null) {
+			psmts = new HashMap<String, PreparedStatement>();
+			database.preparedStatementCache.put(Thread.currentThread(), psmts);
+		}
+		
+		PreparedStatement psmt = psmts.get(query);
+		
 		if(psmt == null) {
 			psmt = database.getConnection().prepareStatement(query);
-			database.preparedStatementCache.put(query, psmt);
+			psmts.put(query, psmt);
 		}
+		
 		return psmt;
 	}
 	
@@ -192,7 +202,7 @@ public class Model {
 			PreparedStatement ps = prepareStatement("DELETE FROM "+getTableName()+whereClause()+limitClause());
 			
 			for(int i = 1; i <= where.size();i++)
-				ps.setObject(i, where.get(i));
+				ps.setObject(i, where.get(i-1).getValue());
 
 			int result = ps.executeUpdate();
 			

@@ -5,14 +5,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.WeakHashMap;
 
 public class Database {
 	
 	private Properties properties;
-	private HashMap<Thread, Connection> connections = new HashMap<Thread, Connection>();
-	HashMap<String, PreparedStatement> preparedStatementCache = new HashMap<String, PreparedStatement>();
-	HashMap<String, LoadedModel> models = new HashMap<String, LoadedModel>();
+	private Map<Thread, Connection> connections = new WeakHashMap<Thread, Connection>();
+	Map<Thread, Map<String, PreparedStatement>> preparedStatementCache = new WeakHashMap<Thread, Map<String, PreparedStatement>>();
+	Map<String, LoadedModel> models = new HashMap<String, LoadedModel>();
 	
 	public Database(Properties properties) {
 		this.properties = properties;

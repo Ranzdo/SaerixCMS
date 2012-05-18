@@ -182,6 +182,34 @@ input.input-text {
 	cursor:pointer;
 }
 
+#editor-browser div.dropdownbtn {
+	width:10px;
+	height:10px;
+	margin-top:4px;
+	margin-right:5px;
+	float:left;
+	background:url(../img/bullet_arrow_down.png) no-repeat center;
+	cursor:pointer;
+}
+
+#editor-browser ul.dropdown {
+	margin:0;
+	padding:0;
+	list-style-type:none;
+	margin-bottom:2px;
+}
+#editor-browser ul.dropdown > li {
+	border:1px solid #777;
+	padding:3px 8px 3px 8px;
+	background-color:#CCC;
+	cursor:pointer;
+	font-size:12px;
+}
+
+#editor-browser ul.dropdown > li:hover {
+	background-color:#999;
+}
+
 /* Button css */
 .button {
 	display: inline-block;
