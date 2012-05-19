@@ -25,7 +25,7 @@ public class MainDatabase extends DatabaseDefinedDatabase {
 	
 	@SuppressWarnings("unchecked")
 	MainDatabase(DatabaseLoader databaseLoader, Properties properties) throws DatabaseException {
-		super(databaseLoader, -1, properties);
+		super(databaseLoader, "main", properties);
 		for(Class<?> model : baseModels) {
 			if(!model.isAnnotationPresent(Table.class))
 				throw new DatabaseException("TableConfig annonation missing for "+model.getName());

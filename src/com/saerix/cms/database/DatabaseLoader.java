@@ -15,7 +15,17 @@ public class DatabaseLoader {
 	public DatabaseLoader(SaerixCMS instance, Properties properties) throws DatabaseException {
 		this.instance = instance;
 		this.main = new MainDatabase(this, properties);
-		databases.put("main", this.main);
+		reSyncWithDatabase();
+	}
+	
+	public void reSyncWithDatabase() throws DatabaseException {
+		synchronized (databases) {
+			databases.clear();
+			for(Row row : ((DatabaseModel)main.getModel("databases")).getDatabases().getRows()) {
+				DatabaseRow drow = (DatabaseRow)row;
+				databases.put(drow.getName(), new DatabaseDefinedDatabase(this, drow.getName(), drow.getProperties()));
+			}
+		}
 	}
 	
 	public MainDatabase getMainDatabase() {
@@ -23,21 +33,20 @@ public class DatabaseLoader {
 	}
 	
 	public Database getDatabase(String name) throws DatabaseException {
+		if(name.equalsIgnoreCase("main"))
+			return getMainDatabase();
+		
 		Database database = databases.get(name);
 		if(database != null)
 			return database;
 		
-		DatabaseRow row = (DatabaseRow)((DatabaseModel)main.getModel("databases")).getDatabase(name).getRow();
-		if(row != null) {
-			database = new DatabaseDefinedDatabase(this, row.getId(), row.getProperties());
-			databases.put(row.getName(), database);
-			return database;
-		}
-		
 		throw new DatabaseException("The database \""+name+"\" was not found.");
 	}
 	
-	public void registerDatabase(String name, Database database) {
+	public void registerDatabase(String name, Database database) throws DatabaseException {
+		if(databases.get(name) != null)
+			throw new DatabaseException("Could not register the database \""+name+"\", it's name is already taken.");
+		
 		databases.put(name, database);
 	}
 

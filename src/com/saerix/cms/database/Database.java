@@ -45,11 +45,15 @@ public class Database {
 	}
 	
 	public void registerModel(LoadedModel model) {
-		models.put(model.getTableName(), model);
+		synchronized (models) {
+			models.put(model.getTableName(), model);
+		}
 	}
 	
 	public void unRegisterModel(String tableName) {
-		models.remove(tableName);
+		synchronized (models) {
+			models.remove(tableName);
+		}
 	}
 	
 	public Model getModel(String tableName) throws DatabaseException, ModelNotFound {

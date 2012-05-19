@@ -20,15 +20,12 @@ CodeMirror.defineMode("view", function(config, parserConfig) {
 $(function() {
 	var current_dropdown = "";
 	
-	var add = function() {
-		var parent = $(this).parent();
+	function addAddDialog(ele, callback) {
 		var li = $('<li />').addClass('name-input');
 		var type = $(parent).attr('class');
-		var ul = $(this).parent().children('ul');
 		var tick = $('<img />');
 		
-		$(li).appendTo(ul);
-		var removeitnow = false;
+		$(li).appendTo(ele);
 		var input = $('<input type="text" />').blur(function() {
 			var g = this;
 			var t = setTimeout(function() {
@@ -39,21 +36,18 @@ $(function() {
 				$(g).focus();
 			});
 		}).appendTo($(li)).focus();
-		
-		$(tick).attr('src', url+'res/img/tick.png').click(function() {
-			var name = $(input).attr('value');
-			$('#editor').editor('newitem', type, name, function(id) {
+		/*var name = $(input).attr('value');
+		$('#editor').editor('newitem', type, name, function(id) {
+			$('#editor').editor('open', type, name);
+			$('<li><a href="javascript:void(0)">'+name+'</a></li>').click(function() {
 				$('#editor').editor('open', type, name);
-				$(li).remove();
-				$('<li><a href="javascript:void(0)">'+name+'</a></li>').click(function() {
-					$('#editor').editor('open', type, name);
-				}).appendTo(ul);
-			});
-		}).appendTo($(li));
+			}).appendTo(ul);
+		});*/
+		$(tick).attr('src', url+'res/img/tick.png').click(function() {li.remove();callback.apply(this, new Array($(input).attr('value')))}).appendTo($(li));
 	}
 	
 	function del(type, name) {
-		$.get(url+'editor/delete?type=controller&name='+name);
+		$.get(url+'editor/delete?type='+type+'&name='+name);
 	}
 	
 	function dropdown(rel, options) {
@@ -92,45 +86,88 @@ $(function() {
 		$('#editor').editor('save', 'selected');
 	});
 	
-	var clicked = false;
-
-	$('#editor-browser .add').click(function() {
-		add.apply(this, new Array());
+	//Add methods
+	//Controllers
+	function addController(controllerName) {
+		$('<li><div class="dropdownbtn"></div><a href="javascript:void(0)">'+controllerName+'</a></li>').appendTo($('#editor-browser li.controller ul')).children('a').click(function() {
+			$('#editor').editor('open', "controller", controllerName);
+		}).parent('li').children('div.dropdownbtn').click(function(event) {
+			event.stopPropagation();
+			dropdown(this, {
+			Remove: function(){
+				if(confirm('Are you sure you want to delete the controller "'+controllerName+'" permanently?')) {
+					del("controller", controllerName);
+					$(this).parent('li').remove();
+					$('#editor').editor('close', 'controller', controllerName);
+				}
+			}
+			});
+		});
+	}
+	
+	$('#editor-browser li.controller > img.add').click(function() {
+		addAddDialog($('#editor-browser li.controller ul'), function(name) {
+			$('#editor').editor('newitem', 'controller', name, function(id) {
+				$('#editor').editor('open', 'controller', name);
+				addController(name);
+			});
+		});
 	});
 	
 	
 	$.get(url+'editor/getall?type=controller', function(data) {
 		$(data).find('row').each(function() {
-			var g = this;
 			var controllerName = $(this).find('controller_name').text();
-			$('<li><div class="dropdownbtn"></div><a href="javascript:void(0)">'+controllerName+'</a></li>').appendTo($('#editor-browser li.controller ul')).children('a').click(function() {
-				$('#editor').editor('open', "controller", controllerName);
-			}).parent('li').children('div.dropdownbtn').click(function(event) {
-				event.stopPropagation();
-				dropdown(this, {
-				Remove: function(){
-					if(confirm('Are you sure you want to delete the controller "'+controllerName+'" permanently?')) {
-						del("controller", controllerName);
-						$(this).parent('li').remove();
-					}
-				},
-				Noob: function() {
-					
+			addController(controllerName);
+		});
+	});
+	
+	//Views
+	function addView(viewName) {
+		var name = viewName;
+		$('<li><div class="dropdownbtn"></div><a href="javascript:void(0)">'+name+'</a></li>').appendTo($('#editor-browser li.view ul')).children('a').click(function() {
+			$('#editor').editor('open', "view", name);
+		}).parent('li').children('div.dropdownbtn').click(function(event) {
+			event.stopPropagation();
+			dropdown(this, {
+			Remove: function(){
+				if(confirm('Are you sure you want to delete the view "'+name+'" permanently?')) {
+					del("view", name);
+					$(this).parent('li').remove();
+					$('#editor').editor('close', 'view', name);
 				}
-				
-				});
+			},
+			Rename: function() {
+				var rename = prompt('Rename "'+name+'" to:');
+				$.get(url+'editor/rename?type=view&current_name='+name+'&rename_to='+rename);
+				$(this).parent('li').children('a').html(rename);
+				name = rename;
+			}
+			});
+		});
+	}
+	
+	
+	$('#editor-browser li.view > img.add').click(function() {
+		addAddDialog($('#editor-browser li.view ul'), function(name) {
+			$('#editor').editor('newitem', 'view', name, function(id) {
+				$('#editor').editor('open', 'view', name);
+				addView(name);
 			});
 		});
 	});
 	
 	$.get(url+'editor/getall?type=view', function(data) {
 		$(data).find('row').each(function() {
-			var g = this;
-			$('<li><a href="javascript:void(0)">'+$(this).find('view_name').text()+'</a></li>').appendTo($('#editor-browser li.view ul')).children('a').click(function() {
-				$('#editor').editor('open', "view", $(g).find('view_name').text());
-			});
+			var viewName = $(this).find('view_name').text();
+			addView(viewName);
 		});
 	});
+	
+	//Databases
+	/*function addDatabase(name)
+	
+	function*/
 	
 	$.get(url+'editor/getall?type=database', function(data) {
 		var xml = $(data);
@@ -151,8 +188,5 @@ $(function() {
 			});
 		});
 	});
-	
-	
-	
 	
 });

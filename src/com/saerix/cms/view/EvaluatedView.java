@@ -17,9 +17,11 @@ public class EvaluatedView {
 	private static GroovyShell groovyShell;
 	
 	private LinkedHashMap<Integer, Script> tags = new LinkedHashMap<Integer, Script>();
+	private String rawcontent;
 	private String content;
 	
 	public EvaluatedView(GroovyClassLoader parent, String viewName, String content) throws ViewException {
+		this.rawcontent = content;
 		try {
 			if(groovyShell == null) {
 				CompilerConfiguration compiler = new CompilerConfiguration();
@@ -28,7 +30,7 @@ public class EvaluatedView {
 			}
 			
 			StringBuilder evaluated = new StringBuilder();
-			StringReader reader = new StringReader(content);
+			StringReader reader = new StringReader(rawcontent);
 			int bytee;
 			int place = 0;
 			while((bytee = reader.read()) != -1) {
@@ -91,5 +93,9 @@ public class EvaluatedView {
 
 	public String getContent() {
 		return content;
+	}
+	
+	public String getRawContent() {
+		return rawcontent;
 	}
 }

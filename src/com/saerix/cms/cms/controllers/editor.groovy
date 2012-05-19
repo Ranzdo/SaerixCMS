@@ -185,6 +185,36 @@ class editor extends Controller {
 		}
 	}
 	
+	void rename() {
+		def type = get("type", null);
+		def name = get("current_name", null);
+		def rename = get("rename_to", null);
+		
+		if(type == null || name == null || rename == null || rename == "") {
+			show_404()
+			return
+		}
+		
+		if(type == 'view') {
+			def view = getHost().getParentHost().getHostView(name)
+			def content = view.getRawContent()
+			getHost().getParentHost().deleteView(name)
+			getHost().getParentHost().addView(rename, content)
+		}
+		else if(type == 'database') {
+			
+		}
+		else if(type == 'model') {
+			
+		}
+	}
+	
+	void maindatabase() {
+		def model = this.model("models")
+		setMime("text/xml")
+		echo(model.getModels(-1).xml(["model_tablename"] as Set))
+	}
+	
 	private getModelFromType(String type) {
 		if(type == "database") {
 			return model("databases");

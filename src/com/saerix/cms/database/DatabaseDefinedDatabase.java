@@ -7,12 +7,12 @@ import com.saerix.cms.database.mainmodels.ModelModel;
 import com.saerix.cms.database.mainmodels.ModelModel.ModelRow;
 
 public class DatabaseDefinedDatabase extends Database {
-	private int databaseId;
+	private String databaseName;
 	private DatabaseLoader databaseLoader;
 	
-	DatabaseDefinedDatabase(DatabaseLoader databaseLoader, int databaseId, Properties properties) {
+	DatabaseDefinedDatabase(DatabaseLoader databaseLoader, String databaseName, Properties properties) {
 		super(properties);
-		this.databaseId = databaseId;
+		this.databaseName = databaseName;
 		this.databaseLoader = databaseLoader;
 	}
 	
@@ -20,7 +20,7 @@ public class DatabaseDefinedDatabase extends Database {
 	public void reSyncWithDatabase() throws DatabaseException {
 		models.clear();
 		ModelModel model = getModelModel();
-		for(ModelRow row : (List<ModelRow>) model.getModels(databaseId).getRows()) {
+		for(ModelRow row : (List<ModelRow>) model.getModels(databaseName).getRows()) {
 			registerModel(parseClass(row.getTableName(), row.getContent()));
 		}
 	}
@@ -46,17 +46,17 @@ public class DatabaseDefinedDatabase extends Database {
 	public void addDatabaseModel(String tableName, String content) throws DatabaseException {
 		ModelModel model = getModelModel();
 		LoadedModel lmodel = parseClass(tableName, content);
-		if(model.getModel(databaseId, tableName) != null)
-			throw new DatabaseException("Model attatched to the table "+tableName+" to the database "+databaseId+" already exist.");
+		if(model.getModel(databaseName, tableName) != null)
+			throw new DatabaseException("Model attatched to the table "+tableName+" to the database "+databaseName+" already exist.");
 		
-		model.addModel(databaseId, tableName, content);
+		model.addModel(databaseName, tableName, content);
 		
 		registerModel(lmodel);
 	}
 	
 	public void saveDatabaseModel(String tableName, String content) throws DatabaseException {
 		ModelModel model = getModelModel();
-		ModelRow current = (ModelRow) model.getModel(databaseId, tableName).getRow();
+		ModelRow current = (ModelRow) model.getModel(databaseName, tableName).getRow();
 		if(current == null)
 			throw new DatabaseException("There is no model that is associated with the table "+tableName);
 		
@@ -64,7 +64,7 @@ public class DatabaseDefinedDatabase extends Database {
 		
 		registerModel(lmodel);
 		
-		model.updateModel(databaseId, tableName, content);
+		model.updateModel(databaseName, tableName, content);
 	}
 	
 	public void removeDatabaseModel(String tableName) throws DatabaseException {
@@ -72,10 +72,10 @@ public class DatabaseDefinedDatabase extends Database {
 		
 		unRegisterModel(tableName);
 		
-		model.removeModel(databaseId, tableName);
+		model.removeModel(databaseName, tableName);
 	}
 	
-	public int getDatabaseId() {
-		return databaseId;
+	public String getDatabaseName() {
+		return databaseName;
 	}
 }

@@ -19,10 +19,6 @@ public class DatabaseModel extends Model {
 			super(model, values);
 		}
 		
-		public int getId() {
-			return (Integer) get("database_id");
-		}
-		
 		public String getName() {
 			return (String) get("database_name");
 		}
@@ -37,7 +33,7 @@ public class DatabaseModel extends Model {
 		
 		@XML(rowname = "database_models")
 		public Result getModels() throws DatabaseException {
-			return ((ModelModel)model("models")).getModels(getId());
+			return ((ModelModel)model("models")).getModels(getName());
 		}
 	}
 	

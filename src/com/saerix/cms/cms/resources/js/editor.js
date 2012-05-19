@@ -31,7 +31,7 @@
 			if(typeof name === 'object' || ! name)
 				local = $(type);
 			else
-				local = $(this).children('.editor-tabs').first().children('.name_'+name+'.editor-tab');
+				local = $(this).children('.editor-tabs').first().children('.name_'+name+'.editor-tab.'+type);
 			
 			var selected = $(this).children('.editor-tabs').first().children('.editor-tab.selected');
 			
@@ -66,7 +66,7 @@
 			var editor = $(this).data('editor');
 			var tabc = $(this).children('.editor-tabs');
 			var tabs = $(tabc).children('.editor-tab');
-			var local = $(tabc).children('.name_'+name+'.editor-tab');
+			var local = $(tabc).children('.name_'+name+'.editor-tab.'+type);
 			
 			if($(local).hasClass('changed')) {
 				if(!confirm('Discard changes?'))
@@ -95,7 +95,7 @@
 					local = $(this).children('.editor-tabs').first().children('.editor-tab.selected');
 			}
 			else
-				local = $(this).children('.editor-tabs').first().children('.name_'+name+'.editor-tab');
+				local = $(this).children('.editor-tabs').first().children('.name_'+name+'.editor-tab.'+type);
 			
 			var data = $(local).data('tab');
 			

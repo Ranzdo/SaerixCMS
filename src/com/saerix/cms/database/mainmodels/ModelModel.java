@@ -14,8 +14,8 @@ import com.saerix.cms.database.Table;
 public class ModelModel extends Model {
 	
 	public static class ModelRow extends Row {
-		public int getDatabaseId() {
-			return (Integer) get("database_id");
+		public int getDatabaseName() {
+			return (Integer) get("database_name");
 		}
 		
 		public String getTableName() {
@@ -31,35 +31,35 @@ public class ModelModel extends Model {
 		return get();
 	}
 	
-	public Result getModel(int databaseId, String tableName) throws DatabaseException  {
-		where("database_id", databaseId);
+	public Result getModel(String databaseName, String tableName) throws DatabaseException  {
+		where("database_name", databaseName);
 		where("model_tablename", tableName);
 		return get();
 	}
 	
-	public Result getModels(int databaseId) throws DatabaseException {
-		where("database_id", databaseId);
+	public Result getModels(String databaseName) throws DatabaseException {
+		where("database_name", databaseName);
 		return get();
 	}
 	
-	public Object addModel(int databaseId, String tableName, String content) throws DatabaseException {
+	public Object addModel(String databaseName, String tableName, String content) throws DatabaseException {
 		Map<String, Object> values = new LinkedHashMap<String, Object>();
-		values.put("database_id", databaseId);
+		values.put("database_name", databaseName);
 		values.put("model_tablename", tableName);
 		values.put("model_content", content);
 		return insert(values);
 	}
 	
-	public void updateModel(int databaseId, String tableName, String content) throws DatabaseException {
-		where("database_id", databaseId);
+	public void updateModel(String databaseName, String tableName, String content) throws DatabaseException {
+		where("database_name", databaseName);
 		where("model_tablename", tableName);
 		Map<String, Object> values = new LinkedHashMap<String, Object>();
 		values.put("model_content", content);
 		update(values);
 	}
 	
-	public void removeModel(int databaseId, String tableName) throws DatabaseException {
-		where("database_id", databaseId);
+	public void removeModel(String databaseName, String tableName) throws DatabaseException {
+		where("database_name", databaseName);
 		where("model_tablename", tableName);
 		remove();
 	}
